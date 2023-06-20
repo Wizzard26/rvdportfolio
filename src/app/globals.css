@@ -20,8 +20,14 @@ body {
   overflow-x: hidden;
 }
 
-body {
+p {
+  margin-bottom: 15px;
+}
 
+.content-inner {
+  width: 96%;
+  max-width: 1800px;
+  margin: 0 auto;
 }
 
 a {
@@ -33,4 +39,12 @@ a {
   html {
     color-scheme: dark;
   }
+}
+
+.hero-container img {
+  width: 100%;
+  min-width: 100%;
+  height: auto;
+  max-height: 80vh;
+  object-fit: cover;
 }

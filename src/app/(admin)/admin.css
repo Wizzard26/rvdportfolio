@@ -1,0 +1,53 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    min-height: 100vh;
+}
+
+.admin-header {
+    background-color: #3b3b3b;
+    display: flex;
+    justify-content: space-between;
+    color: #FFFFFF;
+    padding: 10px 20px;
+}
+
+.dashboard-main {
+    display: flex;
+    width: 100vw;
+    flex: 1 1 auto;
+}
+
+.dashboard-main aside {
+    height: auto;
+}
+
+.dashboard-content {
+    background-color: #ddeffd;
+    flex: 1 1 auto;
+}
+
+.admin-welcome {
+    background-color: #253a3a;
+    padding: 15px 15px;
+    border-width: 0 0 1px 0;
+    border-style: solid;
+    border-color: #d3d3d3;
+}
+
+.admin-cat-title {
+    background-color: #525252;
+    padding: 10px 15px;
+    border-width: 0 0 1px 0;
+    border-style: solid;
+    border-color: #d3d3d3;
+}
+
+.dashboard-main aside ul li {
+    padding: 10px 15px 10px 20px;
+    border-width: 0 0 1px 0;
+    border-style: solid;
+    border-color: #d3d3d3;
+    background: #4f6169;
+}
