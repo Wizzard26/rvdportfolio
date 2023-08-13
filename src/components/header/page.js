@@ -4,28 +4,31 @@ import Link from "next/link";
 import styled from "styled-components";
 import MainNavi from "@/components/mainnavi/page";
 import { ContactBtn } from "@/components/ContactBtn";
+import StyledComponentsRegistry from "@/lib/registry";
 
 export default function Header() {
     return (
         <>
-            <Topbar />
-            <StyledHeader>
-                <HeaderInner className="content-inner">
-                    <LogoLink href="/" alt="go to main">
-                        <LogoName className={roboto_condensed.className}>René van Dinter</LogoName>
-                        <LogoTitle className={roboto.className}>Mediengestalter Digital und Print</LogoTitle>
-                        <LogoSubTitle className={roboto.className}>Web-Frontend-Developer</LogoSubTitle>
-                    </LogoLink>
-                    <MainNavi />
-                    <ContactBtn>Contact me</ContactBtn>
-                </HeaderInner>
-            </StyledHeader>
+            <StyledComponentsRegistry>
+                <Topbar />
+                <StyledHeader>
+                    <HeaderInner className="content-inner">
+                        <LogoLink href="/" alt="go to main">
+                            <LogoName className={roboto_condensed.className}>René van Dinter</LogoName>
+                            <LogoTitle className={roboto.className}>Mediengestalter Digital und Print</LogoTitle>
+                            <LogoSubTitle className={roboto.className}>Web-Frontend-Developer</LogoSubTitle>
+                        </LogoLink>
+                        <MainNavi />
+                        <ContactBtn href="./contact">Contact me</ContactBtn>
+                    </HeaderInner>
+                </StyledHeader>
+            </StyledComponentsRegistry>
         </>
     )
 }
 
 const StyledHeader = styled.header`
-  background-color: #FFFFFF;
+  background-color: var(--light);
   width: 100%;
   padding: 20px 0;
 `;
@@ -33,7 +36,7 @@ const StyledHeader = styled.header`
 const Topbar = styled.div`
   height: 30px;
   width: 100%;
-  background: rgba(4, 21, 31, .6);
+  background-color: var(--dark-6);
 `;
 
 const HeaderInner = styled.div`
@@ -46,7 +49,7 @@ const HeaderInner = styled.div`
 const LogoLink = styled(Link)`
   display: flex;
   flex-direction: column;
-  color: rgba(112, 112, 112, 1);
+  color: var(--logo);
 `;
 
 const LogoName = styled.div`

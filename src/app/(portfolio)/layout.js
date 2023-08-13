@@ -12,11 +12,6 @@ export default function DashboardLayout({ children }) {
     return (
         <>
             <Header />
-            <HeroContent
-                className="hero-container"
-                imageUrl="/img/hero_home.jpg"
-                altText="Welcome on my portfolio"
-            />
             {children}
             <Footer />
         </>

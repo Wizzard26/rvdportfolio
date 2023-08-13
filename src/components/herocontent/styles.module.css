@@ -1,0 +1,11 @@
+.heroImgTop {
+    object-position: top;
+}
+
+.heroImgCenter {
+    object-position: center;
+}
+
+.heroImgBottom {
+    object-position: bottom;
+}

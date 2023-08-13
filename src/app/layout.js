@@ -1,5 +1,5 @@
 import './globals.css'
-import { roboto } from "@/app/fonts"
+import { kanit } from "@/app/fonts"
 
 export const metadata = {
   title: 'Portfolio of Rene van Dinter',
@@ -9,7 +9,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="de" suppressHydrationWarning>
-      <body className={roboto.className}>
+      <body className={kanit.className}>
         {children}
       </body>
     </html>
