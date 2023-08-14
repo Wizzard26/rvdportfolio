@@ -1,3 +1,49 @@
+.heroContainer {
+    position: relative;
+    padding: 0;
+}
+
+.heroContainerImg {
+    width: 100%;
+    min-width: 100%;
+    height: auto;
+    max-height: 80vh;
+    object-fit: cover;
+}
+
+.heroTextbox {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    width: 45%;
+}
+
+.heroTextboxInner {
+    padding: 15px 25px;
+}
+
+.heroTextboxInnerWithBg {
+    padding: 15px 25px;
+    background-color: rgba(32,32,32, .5);
+    color: var(--fontlight);
+}
+
+.heroHeadline {
+    margin-bottom: 5px;
+    font-size: 26px;
+}
+
+.heroHeadSubline {
+    margin-top: 0;
+    font-size: 22px;
+}
+
+.heroList {
+    list-style: none;
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
 .heroImgTop {
     object-position: top;
 }

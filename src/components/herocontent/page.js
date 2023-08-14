@@ -1,12 +1,12 @@
 import Image from "next/image";
-import {ranga, roboto} from "@/app/fonts";
-import {heroContent} from "@/lib/data";
+import { ranga, roboto } from "@/app/fonts";
+import { heroContent } from "@/lib/data";
 import styles from './styles.module.css'
 
-export default function HeroContent({ className, pageName, imgPos}) {
+export default function HeroContent({ pageName, imgPos}) {
     const activePage = pageName;
     const hero = heroContent.find((page) => page.sitename === activePage);
-    const boxBg = hero?.textBoxBg ? 'hero-textbox with--bg' : 'hero-textbox';
+    const boxBg = hero?.textBoxBg ? styles.heroTextboxInnerWithBg : styles.heroTextboxInner;
 
     let position;
 
@@ -25,28 +25,27 @@ export default function HeroContent({ className, pageName, imgPos}) {
             break;
     }
 
-
     return (
         <>
             {(hero?.imgUrl || hero?.headline) && (
-                <section className={className}>
+                <section className={`${styles.heroContainer}`}>
                     {hero?.imgUrl && (
                         <Image
-                            className={position}
+                            className={`${styles.heroContainerImg} ${position}`}
                             src={hero?.imgUrl}
                             alt={hero?.imgAlt}
                             width="1920"
                             height="902" />
                     )}
                     {hero?.headline && (
-                        <article className={`${boxBg}`}>
-                            <div className="text--inner">
-                                <h2 className={roboto.className}>{hero?.headline}</h2>
-                                <h3 className={ranga.className}>{hero?.headSubline}</h3>
+                        <article className={`${styles.heroTextbox}`}>
+                            <div className={`${boxBg}`}>
+                                <h2 className={`${roboto.className} ${styles.heroHeadline}`}>{hero?.headline}</h2>
+                                <h3 className={`${ranga.className} ${styles.heroHeadSubline}`}>{hero?.headSubline}</h3>
                                 <p>{hero?.listHeadline}</p>
 
                                 {hero?.list && (
-                                    <ul>
+                                    <ul className={styles.heroList}>
                                         {hero?.list.map((item, index) => (
                                             <li key={index}>{item}</li>
                                         ))}
@@ -59,11 +58,8 @@ export default function HeroContent({ className, pageName, imgPos}) {
                                     </>
                                 )}
                             </div>
-
-
                         </article>
                     )}
-
                 </section>
             )}
         </>

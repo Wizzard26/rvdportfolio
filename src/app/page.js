@@ -59,25 +59,25 @@ export default function Home() {
                     <div className="content-inner">
                         <h2 className={`${roboto.className} is--centered`}>Meine Aufgabengebiete</h2>
                         <div className="row my-todos">
-                            <div className="card-dark col-6 col-lg-4">
+                            <div className="card-dark col-12 col-md-6 col-lg-4">
                                 <h3>Konzeption und Planung</h3>
                                 <p>
                                     Projekte müssen ordentlich geplant werden. Das Zeitliche Timing, die Mitarbeiter Kapazitäten wie auch die Budget Planung entscheiden über den reibungslosen Ablauf und den erfolgreichen Abschluss.
                                 </p>
                             </div>
-                            <div className="card-dark col-6 col-lg-4">
+                            <div className="card-dark col-12 col-md-6 col-lg-4">
                                 <h3>Logo- & Grafikdesign</h3>
                                 <p>
                                     Vom Scribble über die Konzeption bis hin zur Umsetung und der fertigen Druckdatei. Ich erstelle Gemeinsam mit meinen Kunden maßgeschneiderte Lösungen für Logo, Werbemittel und Geschäftsausstattungen.
                                 </p>
                             </div>
-                            <div className="card-dark col-6 col-lg-4">
+                            <div className="card-dark col-12 col-md-6 col-lg-4">
                                 <h3>UX/UI Web- & Shopdesign</h3>
                                 <p>
                                     Mit einem guten Web- oder Shopdesign erreicht man seine Kunden noch besser und kann seine Effizienz steigern. Bei Beachtung der User Experience verwandelt sich eine Webseite oder ein Shop in ein Erlebnis.
                                 </p>
                             </div>
-                            <div className="card-dark col-6 col-lg-4">
+                            <div className="card-dark col-12 col-md-6 col-lg-4">
                                 <h3>Kommunikation</h3>
                                 <p>
                                     Das erste Telefonat, Treffen beim Kick-off Meeting bis hin zum Projektabschluß. Ich begleite ein Projekt vom ersten Augenblick bis zur Fertigstellung und bleibe auch danach gerne als direkter Ansprechpartner parat.

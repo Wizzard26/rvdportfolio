@@ -96,18 +96,6 @@ span.title {
   justify-content: flex-end;
 }
 
-section.hero-container {
-  padding: 0;
-}
-
-.hero-container img {
-  width: 100%;
-  min-width: 100%;
-  height: auto;
-  max-height: 80vh;
-  object-fit: cover;
-}
-
 .card-dark {
   background-color: var(--dark-6);
   color: var(--fontlight);
@@ -220,27 +208,4 @@ section.hero-container {
   border-color: var(--secondary-dark);
   color: var(--fontlight);
   background-color: var(--secondary-dark);
-}
-
-/****  TEST HERO TEXTBOX ****/
-
-section.hero-container {
-  position: relative;
-}
-
-section.hero-container .hero-textbox {
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  width: 45%;
-  /*height: 80%;*/
-}
-
-section.hero-container .hero-textbox .text--inner {
-  padding: 15px 25px;
-}
-
-section.hero-container .hero-textbox.with--bg .text--inner {
-  background-color: rgba(32,32,32, .5);
-  color: var(--fontlight);
 }

@@ -4,6 +4,9 @@ import styled from "styled-components";
 import StyledComponentsRegistry from "@/lib/registry";
 
 export default function Footer() {
+    const yearStart = 2013;
+    const yearNow = new Date().getFullYear();
+
     return(
         <>
             <StyledComponentsRegistry>
@@ -12,6 +15,9 @@ export default function Footer() {
                         Footer
                         <Link href="/dashboard">Go to Admin</Link>
                     </div>
+                    <StyledEndLine>
+                        © Copyright {yearStart} - {yearNow} | Design, Code and Content by Rene van Dinter | all rights reserved
+                    </StyledEndLine>
                 </StyledFooter>
             </StyledComponentsRegistry>
         </>
@@ -20,10 +26,17 @@ export default function Footer() {
 
 const StyledFooter = styled.footer`
   width: 100%;
-  height: 40px;
+  min-height: 40px;
   position: relative;
   left: 0;
   bottom: 0;
-  background-color: rgba(98, 131, 149, 1);
+  background-color: var(--primary);
   color: var(--fontlight);
 `;
+
+const StyledEndLine = styled.div`
+  width: 100%;
+  background-color: var(--dark);
+  padding: 3px 15px;
+  text-align: center;
+`
