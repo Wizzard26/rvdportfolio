@@ -1,4 +1,6 @@
 import HeroContent from "@/components/herocontent/page";
+import Teaser from "@/components/teaser/page";
+import Blockqoutes from "@/components/blockqoutes/page";
 
 export default function AboutMe() {
     const pageName = "AboutMe";
@@ -10,11 +12,11 @@ export default function AboutMe() {
                 pageName={pageName}
                 imgPos="top"
             />
-            <main className="main-content">
-                <div className="content-inner">
-                    <h1>This is the about me page</h1>
-                </div>
-            </main>
+            <Teaser
+                className="main--teaser"
+                pageName={pageName}
+            />
+            <Blockqoutes />
         </>
     )
 }

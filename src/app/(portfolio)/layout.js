@@ -1,7 +1,6 @@
 import './../globals.css';
 import Header from "@/components/header/page";
 import Footer from "@/components/footer/page";
-import HeroContent from "@/components/herocontent/page";
 
 export const metadata = {
     title: 'Rene van Dinter Portfolio',

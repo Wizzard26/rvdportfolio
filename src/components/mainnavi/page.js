@@ -62,16 +62,42 @@ const StyledList = styled.ul`
       color: var(--mainNav);
       font-size: 28px;
       font-weight: 200;
+      position: relative;
+      
+      &:after {
+        height: 3px;
+        width: 0;
+        content: "";
+        display: block;
+        background: var(--secondary);
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: width 300ms ease-in-out;
+      }
 
       &:hover {
         color: var(--secondary);
+        
+        &:after {
+          width: calc(100% - 20px);
+        }
       }
       
       &.is--active {
         color: var(--secondary);
+
+        &:after {
+          width: calc(100% - 20px);
+        }
         
         &:hover {
           color: var(--secondary-dark);
+          
+          &:after {
+            background: var(--secondary-dark);
+          }
         }
       }
     }

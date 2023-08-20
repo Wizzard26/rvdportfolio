@@ -1,7 +1,8 @@
 import Image from "next/image";
-import { ranga, roboto } from "@/app/fonts";
+import {ranga, roboto, roboto_condensed} from "@/app/fonts";
 import { heroContent } from "@/lib/data";
 import styles from './styles.module.css'
+import Link from "next/link";
 
 export default function HeroContent({ pageName, imgPos}) {
     const activePage = pageName;
@@ -58,6 +59,23 @@ export default function HeroContent({ pageName, imgPos}) {
                                     </>
                                 )}
                             </div>
+
+                            {hero?.btnOne && (
+                                <div className={`${styles.actionButtons} row`}>
+                                    <Link href={hero?.btnOne.url}
+                                          title={hero?.btnOne.title}
+                                          className={`${roboto_condensed.className} btn ${hero?.btnOne.style ? 'btn--' + hero.btnOne.style : 'btn--secondary-full' }`}>
+                                        {hero?.btnOne.text}
+                                    </Link>
+                                    {hero?.btnTwo && (
+                                        <Link href={hero?.btnTwo.url}
+                                              title={hero?.btnTwo.title}
+                                              className={`${roboto_condensed.className} btn ${hero?.btnTwo.style ? 'btn--' + hero.btnTwo.style : 'btn--primary' }`}>
+                                            {hero?.btnTwo.text}
+                                        </Link>
+                                    )}
+                                </div>
+                            )}
                         </article>
                     )}
                 </section>

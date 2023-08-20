@@ -13,13 +13,14 @@
 
 .heroTextbox {
     position: absolute;
-    top: 10%;
+    top: 50%;
     left: 50%;
     width: 45%;
+    transform: translateY(-50%);
 }
 
 .heroTextboxInner {
-    padding: 15px 25px;
+
 }
 
 .heroTextboxInnerWithBg {
@@ -54,4 +55,8 @@
 
 .heroImgBottom {
     object-position: bottom;
+}
+
+.actionButtons {
+    margin-top: 15px;
 }

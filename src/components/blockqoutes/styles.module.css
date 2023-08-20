@@ -1,0 +1,22 @@
+.blockQuotes {
+    text-align: center;
+    position: relative;
+    font-size: 2.4rem;
+    font-weight: 600;
+    font-style: italic;
+}
+
+.blockQuotes:before {
+    content:'„';
+    display: inline-block;
+}
+
+.blockQuotes:after {
+    content:'“';
+    display: inline-block;
+}
+
+.blockQuotesSub {
+    text-align: center;
+    font-size: 1.4rem;
+}

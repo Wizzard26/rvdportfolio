@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ranga, kanit, roboto, roboto_condensed } from "@/app/fonts";
 import { pageContent } from "@/lib/data";
+import Teaser from "@/components/teaser/page";
 
 export default function Home() {
     const pageName = "Home"
@@ -19,20 +20,10 @@ export default function Home() {
                     className="hero-container"
                     pageName={pageName}
                 />
-                <section>
-                    <div className="content-inner">
-                        <div className="row">
-                            <div className="col-12 col-lg-6 col-left">
-                                <h1 className={roboto.className}>{teaser.headline}</h1>
-                                <h2 className={ranga.className}>{teaser.subline}</h2>
-                                <p dangerouslySetInnerHTML={{ __html: teaser.textBox }}/>
-                            </div>
-                            <div className="col-12 col-lg-6 col-right">
-                                <Image className="content-float-svg" src={teaser.imageUrl} alt={teaser.imageAlt} width={900} height={900} />
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                <Teaser
+                    className="main--teaser"
+                    pageName={pageName}
+                />
                 <section>
                     <div className="content-inner">
                         <h3 className={roboto.className}>Unter folgenden Daten können Sie Kontakt mit mir aufnehmen:</h3>
@@ -104,7 +95,7 @@ export default function Home() {
                     <div className="content-inner">
                         <h2 className={`${roboto.className} is--centered`}>News und Blogbeiträge</h2>
                         <div className="row blog-entries">
-                            <div className="card-blog--entries col-12 col-md-6">
+                            <div className="card-blog--entries row-reverse col-12 col-md-6">
                                 <div className="card-blog--entries-image">
                                     <Image src="/img/blog/code.jpg" alt="Shopware 6" title="Arbeiten mit Shopware 6" width={600} height={600} />
                                 </div>
