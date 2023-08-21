@@ -2,7 +2,7 @@ import styles from './styles.module.css'
 import {ranga, roboto_condensed} from "@/app/fonts";
 import { quotes } from "@/lib/quotes";
 
-function getRandomQuote() {
+const getRandomQuote = () => {
     const randomID = Math.floor(Math.random() * quotes.length);
     return quotes[randomID];
 }
