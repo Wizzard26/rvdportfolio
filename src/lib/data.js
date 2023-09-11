@@ -67,6 +67,61 @@ export const pageContent = [
                 imageUrl: "/svg/work_at_home.svg",
                 imageAlt: "Me at home",
                 imagePos: "",
+            },
+            {
+                name: "contactinfo",
+                headline: "Unter folgenden Daten können Sie Kontakt mit mir aufnehmen:",
+                maillabel: "Mail:",
+                mail: "info@rene-van-dinter.de",
+                maillink: "mailto:info@rene-van-dinter.de?subject=Portfolio Kontakt",
+                mailtitle: "info@rene-van-dinter.de",
+                tellabel: "Tel.:",
+                tel: "0174 / 93 27 538",
+                tellink: "tel:+491749327538",
+                teltitle: "0174 / 93 27 538",
+                contactbtn: "Jetzt Schreiben",
+                contactbtnlink: "/contact",
+                contactbtntitle: "Kontaktieren Sie mich"
+            },
+            {
+                name: "todos",
+                cards: [
+                    {
+                        name: "Konzeption und Planung",
+                        boxtext: "Projekte müssen ordentlich geplant werden. Das Zeitliche Timing, die Mitarbeiter Kapazitäten wie auch die Budget Planung entscheiden über den reibungslosen Ablauf und den erfolgreichen Abschluss."
+                    },
+                    {
+                        name: "Logo- & Grafikdesign",
+                        boxtext: "Vom Scribble über die Konzeption bis hin zur Umsetung und der fertigen Druckdatei. Ich erstelle Gemeinsam mit meinen Kunden maßgeschneiderte Lösungen für Logo, Werbemittel und Geschäftsausstattungen."
+                    },
+                    {
+                        name: "UX/UI Web- & Shopdesign",
+                        boxtext: "Mit einem guten Web- oder Shopdesign erreicht man seine Kunden noch besser und kann seine Effizienz steigern. Bei Beachtung der User Experience verwandelt sich eine Webseite oder ein Shop in ein Erlebnis."
+                    },
+                    {
+                        name: "Kommunikation",
+                        boxtext: "Das erste Telefonat, Treffen beim Kick-off Meeting bis hin zum Projektabschluß. Ich begleite ein Projekt vom ersten Augenblick bis zur Fertigstellung und bleibe auch danach gerne als direkter Ansprechpartner parat."
+                    }
+                ]
+            },
+            {
+                name: "moreinfo",
+                boxes: [
+                    {
+                        name: "Sie sind an einer Zusammenarbeit mit mir interessiert?",
+                        boxtext: "Dann schreiben Sie mich doch einfach an und wir vereinbahren einen Termin, bei dem wir uns besser kennenlernen.",
+                        linktext: "Schreiben Sie mir",
+                        link: "/contact",
+                        linktitle: "Kontakt aufnehmen"
+                    },
+                    {
+                        name: "Sie möchten gerne ein paar Referenzen sehen?",
+                        boxtext: "Schauen Sie sich in meiner Showcase um, wenn Sie noch weitere arbeiten von mir sehen wollen, kontaktieren Sie mich einfach.",
+                        linktext: "Zur Showcase",
+                        link: "/showcase",
+                        linktitle: "Referenzen ansehen"
+                    }
+                ]
             }
         ]
     },

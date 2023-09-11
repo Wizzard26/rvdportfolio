@@ -7,10 +7,22 @@ import { ranga, kanit, roboto, roboto_condensed } from "@/app/fonts";
 import { pageContent } from "@/lib/data";
 import Teaser from "@/components/teaser/page";
 
+const getData = (pageComp, sectionData) => {
+    const pageData = pageComp.section.find((section) => section.name === `${sectionData}`);
+    return pageData;
+}
+
 export default function Home() {
     const pageName = "Home"
     const pageComp = pageContent.find((page) => page.sitename === pageName);
-    const teaser = pageComp.section.find((section) => section.name === "teaser");
+    //const conData = pageComp.section.find((section) => section.name === "contactinfo");
+
+    const conData = getData(pageComp, 'contactinfo');
+    const todos = getData(pageComp, 'todos');
+    const moreinfo = getData(pageComp, 'moreinfo');
+    const todoData= todos.cards;
+    const moreinfoData= moreinfo.boxes;
+
 
     return (
         <>
@@ -26,20 +38,20 @@ export default function Home() {
                 />
                 <section>
                     <div className="content-inner">
-                        <h3 className={roboto.className}>Unter folgenden Daten können Sie Kontakt mit mir aufnehmen:</h3>
+                        <h3 className={roboto.className}>{ conData.headline }</h3>
                         <div className="row contact-infos">
                             <div className="col-12 col-md-6">
                                 <div className="mail-content contact-links">
-                                    <span className="title">Mail:</span>
-                                    <Link href="mailto:info@rene-van-dinter.de?subject=Portfolio Kontakt" title="info@rene-van-dinter.de">info@rene-van-dinter.de</Link>
+                                    <span className="title">{ conData.maillabel }</span>
+                                    <Link href={ conData.maillink } title={ conData.mailtitle }>{ conData.mail }</Link>
                                 </div>
                                 <div className="phone-content contact-links">
-                                    <span className="title">Tel.:</span>
-                                    <Link href="tel:+491749327538" title="0174 / 93 27 538">0174 / 93 27 538</Link>
+                                    <span className="title">{ conData.tellabel }</span>
+                                    <Link href={ conData.tellink } title={ conData.teltitle }>{ conData.tel }</Link>
                                 </div>
                             </div>
                             <div className="col-12 col-md-6 contact-button">
-                                <Link href="/contact" title="Kontaktieren Sie mich" className={`${roboto_condensed.className} btn btn--secondary`}>Jetzt Schreiben</Link>
+                                <Link href={ conData.contactbtnlink } title={ conData.contactbtntitle } className={`${roboto_condensed.className} btn btn--secondary`}>{ conData.contactbtn }</Link>
                             </div>
                         </div>
                     </div>
@@ -48,46 +60,23 @@ export default function Home() {
                     <div className="content-inner">
                         <h2 className={`${roboto.className} is--centered`}>Meine Aufgabengebiete</h2>
                         <div className="row my-todos">
-                            <div className="card-dark col-12 col-md-6 col-lg-4">
-                                <h3>Konzeption und Planung</h3>
-                                <p>
-                                    Projekte müssen ordentlich geplant werden. Das Zeitliche Timing, die Mitarbeiter Kapazitäten wie auch die Budget Planung entscheiden über den reibungslosen Ablauf und den erfolgreichen Abschluss.
-                                </p>
-                            </div>
-                            <div className="card-dark col-12 col-md-6 col-lg-4">
-                                <h3>Logo- & Grafikdesign</h3>
-                                <p>
-                                    Vom Scribble über die Konzeption bis hin zur Umsetung und der fertigen Druckdatei. Ich erstelle Gemeinsam mit meinen Kunden maßgeschneiderte Lösungen für Logo, Werbemittel und Geschäftsausstattungen.
-                                </p>
-                            </div>
-                            <div className="card-dark col-12 col-md-6 col-lg-4">
-                                <h3>UX/UI Web- & Shopdesign</h3>
-                                <p>
-                                    Mit einem guten Web- oder Shopdesign erreicht man seine Kunden noch besser und kann seine Effizienz steigern. Bei Beachtung der User Experience verwandelt sich eine Webseite oder ein Shop in ein Erlebnis.
-                                </p>
-                            </div>
-                            <div className="card-dark col-12 col-md-6 col-lg-4">
-                                <h3>Kommunikation</h3>
-                                <p>
-                                    Das erste Telefonat, Treffen beim Kick-off Meeting bis hin zum Projektabschluß. Ich begleite ein Projekt vom ersten Augenblick bis zur Fertigstellung und bleibe auch danach gerne als direkter Ansprechpartner parat.
-                                </p>
-                            </div>
+                            {todoData.map((card) => (
+                                <div className="card-dark col-12 col-md-6 col-lg-4" key={todoData.id}>
+                                    <h3>{card.name}</h3>
+                                    <p>{card.boxtext} </p>
+                                </div>
+                            ))}
                         </div>
                         <div className="row more-information">
-                            <div className="card-light col-12 col-md-6">
-                                <h3>Sie sind an einer Zusammenarbeit mit mir interessiert?</h3>
-                                <p>
-                                    Dann schreiben Sie mich doch einfach an und wir vereinbahren einen Termin, bei dem wir uns besser kennenlernen.
-                                </p>
-                                <Link href="/contact" title="Kontakt aufnehmen" className={`${roboto_condensed.className} btn btn--primary`}>Schreiben Sie mir</Link>
-                            </div>
-                            <div className="card-light col-12 col-md-6">
-                                <h3>Sie möchten gerne ein paar Referenzen sehen?</h3>
-                                <p>
-                                    Schauen Sie sich in meiner Showcase um, wenn Sie noch weitere arbeiten von mir sehen wollen, kontaktieren Sie mich einfach.
-                                </p>
-                                <Link href="/showcase" title="Referenzen ansehen" className={`${roboto_condensed.className} btn btn--primary`}>Zur Showcase</Link>
-                            </div>
+                            {moreinfoData.map((box) => (
+                                <div className="card-light col-12 col-md-6" key={moreinfoData.id}>
+                                    <h3>{box.name}</h3>
+                                    <p>
+                                        {box.boxtext}
+                                    </p>
+                                    <Link href={box.link} title={box.linktitle} className={`${roboto_condensed.className} btn btn--primary`}>{box.linktext}</Link>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </section>
