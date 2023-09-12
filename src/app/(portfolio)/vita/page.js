@@ -1,7 +1,7 @@
 import HeroContent from "@/components/herocontent/page";
 
 export default function Vita() {
-    const pageName = "AboutMe";
+    const pageName = "Vita";
 
     return(
         <>
