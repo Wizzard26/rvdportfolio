@@ -9,6 +9,7 @@ export default function Vita() {
                 className={`hero-container`}
                 pageName={pageName}
                 imgPos="top"
+                txtPos="left"
             />
             <main className="main-content">
                 <div className="content-inner">

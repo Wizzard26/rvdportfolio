@@ -1,11 +1,13 @@
 .heroContainer {
     position: relative;
     padding: 0;
+    overflow: hidden;
 }
 
 .heroContainerImg {
     width: 100%;
     min-width: 100%;
+    min-height: 230px;
     height: auto;
     max-height: 80vh;
     object-fit: cover;
@@ -14,13 +16,26 @@
 .heroTextbox {
     position: absolute;
     top: 50%;
-    left: 50%;
-    width: 45%;
+    left: 2%;
+    width: 96%;
     transform: translateY(-50%);
 }
 
-.heroTextboxInner {
+.heroTextboxLeft {
+    position: absolute;
+    top: 50%;
+    left: auto;
+    right: 2%;
+    width: 96%;
+    transform: translateY(-50%);
+}
 
+.heroText {
+    display: none;
+}
+
+.heroListHeadline {
+    display: none;
 }
 
 .heroTextboxInnerWithBg {
@@ -43,6 +58,7 @@
     list-style: none;
     margin-bottom: 20px;
     padding-left: 20px;
+    display: none;
 }
 
 .heroImgTop {
@@ -59,4 +75,43 @@
 
 .actionButtons {
     margin-top: 15px;
+    display: none;
+}
+
+
+@media screen and (min-width: 425px) {
+    .actionButtons {
+        display: flex;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .heroListHeadline {
+        display: block;
+    }
+
+    .heroList {
+        display: block;
+    }
+
+    .heroText {
+        display: block;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .heroTextbox {
+        left: 50%;
+        width: 45%;
+    }
+
+    .heroTextboxLeft {
+        left: auto;
+        right: 50%;
+        width: 45%;
+    }
+}
+
+@media screen and (min-width: 1280px) {
+
 }

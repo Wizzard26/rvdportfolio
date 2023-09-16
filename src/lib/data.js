@@ -57,7 +57,7 @@ export const heroContent = [
         sitename: "Vita",
         imgUrl: "/img/hero_vita.jpg",
         imgAlt: "my work stations",
-        textBoxBg: true,
+        textBoxBg: false,
         headline: "Auf die Plätze! Fertig! Los! Meine Vita Übersicht",
         headSubline: "Sehen Sie die Stationen meiner Laufbahn und weitere Informationen",
         textbox: "Auf dieser Seite finden Sie alle Wissenswerten Daten zu meiner Person und meinem Beruflichen Werdegang. Wo und mit wem habe ich gearbeitet, was waren meine Aufgaben, welche Qualifikationen habe ich mir erarbeitet.",
