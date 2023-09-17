@@ -93,25 +93,33 @@
     .heroList {
         display: block;
     }
-
-    .heroText {
-        display: block;
-    }
 }
 
 @media screen and (min-width: 1024px) {
+    .heroText {
+        display: block;
+    }
+
+    .heroTextbox {
+        left: 40%;
+        width: 55%;
+    }
+
+    .heroTextboxLeft {
+        left: auto;
+        right: 40%;
+        width: 55%;
+    }
+}
+
+@media screen and (min-width: 1280px) {
     .heroTextbox {
         left: 50%;
         width: 45%;
     }
 
     .heroTextboxLeft {
-        left: auto;
         right: 50%;
         width: 45%;
     }
-}
-
-@media screen and (min-width: 1280px) {
-
 }

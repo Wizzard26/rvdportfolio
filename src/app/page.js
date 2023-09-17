@@ -15,8 +15,6 @@ const getData = (pageComp, sectionData) => {
 export default function Home() {
     const pageName = "Home"
     const pageComp = pageContent.find((page) => page.sitename === pageName);
-    //const conData = pageComp.section.find((section) => section.name === "contactinfo");
-
     const conData = getData(pageComp, 'contactinfo');
     const todos = getData(pageComp, 'todos');
     const moreinfo = getData(pageComp, 'moreinfo');
@@ -61,7 +59,7 @@ export default function Home() {
                         <h2 className={`${roboto.className} is--centered`}>Meine Aufgabengebiete</h2>
                         <div className="row my-todos">
                             {todoData.map((card) => (
-                                <div className="card-dark col-12 col-md-6 col-lg-4" key={todoData.id}>
+                                <div className="card-dark col-12 col-md-6 col-lg-6 col-xl-4" key={todoData.id}>
                                     <h3>{card.name}</h3>
                                     <p>{card.boxtext} </p>
                                 </div>
@@ -84,7 +82,7 @@ export default function Home() {
                     <div className="content-inner">
                         <h2 className={`${roboto.className} is--centered`}>News und Blogbeiträge</h2>
                         <div className="row blog-entries">
-                            <div className="card-blog--entries row-reverse col-12 col-md-6">
+                            <div className="card-blog--entries row-reverse col-12 col-xl-6">
                                 <div className="card-blog--entries-image">
                                     <Image src="/img/blog/code.jpg" alt="Shopware 6" title="Arbeiten mit Shopware 6" width={600} height={600} />
                                 </div>
@@ -96,7 +94,7 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="card-blog--entries col-12 col-md-6">
+                            <div className="card-blog--entries col-12 col-xl-6">
                                 <div className="card-blog--entries-image">
                                     <Image src="/img/blog/shopware6.jpg" alt="Shopware 6" title="Arbeiten mit Shopware 6" width={600} height={600} />
                                 </div>
