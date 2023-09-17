@@ -165,14 +165,22 @@ export const pageContent = [
 export const blogEntries = [
     {
         id: "1",
-        slug: "shopware-6-template-designer",
-        title: "Shopware 6 Template Designer",
-        subline: "Zertifizierung un Schöppingen",
-        teaser: "Nach der Zertifizierung zum Shopware 5 Advanced Template Developer, war es nun an der Zeit auch die Zertifizierung zum Shopware 6 Template Designer zu machen. Neben einen tollen Lehrgangstag, war es auch ganz angenehm sich mal das Shopware Headquarter ansehen zu können.",
+        slug: "shopware-5-advanced-template-developer",
+        title: "Shopware 5 Advanced Template Developer",
+        subline: "Online Zertifizierung",
+        teaser: "Nach mehreren Stunden Vorbereitungs Videos Schauen war es dann soweit, die Zertifizierung zum Shopware 5 Advanced Template Developer anzugehen. Gut vorbereitet und dementsprechend auch mit gutem ergebnis agbeschlossen.",
         image: "shopware6.jpg",
     },
     {
         id: "2",
+        slug: "shopware-6-template-designer",
+        title: "Shopware 6 Template Designer",
+        subline: "Zertifizierung in Schöppingen",
+        teaser: "Nach der Zertifizierung zum Shopware 5 Advanced Template Developer, war es nun an der Zeit auch die Zertifizierung zum Shopware 6 Template Designer zu machen. Neben einen tollen Lehrgangstag, war es auch ganz angenehm sich mal das Shopware Headquarter ansehen zu können.",
+        image: "shopware6.jpg",
+    },
+    {
+        id: "3",
         slug: "weiterbildung-frontenddeveloper",
         title: "Weiterbildung Frontenddeveloper",
         subline: "Javascript und Certificated PHP Developer",

@@ -1,0 +1,12 @@
+.blogEntryBox {
+    border: 1px solid var(--primary);
+}
+
+.blogEntryImage {
+    width: 100%;
+    height: auto;
+}
+
+.blogEntryTextBox {
+    padding: 10px 15px 15px;
+}
