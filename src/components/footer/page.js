@@ -57,11 +57,11 @@ export default function Footer() {
                             <div className="col-12 col-md-6 col-xl-4 columns">
                                 <h3>Social Media</h3>
                                 <SocialIcons>
-                                    <Link href="https://www.gambit24.de" target="_blank"><BiLogoGithub /></Link>
-                                    <Link href="https://www.gambit24.de" target="_blank"><BiLogoLinkedin /></Link>
-                                    <Link href="https://www.gambit24.de" target="_blank"><BiLogoXing /></Link>
-                                    <Link href="https://www.gambit24.de" target="_blank"><BiLogoFacebook /></Link>
-                                    <Link href="https://www.gambit24.de" target="_blank"><BiLogoInstagram /></Link>
+                                    <Link href="https://github.com/Wizzard26" target="_blank"><BiLogoGithub /></Link>
+                                    <Link href="https://www.linkedin.com/in/rene-van-dinter-6a5a2b14a/" target="_blank"><BiLogoLinkedin /></Link>
+                                    <Link href="https://www.xing.com/profile/Rene_vanDinter/cv" target="_blank"><BiLogoXing /></Link>
+                                    <Link href="https://www.facebook.com/Wizzard26" target="_blank"><BiLogoFacebook /></Link>
+                                    <Link href="https://www.instagram.com/rene.vandinter/" target="_blank"><BiLogoInstagram /></Link>
                                 </SocialIcons>
                             </div>
                         </div>
