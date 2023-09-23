@@ -2,6 +2,7 @@ import { blogEntries } from "@/lib/data";
 import Link from "next/link";
 import styles from "./styles.module.css";
 import Image from "next/image";
+import {ranga, roboto} from "@/app/fonts";
 
 // TODO add Hero and teaser section
 // TODO add more blog entries
@@ -22,16 +23,21 @@ export default function Blog() {
             <main className="main-content">
                 <section>
                     <div className="content-inner">
-                        <h1>Here comes blog entries</h1>
+                        <h1 className={roboto.className}>Neuigkeiten und Allgemeine Blog Themen</h1>
                         <div className="blog-entries row">
                             {blogEntries.reverse().map((blogEntry) => (
                                 <article className={`${styles.blogEntryBox} col-12 col-lg-4`} key={blogEntry.id}>
                                     <Link href={`/blog/${blogEntry.slug}`} >
-                                        <Image className={`${styles.blogEntryImage}`} src={`/img/blog/${blogEntry.image}`} title={`${blogEntry.title}`} width={200} height={200} />
+                                        <Image className={`${styles.blogEntryImage}`} src={`/img/blog/${blogEntry.image ? blogEntry.image : 'no-image.jpg'}`} title={`${blogEntry.title}`} width={200} height={200} alt={`${blogEntry.title}`} />
                                     </Link>
+                                    <div className={styles.blogTagList}>
+                                        {blogEntry.category.map((blogTag) => (
+                                            <span className={styles.blogTag} key={blogTag.id}>{blogTag}</span>
+                                        ))}
+                                    </div>
                                     <div className={`${styles.blogEntryTextBox}`} >
-                                        <Link href={`/blog/${blogEntry.slug}`} className="blog-title"><h2>{blogEntry.title}</h2></Link>
-                                        <h3>{blogEntry.subline}</h3>
+                                        <Link href={`/blog/${blogEntry.slug}`} className="blog-title"><h2 className={roboto.className}>{blogEntry.title}</h2></Link>
+                                        <h3 className={ranga.className}>{blogEntry.subline}</h3>
                                         <p>{blogEntry.teaser}</p>
                                     </div>
                                 </article>

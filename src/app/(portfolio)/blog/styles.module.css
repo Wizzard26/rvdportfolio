@@ -10,3 +10,16 @@
 .blogEntryTextBox {
     padding: 10px 15px 15px;
 }
+.blogTagList {
+    display: inline-flex;
+    gap: 0 15px;
+    margin: 0 15px;
+    flex-wrap: wrap;
+}
+
+.blogTag {
+    padding: 3px 12px;
+    border: 1px solid #d3d3d3;
+    border-radius: 15px;
+    margin: 5px 0;
+}

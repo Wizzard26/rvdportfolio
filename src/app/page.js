@@ -59,7 +59,7 @@ export default function Home() {
                         <h2 className={`${roboto.className} is--centered`}>Meine Aufgabengebiete</h2>
                         <div className="row my-todos">
                             {todoData.map((card) => (
-                                <div className="card-dark col-12 col-md-6 col-lg-6 col-xl-4" key={todoData.id}>
+                                <div className="card-dark col-12 col-md-6 col-lg-6 col-xl-3" key={todoData.id}>
                                     <h3>{card.name}</h3>
                                     <p>{card.boxtext} </p>
                                 </div>
@@ -81,7 +81,7 @@ export default function Home() {
                 <section>
                     <div className="content-inner">
                         <h2 className={`${roboto.className} is--centered`}>News und Blogbeiträge</h2>
-                        <div className="row blog-entries">
+                        <div className="row blog-entries blog-teaser">
                             <div className="card-blog--entries row-reverse col-12 col-xl-6">
                                 <div className="card-blog--entries-image">
                                     <Image src="/img/blog/code.jpg" alt="Shopware 6" title="Arbeiten mit Shopware 6" width={600} height={600} />

@@ -14,9 +14,11 @@ export default function Teaser({pageName, className}) {
                         <h2 className={ranga.className}>{teaser.subline}</h2>
                         <p dangerouslySetInnerHTML={{ __html: teaser.textBox }}/>
                     </div>
-                    <div className="col-12 col-lg-6">
-                        <Image className="content-float-svg" src={teaser.imageUrl} alt={teaser.imageAlt} width={900} height={900} />
-                    </div>
+                    {teaser.imageUrl &&
+                        <div className="col-12 col-lg-6">
+                            <Image className="content-float-svg" src={teaser.imageUrl} alt={teaser.imageAlt} width={900} height={900} />
+                        </div>
+                    }
                 </div>
             </div>
         </section>

@@ -15,9 +15,21 @@ import {
     DiGithubBadge
 } from "react-icons/di";
 import {BiLogoDocker, BiLogoFacebook, BiLogoGithub, BiLogoInstagram, BiLogoLinkedin, BiLogoXing} from "react-icons/bi";
-import {SiContao, SiNextdotjs, SiShopware, SiSymfony, SiWordpress} from "react-icons/si";
+import {
+    SiAdobeacrobatreader,
+    SiAdobecreativecloud,
+    SiAdobeillustrator, SiAdobeindesign,
+    SiAdobephotoshop, SiAdobexd,
+    SiContao, SiFigma,
+    SiNextdotjs,
+    SiPhpstorm,
+    SiShopware,
+    SiSymfony, SiWebstorm,
+    SiWordpress
+} from "react-icons/si";
 import {PiGitlabLogo} from "react-icons/pi";
 import {AiOutlineCopyrightCircle} from "react-icons/ai";
+import {roboto_condensed} from "@/app/fonts";
 
 export default function Footer() {
     const yearStart = 2013;
@@ -30,7 +42,7 @@ export default function Footer() {
                     <div className="content-inner">
                         <div className="row">
                             <div className="col-12 col-md-6 col-xl-4 columns">
-                                <h3>Webdevelopment</h3>
+                                <h3 className={roboto_condensed.className}>Webdevelopment</h3>
                                 <TecIcons>
                                     <DiHtml5 />
                                     <DiCss3 />
@@ -45,7 +57,7 @@ export default function Footer() {
                                     <DiGithubBadge />
                                     <PiGitlabLogo />
                                 </TecIcons>
-                                <h3>CMS & Frameworks</h3>
+                                <h3 className={roboto_condensed.className}>CMS & Frameworks</h3>
                                 <TecIcons>
                                     <SiSymfony />
                                     <SiNextdotjs />
@@ -55,7 +67,16 @@ export default function Footer() {
                                 </TecIcons>
                             </div>
                             <div className="col-12 col-md-6 col-xl-4 columns">
-                                <h3>Social Media</h3>
+                                <h3 className={roboto_condensed.className}>Software</h3>
+                                <TecIcons>
+                                    <SiAdobephotoshop />
+                                    <SiAdobeillustrator />
+                                    <SiAdobeindesign />
+                                    <SiAdobexd />
+                                    <SiPhpstorm />
+                                    <SiWebstorm />
+                                </TecIcons>
+                                <h3 className={roboto_condensed.className}>Social Media</h3>
                                 <SocialIcons>
                                     <Link href="https://github.com/Wizzard26" target="_blank"><BiLogoGithub /></Link>
                                     <Link href="https://www.linkedin.com/in/rene-van-dinter-6a5a2b14a/" target="_blank"><BiLogoLinkedin /></Link>
@@ -64,11 +85,24 @@ export default function Footer() {
                                     <Link href="https://www.instagram.com/rene.vandinter/" target="_blank"><BiLogoInstagram /></Link>
                                 </SocialIcons>
                             </div>
+                            <div className="col-12 col-md-6 col-xl-4 columns navigation">
+                                <h3 className={roboto_condensed.className}>Navigation</h3>
+                                    <ul>
+                                        <li><Link href="/" className={roboto_condensed.className}>Home</Link></li>
+                                        <li><Link href="/about-me" className={roboto_condensed.className}>About me</Link></li>
+                                        <li><Link href="/vita" className={roboto_condensed.className}>Vita</Link></li>
+                                        <li><Link href="/showcase" className={roboto_condensed.className}>Showcase</Link></li>
+                                        <li><Link href="/blog" className={roboto_condensed.className}>Blog</Link></li>
+                                        <li><Link href="/contact" className={roboto_condensed.className}>Contact</Link></li>
+                                        <li><Link href="/disclaimer" className={roboto_condensed.className}>Disclaimer</Link></li>
+                                        <li><Link href="/imprint" className={roboto_condensed.className}>Imprint</Link></li>
+                                    </ul>
+                            </div>
                         </div>
 
                     </div>
                     <StyledEndLine>
-                        <AiOutlineCopyrightCircle /> Copyright {yearStart} - {yearNow} | Design, Code and Content by Rene van Dinter | all rights reserved
+                        <AiOutlineCopyrightCircle style={{position:'relative',top:'3px'}} /> Copyright {yearStart} - {yearNow} | Design, Code and Content by Rene van Dinter | all rights reserved
                     </StyledEndLine>
                 </StyledFooter>
             </StyledComponentsRegistry>
@@ -87,6 +121,55 @@ const StyledFooter = styled.footer`
   
   .columns {
     padding: 15px 0 25px;
+
+    a {
+      transition: all 300ms ease-in-out;
+      
+      &:hover {
+        color: #ece1b4;
+      }
+    }
+    
+    &.navigation {
+      ul {
+        list-style: none;
+        padding: 0;
+        column-count: 2;
+        
+        li {
+          text-transform: uppercase;
+          transition: all 300ms ease-in-out;
+          
+          a {
+            font-weight: 200;
+            font-size: 20px;
+            line-height: 32px;
+            position: relative;
+
+            &:after {
+              content: "";
+              width: 0;
+              height: 1px;
+              display: block;
+              background-color: #f1f1f1;
+              position: absolute;
+              bottom: -2px;
+              left:50%;
+              transition: all 400ms ease-in-out;
+            }
+          }
+
+          &:hover {
+            text-indent: 10px;
+
+            a:after {
+              width: calc(100% + 20px);
+              left: -10px;
+            }
+          }
+        }
+      }
+    }
   }
 `;
 
