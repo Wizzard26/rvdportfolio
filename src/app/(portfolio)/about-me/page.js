@@ -1,6 +1,5 @@
 import HeroContent from "@/components/herocontent/page";
 import Teaser from "@/components/teaser/page";
-//import Blockqoutes from "@/components/blockqoutes/page";
 import { getQuoteData } from "@/utils/getQuoteData";
 import dynamic from 'next/dynamic';
 

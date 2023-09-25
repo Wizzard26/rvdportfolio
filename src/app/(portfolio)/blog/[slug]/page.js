@@ -1,4 +1,4 @@
-import { blogEntries } from "@/lib/data";
+import { blogEntries } from "@/lib/blog";
 import Image from "next/image";
 import styles from "./styles.module.css";
 import { roboto, ranga } from "@/app/fonts";
