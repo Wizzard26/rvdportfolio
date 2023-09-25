@@ -105,3 +105,30 @@ export const blogEntries = [
         "image": "code.jpg"
     }
 ]
+
+export const blogCategories = [
+    {
+        "id": "1",
+        "name": "Allgemein"
+    },
+    {
+        "id": "2",
+        "name": "Webentwicklung"
+    },
+    {
+        "id": "3",
+        "name": "Shopware"
+    },
+    {
+        "id": "4",
+        "name": "E-Commerce"
+    },
+    {
+        "id": "5",
+        "name": "Datenschutz"
+    },
+    {
+        "id": "6",
+        "name": "Weiterbildung"
+    }
+]
