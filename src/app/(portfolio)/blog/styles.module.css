@@ -36,3 +36,29 @@
     border-radius: 15px;
     margin: 5px 0;
 }
+
+.blogSidebar {
+
+}
+
+.blogSidebarUl {
+    list-style: none;
+    padding: 0;
+    background-color: #f9f9f9;
+}
+
+.blogSidebarUlLi {
+    border-bottom: 1px solid #d3d3d3;
+    padding: 8px 10px;
+}
+
+.blogSidebarUlLiA {
+    display: inline-block;
+    text-indent: 0;
+    transition: all 300ms ease-in-out;
+}
+
+.blogSidebarUlLiA:hover {
+    text-indent: 10px;
+    color: rgba(162, 31, 55, 1);
+}

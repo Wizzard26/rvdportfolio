@@ -53,15 +53,15 @@ export default function Blog() {
                     <div className="content-inner">
                         <h1 className={roboto.className}>Neuigkeiten und Allgemeine Blog Themen</h1>
                         <div className="blog-main row">
-                            <div className="blog-sidebar col-12 col-md-6 col-lg-3">
-                                <ul>
+                            <div className={`${styles.blogSidebar} blog-sidebar col-12 col-md-4 col-lg-3 order-md-2`} >
+                                <ul className={`${styles.blogSidebarUl}`}>
                                 {blogCategories.map((cats) => (
-                                    <li key={cats.id}><Link href={`/blog?cat=${cats.name}`}>{cats.name}</Link></li>
+                                    <li className={`${styles.blogSidebarUlLi}`} key={cats.id}><Link className={`${styles.blogSidebarUlLiA}`} href={`/blog?cat=${cats.name}`}>{cats.name}</Link></li>
                                 ))
                                 }
                                 </ul>
                             </div>
-                            <div className="blog-main-entrys col-12 col-md-6 col-lg-9">
+                            <div className="blog-main-entrys col-12 col-md-8 col-lg-9 order-md-1">
                                 {isFiltered &&
                                     <div className={styles.blogFilterActions}>
                                         <Link href={`/blog`} className={styles.blogResetFilter}>Reset Filter</Link>
@@ -69,7 +69,7 @@ export default function Blog() {
                                 }
                                 <div className="blog-entries row">
                                     {data.map((blogEntry) => (
-                                        <article className={`${styles.blogEntryBox} col-12 col-lg-4`} key={blogEntry.id}>
+                                        <article className={`${styles.blogEntryBox} col-12 col-sm-6 col-md-6 col-lg-4`} key={blogEntry.id}>
                                             <Link href={`/blog/${blogEntry.slug}`} >
                                                 <Image className={`${styles.blogEntryImage}`} src={`/img/blog/${blogEntry.image ? blogEntry.image : 'no-image.jpg'}`} title={`${blogEntry.title}`} width={200} height={200} alt={`${blogEntry.title}`} />
                                             </Link>
