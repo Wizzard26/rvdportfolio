@@ -3,11 +3,11 @@
 import { blogCategories } from "@/lib/blog";
 import Link from "next/link";
 import styles from "./styles.module.css";
-import Image from "next/image";
 import {ranga, roboto} from "@/app/fonts";
 import {getCategoryPost, getAllPost} from "@/blog/blogPost";
 import {useSearchParams} from "next/navigation";
 import {useEffect, useState} from "react";
+import BlogArticle from "@/components/blog/BlogArticle";
 
 // TODO add Hero and teaser section
 // TODO add more blog entries
@@ -34,11 +34,12 @@ export default function Blog() {
     const cat = searchParams.get('cat');
     const page = searchParams.get('page');
     const data = !cat ? getAllPost() : getCategoryPost({params: `${cat}`});
+    const activeCategory = cat ? cat.toLowerCase() : null;
 
-    const [isFiltered, setIsFiltered] = useState(false);
+    const [isCategory, setIsCategory] = useState(false);
 
     useEffect(() => {
-        cat ? setIsFiltered(true) : setIsFiltered(false);
+        cat ? setIsCategory(true) : setIsCategory(false);
     },[cat])
 
     //const category = cat.charAt(0).toUpperCase() + cat.slice(1)
@@ -53,43 +54,40 @@ export default function Blog() {
                     <div className="content-inner">
                         <h1 className={roboto.className}>Neuigkeiten und Allgemeine Blog Themen</h1>
                         <div className="blog-main row">
-                            <div className={`${styles.blogSidebar} blog-sidebar col-12 col-md-4 col-lg-3 order-md-2`} >
+                            <div className={`${styles.blogSidebar} blog-sidebar col-12 col-lg-3 order-md-2 d-none d-lg-block`} >
                                 <ul className={`${styles.blogSidebarUl}`}>
                                 {blogCategories.map((cats) => (
-                                    <li className={`${styles.blogSidebarUlLi}`} key={cats.id}><Link className={`${styles.blogSidebarUlLiA}`} href={`/blog?cat=${cats.name}`}>{cats.name}</Link></li>
+                                    <li className={`${styles.blogSidebarUlLi}`} key={cats.id}>
+                                        <Link
+                                            className={`${styles.blogSidebarUlLiA} ${activeCategory === cats.name.toLowerCase() ? 'is--active': ''}`}
+                                            href={`/blog?cat=${cats.name}`}
+                                        >{cats.name}</Link>
+                                    </li>
                                 ))
                                 }
                                 </ul>
                             </div>
-                            <div className="blog-main-entrys col-12 col-md-8 col-lg-9 order-md-1">
-                                {isFiltered &&
+                            <div className="blog-main-entrys col-12 col-lg-9 order-md-1">
+                                {isCategory &&
                                     <div className={styles.blogFilterActions}>
-                                        <Link href={`/blog`} className={styles.blogResetFilter}>Reset Filter</Link>
+                                        <Link href={`/blog`} className={styles.blogResetFilter}>Alle Beiträge Anzeigen</Link>
                                     </div>
                                 }
                                 <div className="blog-entries row">
                                     {data.map((blogEntry) => (
-                                        <article className={`${styles.blogEntryBox} col-12 col-sm-6 col-md-6 col-lg-4`} key={blogEntry.id}>
-                                            <Link href={`/blog/${blogEntry.slug}`} >
-                                                <Image className={`${styles.blogEntryImage}`} src={`/img/blog/${blogEntry.image ? blogEntry.image : 'no-image.jpg'}`} title={`${blogEntry.title}`} width={200} height={200} alt={`${blogEntry.title}`} />
-                                            </Link>
-                                            <div className="author">Written by: {blogEntry.author}</div>
-                                            <div className={styles.blogTagList}>
-                                                {blogEntry.category.map((blogTag, index) => (
-                                                    <span className={styles.blogTag} key={index}><Link href={`/blog/?cat=${blogTag}`}>{blogTag}</Link></span>
-                                                ))}
-                                            </div>
-                                            <div className={`${styles.blogEntryTextBox}`} >
-                                                <Link href={`/blog/${blogEntry.slug}`} className="blog-title"><h2 className={roboto.className}>{blogEntry.title}</h2></Link>
-                                                <h3 className={ranga.className}>{blogEntry.subline}</h3>
-                                                <p>{blogEntry.teaser}</p>
-                                            </div>
-                                        </article>
+                                        <BlogArticle
+                                            key={blogEntry.id}
+                                            blogEntry={blogEntry}
+                                            author={true}
+                                            tags={true}
+                                            button={false}
+                                            limit={0}
+                                        />
                                     ))}
                                 </div>
-                                {isFiltered &&
+                                {isCategory &&
                                     <div className={styles.blogFilterActions}>
-                                        <Link href={`/blog`} className={styles.blogResetFilter}>Reset Filter</Link>
+                                        <Link href={`/blog`} className={styles.blogResetFilter}>Alle Beiträge Anzeigen</Link>
                                     </div>
                                 }
                             </div>

@@ -2,6 +2,7 @@ export const blogEntries = [
     {
         "id": "1",
         "author": "Rene van Dinter",
+        "date": "12/04/2021",
         "category": [
             "Allgemein",
             "Shopware"
@@ -15,6 +16,7 @@ export const blogEntries = [
     {
         "id": "2",
         "author": "Rene van Dinter",
+        "date": "08/06/2021",
         "category": [
             "Allgemein",
             "Shopware",
@@ -28,6 +30,7 @@ export const blogEntries = [
     {
         "id": "3",
         "author": "Admin",
+        "date": "30/08/2021",
         "category": [
             "Allgemein",
             "Webentwicklung"
@@ -40,6 +43,7 @@ export const blogEntries = [
     {
         "id": "4",
         "author": "Wizzard26",
+        "date": "03/12/2021",
         "category": [
             "Allgemein",
             "Webentwicklung",
@@ -53,6 +57,7 @@ export const blogEntries = [
     {
         "id": "5",
         "author": "Rene van Dinter",
+        "date": "21/02/2022",
         "category": [
             "Allgemein",
             "Webentwicklung"
@@ -65,6 +70,7 @@ export const blogEntries = [
     {
         "id": "6",
         "author": "Admin",
+        "date": "18/04/2022",
         "category": [
             "Allgemein",
             "Shopware",
@@ -79,6 +85,7 @@ export const blogEntries = [
     {
         "id": "7",
         "author": "Rene van Dinter",
+        "date": "09/06/2022",
         "category": [
             "Allgemein",
             "Shopware",
@@ -93,6 +100,7 @@ export const blogEntries = [
     {
         "id": "8",
         "author": "Admin",
+        "date": "18/08/2022",
         "category": [
             "Allgemein",
             "Weiterbildung",

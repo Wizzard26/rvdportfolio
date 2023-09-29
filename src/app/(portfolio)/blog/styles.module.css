@@ -2,14 +2,32 @@
     border: 1px solid var(--primary);
 }
 
+.blogImageLink {
+    display: block;
+    overflow: hidden;
+}
+
 .blogEntryImage {
     width: 100%;
     height: auto;
+    display: block;
+    transition: all 300ms ease-in-out;
+    transform: scale(1);
+}
+
+.blogImageLink:hover .blogEntryImage {
+    transform: scale(1.1);
+}
+
+.blogAuthorInfo {
+    padding: 5px 15px;
+    background-color: #f8f8f8;
 }
 
 .blogEntryTextBox {
     padding: 10px 15px 15px;
 }
+
 .blogTagList {
     display: inline-flex;
     gap: 0 15px;

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ranga, kanit, roboto, roboto_condensed } from "@/app/fonts";
 import { pageContent } from "@/lib/data";
 import Teaser from "@/components/teaser/page";
+import Button from "@/components/button/Button";
 
 const getData = (pageComp, sectionData) => {
     const pageData = pageComp.section.find((section) => section.name === `${sectionData}`);
@@ -49,7 +50,12 @@ export default function Home() {
                                 </div>
                             </div>
                             <div className="col-12 col-md-6 contact-button">
-                                <Link href={ conData.contactbtnlink } title={ conData.contactbtntitle } className={`${roboto_condensed.className} btn btn--secondary`}>{ conData.contactbtn }</Link>
+                                <Button
+                                    href={ conData.contactbtnlink }
+                                    title={ conData.contactbtntitle }
+                                    style="secondary"
+                                    text={ conData.contactbtn }
+                                />
                             </div>
                         </div>
                     </div>
@@ -72,7 +78,12 @@ export default function Home() {
                                     <p>
                                         {box.boxtext}
                                     </p>
-                                    <Link href={box.link} title={box.linktitle} className={`${roboto_condensed.className} btn btn--primary`}>{box.linktext}</Link>
+                                    <Button
+                                        href={box.link}
+                                        title={box.linktitle}
+                                        style="primary"
+                                        text={box.linktext}
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -104,6 +115,24 @@ export default function Home() {
                                     <p>Nach der Zertifizierung zum Shopware 5 Advanced Template Developer, war es nun an der Zeit auch die Zertifizierung zum Shopware 6 Template Designer zu machen. Neben einen tollen Lehrgangstag, war es auch ganz angenehm sich mal das Shopware Headquarter ansehen zu können.</p>
                                     <Link href="#" className="disabled">Weiterlesen</Link>
                                 </div>
+                            </div>
+                        </div>
+                        <div className="blog-teaser-actions row">
+                            <div className="col-6 align-right">
+                                <Button
+                                    href="/blog"
+                                    title="Weitere Beiträge lesen"
+                                    style="secondary"
+                                    text="Weitere Beiträge"
+                                />
+                            </div>
+                            <div className="col-6">
+                                <Button
+                                    href="/contact"
+                                    title="Kontaktieren"
+                                    style="primary"
+                                    text="Kontakt Aufnehmen"
+                                />
                             </div>
                         </div>
                     </div>
