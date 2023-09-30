@@ -122,16 +122,16 @@ export default function Home() {
                                 <Button
                                     href="/blog"
                                     title="Weitere Beiträge lesen"
-                                    style="secondary"
-                                    text="Weitere Beiträge"
+                                    style="primary"
+                                    text="Alle Beiträge Lesen"
                                 />
                             </div>
                             <div className="col-6">
                                 <Button
                                     href="/contact"
                                     title="Kontaktieren"
-                                    style="primary"
-                                    text="Kontakt Aufnehmen"
+                                    style="secondary-full"
+                                    text="Nachricht Schreiben"
                                 />
                             </div>
                         </div>

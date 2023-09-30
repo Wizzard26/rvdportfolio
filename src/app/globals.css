@@ -494,14 +494,28 @@ span.title {
   color: var(--primary);
 }
 
+.btn--primary-full {
+  border-color: var(--primary);
+  background-color: var(--primary);
+  color: var(--fontlight);
+}
+
 .btn--primary-light {
   border-color: var(--fontlight);
   color: var(--fontlight);
 }
 
+.btn--primary-light-full {
+  border-color: var(--fontlight);
+  background-color: var(--fontlight);
+  color: var(--primary);
+}
+
 
 .btn--primary:hover,
-.btn--primary-light:hover {
+.btn--primary-light:hover,
+.btn--primary-light-full:hover,
+.btn--primary-full:hover {
   border-color: var(--primary-dark);
   color: var(--fontlight);
   background-color: var(--primary-dark);
