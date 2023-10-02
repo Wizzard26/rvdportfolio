@@ -3,9 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import {ranga, roboto} from "@/app/fonts";
 
-export default function BlogArticle ({blogEntry ,author= false, tags = false , button = false, limit} = 0) {
+export default function BlogArticle ({blogEntry ,author= false, tags = false , button = false, articleCols = 'col-12'}) {
     return (
-        <article className={`${styles.blogEntryBox} col-12 col-md-6 col-xl-4`} >
+        <article className={`${styles.blogEntryBox} ${articleCols} `} >
             <Link className={styles.blogImageLink} href={`/blog/${blogEntry.slug}`} >
                 <Image className={`${styles.blogEntryImage}`} src={`/img/blog/${blogEntry.image ? blogEntry.image : 'no-image.jpg'}`} title={`${blogEntry.title}`} width={200} height={200} alt={`${blogEntry.title}`} />
             </Link>

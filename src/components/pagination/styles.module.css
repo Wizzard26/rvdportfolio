@@ -1,0 +1,31 @@
+.pagination {
+    margin: 25px 0 15px;
+    gap: 10px;
+}
+.paginationUl {
+    padding: 0;
+    list-style: none;
+    gap: 10px;
+}
+
+.paginationUlLi {
+    padding: 6px 15px;
+    background-color: #f8f8f8;
+    cursor: pointer;
+
+}
+
+.paginationUlLi:hover {
+    background-color: #d3d3d3;
+}
+
+.active {
+    background-color: #d3d3d3;
+}
+
+.btn {
+    border: none;
+    border-radius: 0;
+    width: 35px;
+    font-size: 18px;
+}

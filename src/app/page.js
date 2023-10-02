@@ -7,6 +7,7 @@ import { ranga, kanit, roboto, roboto_condensed } from "@/app/fonts";
 import { pageContent } from "@/lib/data";
 import Teaser from "@/components/teaser/page";
 import Button from "@/components/button/Button";
+import BlogList from "@/components/blog/BlogList";
 
 const getData = (pageComp, sectionData) => {
     const pageData = pageComp.section.find((section) => section.name === `${sectionData}`);
@@ -92,31 +93,14 @@ export default function Home() {
                 <section>
                     <div className="content-inner">
                         <h2 className={`${roboto.className} is--centered`}>News und Blogbeiträge</h2>
-                        <div className="row blog-entries blog-teaser">
-                            <div className="card-blog--entries row-reverse col-12 col-xl-6">
-                                <div className="card-blog--entries-image">
-                                    <Image src="/img/blog/code.jpg" alt="Shopware 6" title="Arbeiten mit Shopware 6" width={600} height={600} />
-                                </div>
-                                <div className="card-blog--entries-textbox">
-                                    <h3 className={roboto_condensed.className}>Weiterbildung Frontenddeveloper</h3>
-                                    <h2 className={ranga.className}>Javascript und Certificated PHP Developer</h2>
-                                    <p>Nach Jahren als Frontendentwickler für HTML/CSS, Smarty/Twig und SASS/LESS, bilde ich mich gerade weiter zum JavaScript und PHP Developer. Der Lehrgang vermittelt in je acht Wochen JavaScipt und PHP, Kenntnisse in Node, React, Vue sowie PHP, OOP, MySQLi mit anschließender Prüfung.</p>
-                                    <Link href="#" className="disabled">Weiterlesen</Link>
-                                </div>
-                            </div>
-
-                            <div className="card-blog--entries col-12 col-xl-6">
-                                <div className="card-blog--entries-image">
-                                    <Image src="/img/blog/shopware6.jpg" alt="Shopware 6" title="Arbeiten mit Shopware 6" width={600} height={600} />
-                                </div>
-                                <div className="card-blog--entries-textbox">
-                                    <h3 className={roboto_condensed.className}>Shopware 6 Template Designer</h3>
-                                    <h2 className={ranga.className}>Zertifizierung in Schöppingen</h2>
-                                    <p>Nach der Zertifizierung zum Shopware 5 Advanced Template Developer, war es nun an der Zeit auch die Zertifizierung zum Shopware 6 Template Designer zu machen. Neben einen tollen Lehrgangstag, war es auch ganz angenehm sich mal das Shopware Headquarter ansehen zu können.</p>
-                                    <Link href="#" className="disabled">Weiterlesen</Link>
-                                </div>
-                            </div>
-                        </div>
+                        <BlogList
+                            author={false}
+                            tags={false}
+                            button={true}
+                            limit={2}
+                            pagination={false}
+                            articleCols={'card-blog--entries col-12 col-xl-6'}
+                        />
                         <div className="blog-teaser-actions row">
                             <div className="col-6 align-right">
                                 <Button

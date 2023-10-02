@@ -1,7 +1,7 @@
 import Image from "next/image";
 import {ranga, roboto, roboto_condensed} from "@/app/fonts";
 import { heroContent } from "@/lib/data";
-import styles from './styles.module.css'
+import styles from './styles.module.css';
 import Button from "@/components/button/Button";
 
 export default function HeroContent({ pageName, imgPos, txtPos}) {

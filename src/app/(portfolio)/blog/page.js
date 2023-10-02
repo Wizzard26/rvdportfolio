@@ -22,7 +22,6 @@ import BlogCategories from "@/components/blog/BlogCategories";
 export default function Blog() {
     const searchParams = useSearchParams();
     const cat = searchParams.get('cat');
-    const page = searchParams.get('page');
 
     const [isCategory, setIsCategory] = useState(false);
     const [activeCategory, setActiveCategory] = useState(null);
@@ -52,12 +51,13 @@ export default function Blog() {
                                 }
                                 <BlogList
                                     cat={cat}
-                                    page={page}
                                     author={true}
                                     tags={true}
                                     button={false}
                                     limit={0}
+                                    perPage={3}
                                     pagination={true}
+                                    articleCols={'col-12 col-md-6 col-xl-4'}
                                 />
                                 {isCategory &&
                                     <div className={styles.blogFilterActions}>
