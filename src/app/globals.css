@@ -167,7 +167,7 @@ span.title {
 }
 
 .col-12 {
-  width: calc(100% - 0);
+  width: 100%;
 }
 
 @media screen and (min-width: 485px) {
@@ -224,7 +224,7 @@ span.title {
   }
 
   .col-sm-12 {
-    width: calc(100% - 0);
+    width: 100%;
   }
 }
 
@@ -282,7 +282,7 @@ span.title {
   }
 
   .col-md-12 {
-    width: calc(100% - 0);
+    width: 100%;
   }
 
   .order-md-1 {
@@ -369,7 +369,7 @@ span.title {
   }
 
   .col-lg-12 {
-    width: calc(100% - 0);
+    width: 100%;
   }
 }
 
@@ -428,7 +428,7 @@ span.title {
   }
 
   .col-xl-12 {
-    width: calc(100% - 0);
+    width: 100%;
   }
 }
 
