@@ -1,6 +1,9 @@
 'use client';
 import Link from "next/link";
 import styled from "styled-components";
+import { NavMenu } from '@/lib/pages';
+import { usePathname } from 'next/navigation';
+
 import StyledComponentsRegistry from "@/lib/registry";
 import {
     DiCss3,
@@ -32,6 +35,7 @@ import {AiOutlineCopyrightCircle} from "react-icons/ai";
 import {roboto_condensed} from "@/app/fonts";
 
 export default function Footer() {
+    const currentRoute = usePathname();
     const yearStart = 2013;
     const yearNow = new Date().getFullYear();
 
@@ -88,14 +92,16 @@ export default function Footer() {
                             <div className="col-12 col-md-6 col-xl-4 columns navigation">
                                 <h3 className={roboto_condensed.className}>Navigation</h3>
                                     <ul>
-                                        <li><Link href="/" className={roboto_condensed.className}>Home</Link></li>
-                                        <li><Link href="/about-me" className={roboto_condensed.className}>About me</Link></li>
-                                        <li><Link href="/vita" className={roboto_condensed.className}>Vita</Link></li>
-                                        <li><Link href="/showcase" className={roboto_condensed.className}>Showcase</Link></li>
-                                        <li><Link href="/blog" className={roboto_condensed.className}>Blog</Link></li>
-                                        <li><Link href="/contact" className={roboto_condensed.className}>Contact</Link></li>
-                                        <li><Link href="/disclaimer" className={roboto_condensed.className}>Disclaimer</Link></li>
-                                        <li><Link href="/imprint" className={roboto_condensed.className}>Imprint</Link></li>
+                                        {NavMenu.map((navItem) => (
+                                            <li key={navItem.label}>
+                                                <Link href={navItem.href}
+                                                      className={`
+                                                      ${roboto_condensed.className} ${currentRoute === navItem.href ? 'isActive' : ''}  `}
+                                                >
+                                                    {navItem.label}
+                                                </Link>
+                                            </li>
+                                        ))}
                                     </ul>
                             </div>
                         </div>
@@ -124,7 +130,7 @@ const StyledFooter = styled.footer`
 
     a {
       transition: all 300ms ease-in-out;
-      
+      &.isActive,
       &:hover {
         color: #ece1b4;
       }

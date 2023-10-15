@@ -1,0 +1,17 @@
+.listUl {
+    padding-left: 30px;
+    list-style-type: square;
+}
+
+.disclaimer strong {
+    font-weight: 500;
+}
+
+.disclaimer a {
+    color: var(--secondary);
+    transition: color 300ms ease-in-out;
+}
+
+.disclaimer a:hover {
+    color: var(--secondary-dark);
+}

@@ -1,0 +1,79 @@
+.form {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.form input,
+.form select {
+    height: 45px;
+    padding: 5px 10px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    margin-top: 5px;
+}
+
+.form textarea {
+    padding: 5px 10px;
+    font-size: 1rem;
+}
+
+.leftContainer,
+.rightContainer,
+.textAreaContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.genderSelect {
+    max-width: 300px;
+}
+
+.textAreaContainer {
+    width: 100%;
+}
+
+.textAreaContainer textarea {
+    width: 100%;
+    min-height: 300px;
+}
+
+.formActions {
+    display: flex;
+    width: 100%;
+    flex-direction: row-reverse;
+}
+
+.sendCopy {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+}
+
+.requiredFields {
+    text-align: right;
+    font-size: .875rem;
+}
+
+.sendCopy input {
+    margin: 0 15px 0 0;
+}
+
+.sendCopy input:hover {
+    cursor: pointer;
+}
+
+.sendContact {
+    border: none;
+    border-radius: 0;
+    background-color: var(--primary);
+    color: var(--fontlight);
+    transition: all 300ms ease-in-out;
+    cursor: pointer;
+    padding: 15px 35px;
+    text-transform: uppercase;
+}
+
+.sendContact:hover {
+    background-color: var(--primary-dark);
+}

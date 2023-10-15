@@ -1,9 +1,11 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { NavMenu } from '@/lib/pages';
 import Link from "next/link";
 import styled from "styled-components";
 import { roboto_condensed } from "@/app/fonts";
+
 export default function MainNavi({isOpen, isMobile, onToogle}) {
     const currentRoute = usePathname();
 
@@ -13,26 +15,18 @@ export default function MainNavi({isOpen, isMobile, onToogle}) {
             onClick={isMobile ? onToogle : null}
         >
             <StyledList className={roboto_condensed.className}>
-                <li><Link href='/about-me' title='Homepage'
-                    className={currentRoute === "/about-me"
-                      ? "is--active"
-                      : " "}
-                >About me</Link></li>
-                <li><Link href='/vita' title='Homepage'
-                    className={currentRoute === "/vita"
-                      ? "is--active"
-                      : " "}
-                >Vita</Link></li>
-                <li><Link href='/showcase' title='Homepage'
-                    className={currentRoute === "/showcase"
-                      ? "is--active"
-                      : " "}
-                >Showcase</Link></li>
-                <li><Link href='/imprint' title='Homepage'
-                    className={currentRoute === "/imprint"
-                      ? "is--active"
-                      : " "}
-                >Imprint</Link></li>
+                {NavMenu.map((navitem) => (
+                    navitem.hideTop !== true &&
+                        <li key={navitem.label}>
+                            <Link href={navitem.href} title={navitem.title}
+                                  className={currentRoute === navitem.href
+                                      ? "is--active"
+                                      : " "}
+                            >
+                                {navitem.label}
+                            </Link>
+                        </li>
+                ))}
             </StyledList>
         </StyledNav>
     )

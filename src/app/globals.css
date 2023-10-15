@@ -602,6 +602,10 @@ span.title {
   .blog-entries.row {
     flex-wrap: nowrap;
   }
+
+  .blog-main-entrys .blog-entries.row {
+    flex-wrap: wrap;
+  }
 }
 
 @media screen and (min-width: 1440px) {

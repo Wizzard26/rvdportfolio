@@ -55,7 +55,7 @@ export default function Blog() {
                                     tags={true}
                                     button={false}
                                     limit={0}
-                                    perPage={3}
+                                    perPage={6}
                                     pagination={true}
                                     articleCols={'col-12 col-md-6 col-xl-4'}
                                 />
