@@ -2,3 +2,8 @@
     width: 100%;
     height: auto;
 }
+
+.backBtn {
+    margin: 20px 0;
+    cursor: pointer;
+}

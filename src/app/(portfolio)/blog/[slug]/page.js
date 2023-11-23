@@ -1,9 +1,12 @@
+'use client';
 import { blogEntries } from "@/lib/blog";
 import Image from "next/image";
 import styles from "./styles.module.css";
 import { roboto, ranga } from "@/app/fonts";
+import { useRouter } from "next/navigation";
 
 export default function Slug({ params }) {
+    const router = useRouter();
     const { title,subline,image,  teaser} = blogEntries.find(entry => {
         return entry.slug === params.slug;
     })
@@ -23,6 +26,9 @@ export default function Slug({ params }) {
                                 <p>{ teaser }</p>
                             </div>
                         </div>
+                        <button className={`${styles.backBtn} btn btn--secondary-full`} type={'button'} onClick={router.back}>
+                            Zurück zur Übersicht
+                        </button>
                     </div>
                 </section>
             </main>

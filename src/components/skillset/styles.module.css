@@ -1,0 +1,92 @@
+.progressRow {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.progressBar {
+    background-color: #d3d3d3;
+    max-width: 450px;
+    height: 24px;
+    position: relative;
+    box-shadow: #5b5a5a 0 0 6px inset;
+    width: 100%;
+}
+
+.progressBar span {
+    position: relative;
+    z-index: 1000;
+    color: #FFFFFF;
+    padding-left: 20px;
+}
+
+.progressBar:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--percentage);
+    background-color: #008075;
+    box-shadow: #023602 2px 0px 6px inset;
+}
+
+.Beginner:after {
+    background-color: #346f9e;
+}
+
+.Intermediant:after {
+    background-color: #1a9199;
+}
+
+.Expert:after {
+    background-color: #1e9367;
+}
+
+.levels {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.levels div {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+@media screen and (min-width: 425px) {
+    .progressRow {
+        flex-direction: row;
+    }
+
+    .progressBar {
+        width: calc(50% - 10px);
+    }
+
+    .levels {
+        flex-direction: row;
+    }
+}
+
+.levelNoob span,
+.levelIntermediant span,
+.levelExpert span {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+.levelNoob span {
+    background-color: #346f9e;
+}
+
+.levelIntermediant span {
+    background-color: #1a9199;
+}
+
+.levelExpert span {
+    background-color: #1e9367;
+}

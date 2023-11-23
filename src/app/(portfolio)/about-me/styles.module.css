@@ -1,0 +1,8 @@
+.inQoute:before {
+    content: '"';
+    display: inline-block;
+}
+.inQoute:after {
+    content: '"';
+    display: inline-block;
+}
