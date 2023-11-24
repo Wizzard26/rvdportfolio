@@ -1,4 +1,4 @@
-import {skillSet} from "@/lib/skillset";
+import { skillSet } from "@/lib/skillset";
 import styles from "@/components/skillset/styles.module.css";
 
 export default function Skillset() {

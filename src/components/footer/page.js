@@ -127,6 +127,10 @@ const StyledFooter = styled.footer`
   
   .columns {
     padding: 15px 0 25px;
+    
+    h3 {
+      font-weight: 400;
+    }
 
     a {
       transition: all 300ms ease-in-out;

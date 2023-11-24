@@ -1,6 +1,3 @@
-'use client';
-import Header from "@/components/header/page";
-import Footer from "@/components/footer/page";
 import HeroContent from "@/components/herocontent/page";
 import Link from "next/link";
 import { ranga, kanit, roboto, roboto_condensed } from "@/app/fonts";
@@ -26,7 +23,6 @@ export default function Home() {
 
     return (
         <>
-            <Header />
             <main className="main-content">
                 <HeroContent
                     className="hero-container"
@@ -67,7 +63,7 @@ export default function Home() {
                         <div className="row my-todos">
                             {todoData.map((card) => (
                                 <div className="card-dark col-12 col-md-6 col-lg-6 col-xl-3" key={card.id}>
-                                    <h3>{card.name}</h3>
+                                    <h3 className={`${roboto_condensed.className}`}>{card.name}</h3>
                                     <p>{card.boxtext} </p>
                                 </div>
                             ))}
@@ -75,7 +71,7 @@ export default function Home() {
                         <div className="row more-information">
                             {moreinfoData.map((box) => (
                                 <div className="card-light col-12 col-md-6" key={box.id}>
-                                    <h3>{box.name}</h3>
+                                    <h3 className={`${ranga.className}`}>{box.name}</h3>
                                     <p>
                                         {box.boxtext}
                                     </p>
@@ -122,7 +118,6 @@ export default function Home() {
                     </div>
                 </section>
             </main>
-            <Footer />
         </>
     )
 }
