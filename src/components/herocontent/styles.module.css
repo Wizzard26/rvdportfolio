@@ -38,6 +38,10 @@
     display: none;
 }
 
+.heroTextboxInner {
+    color: var(--dark);
+}
+
 .heroTextboxInnerWithBg {
     padding: 15px 25px;
     background-color: rgba(32,32,32, .5);

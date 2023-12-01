@@ -98,7 +98,7 @@ export default function Home() {
                             articleCols={'card-blog--entries col-12 col-xl-6'}
                         />
                         <div className="blog-teaser-actions row">
-                            <div className="col-6 align-right">
+                            <div className="col-12 col-md-6 align-center align-md-right">
                                 <Button
                                     href="/blog"
                                     title="Weitere Beiträge lesen"
@@ -106,7 +106,7 @@ export default function Home() {
                                     text="Alle Beiträge Lesen"
                                 />
                             </div>
-                            <div className="col-6">
+                            <div className="col-12 col-md-6 align-center align-md-left">
                                 <Button
                                     href="/contact"
                                     title="Kontaktieren"

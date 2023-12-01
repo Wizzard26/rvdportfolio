@@ -5,7 +5,7 @@ export const heroContent = [
         imgAlt: "Welcome on my portfolio",
         textBoxBg: false,
         headline: "Design vermag uns eine eigene Welt zu erschaffen",
-        headSubline: "Wo wor nur auf unsere eigene Phantasie begrenzt sind",
+        headSubline: "Wo wir nur auf unsere eigene Phantasie begrenzt sind",
         listHeadline: "Sie sind auf der Suche nach:",
         list: [
             "- Einem Grafikdesigner / Mediengestalter",
@@ -75,11 +75,43 @@ export const heroContent = [
         }
     },
     {
+        sitename: "Showcase",
+        imgUrl: "/img/hero_showcase.jpg",
+        imgAlt: "Works and more",
+        textBoxBg: false,
+        headline: "Stöbern Sie doch mal durch meine Arbeiten",
+        headSubline: "So können Sie sich ein besseres Bild von mir machen",
+        textbox: "In meiner Laufbahn haben sich Referenz Arbeiten aus den verschiedenen Bereichen angesammelt.\n" +
+            "Eine kleine Auswahl stelle ich Ihnen hier gerne vor.\n" +
+            "\n" +
+            "Sicherlich verstehen Sie das ich hier nicht alle meine Arbeiten öffentlich präsentieren kann. Aufgrund von Dateschutzbestimmungen und eventuelle Rechte verletzungen,\n" +
+            "stelle ich hier nur eine kleine Auswahl zur ansicht dar.\n" +
+            "Auf Anfrage kann ich Ihnen aber gerne weitere Arbeiten Zeigen.",
+        btnOne: {
+            url: "/contact",
+            text: "Kontakt Aufnehmen",
+            title: "Kontaktieren Sie mich",
+            style: "secondary-full"
+        }
+    },
+    {
         sitename: "Contact",
         imgUrl: "/img/hero_contact.jpg",
         imgAlt: "Contact me",
         textBoxBg: false,
 
+    },
+    {
+        sitename: "Disclaimer",
+        imgUrl: "/img/hero_imprint.jpg",
+        imgAlt: "Disclaimer",
+        textBoxBg: false,
+    },
+    {
+        sitename: "Imprint",
+        imgUrl: "/img/hero_imprint.jpg",
+        imgAlt: "Imprint",
+        textBoxBg: false,
     }
 ]
 

@@ -1,0 +1,74 @@
+.vitaEntry {
+
+}
+
+.vitaSidebar {
+    height: fit-content;
+    padding: 0 10px 15px;
+}
+
+.vitaHeadline {
+    display: flex;
+    flex-direction: column;
+}
+
+.vitaCompany {
+    color: var(--primary);
+}
+
+.vitaContent {
+    position: relative;
+    padding: 5px 10px 5px 0;
+}
+
+.vitaContent h3 {
+    margin-top: 0;
+}
+
+.vitaEntry:nth-child(odd) .vitaContent {
+    background-color: var(--dark-light);
+    padding: 5px 10px;
+}
+
+.vitaStateDate {
+    color: var(--secondary);
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.vitaActions {
+    margin: 30px 0;
+}
+
+@media screen and (max-width: 1439px) {
+    .vitaTitle {
+        margin-bottom: 5px;
+    }
+
+    .vitaStateDate {
+        margin-bottom: 10px;
+    }
+}
+
+@media screen and (min-width: 1440px)  {
+    .vitaHeadline {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .vitaStateDate {
+        text-align: center;
+    }
+
+    .vitaContent:after {
+        display: block;
+        content:"";
+        position: absolute;
+        width: 2px;
+        height: 100%;
+        background-color: #3b3b3b;
+        top: 0;
+        right: calc(-16.5% - (30px*3/4));
+    }
+}

@@ -1,11 +1,18 @@
 import ContactData from "@/components/contact/ContactData";
 import {ranga, roboto, roboto_condensed} from "@/app/fonts";
 import styles from "./styles.module.css";
+import HeroContent from "@/components/herocontent/page";
 
 export default function Disclaimer() {
+    const pageName = 'Disclaimer';
+
     return (
         <>
             <main className={`${styles.disclaimer} main-content`}>
+                <HeroContent
+                    className="hero-container"
+                    pageName={pageName}
+                />
                 <div className="content-inner">
                     <h1 className={`${roboto.className} is--centered`}>Datenschutzerklärung</h1>
                     <h2 className={`${ranga.className} is--centered`}>Rechtliche Informationen</h2>

@@ -186,6 +186,18 @@ span.title {
   width: 100%;
 }
 
+.align-left {
+  text-align: left;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.align-right {
+  text-align: right;
+}
+
 @media screen and (min-width: 485px) {
   .d-sm-none {
     display: none;
@@ -251,6 +263,14 @@ span.title {
 
   .d-md-block {
     display: block;
+  }
+
+  .align-md-right {
+    text-align: right;
+  }
+
+  .align-md-left {
+    text-align: left;
   }
 
   .col-md-1 {
@@ -553,10 +573,6 @@ span.title {
   border-color: var(--secondary-dark);
   color: var(--fontlight);
   background-color: var(--secondary-dark);
-}
-
-.align-right {
-  text-align: right;
 }
 
 .is--active {
