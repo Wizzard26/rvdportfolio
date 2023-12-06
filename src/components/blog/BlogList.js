@@ -47,6 +47,7 @@ export default function BlogList({
 
     const startIndex = limit > 0 ? 0 : (activePage - 1 ) * perPage;
     const endIndex = limit > 0 ? limit : startIndex + perPage;
+    let keyIndex = 1;
 
 
 
@@ -64,6 +65,7 @@ export default function BlogList({
                             tags={tags}
                             button={button}
                             articleCols={articleCols}
+                            index={keyIndex++}
                         />
                     ))
                 }

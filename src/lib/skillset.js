@@ -82,16 +82,16 @@ export const skillSet = [
     {
         "id": 11,
         "name": "MySql/MariaDb",
-        "percentage": 60,
-        "level": "Intermediant",
+        "percentage": 50,
+        "level": "Beginner",
         "skilluse": "Development",
         "description": "Ralationship databases based on tables"
     },
     {
         "id": 12,
         "name": "MongoDB",
-        "percentage": 62,
-        "level": "Intermediant",
+        "percentage": 49,
+        "level": "Beginner",
         "skilluse": "Development",
         "description": "No-Sql database based on JSON files"
     }

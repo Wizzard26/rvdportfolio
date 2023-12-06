@@ -4,12 +4,18 @@ import styles from "./styles.module.css";
 import {ranga, roboto_condensed} from "@/app/fonts";
 import Button from "@/components/button/Button";
 import {Fragment} from "react";
+import { MotionDiv } from "@/components/MotionDiv/MotionDiv";
 
 function getWorkStations() {
     const vitaStation = vitaEntries;
     const entries = [...vitaStation].reverse();
     return entries;
 }
+
+const variants = {
+    hidden: { opacity:0 },
+    visible: { opacity: 1 },
+};
 
 export default function Vita() {
     const pageName = "Vita";
@@ -31,23 +37,33 @@ export default function Vita() {
                     <div className={`row`}>
                         <div className={`col-12 col-lg-8 col-xl-9`}>
                             {data.map(vita => (
-                                <>
-                                    <div className={`${styles.vitaEntry}`} key={vita.id}>
-                                        <div className={`${styles.vitaHeadline}`}>
-                                            <h2 className={`${roboto_condensed.className} ${styles.vitaTitle} col-12 col-xl-9`}>{vita.title}</h2>
-                                            <div className={`${styles.vitaStateDate} ${roboto_condensed.className} col-12 col-xl-3`}>
-                                                {vita.start} - {vita.end == 'Now'
-                                                ? monthNow + '/' + yearNow
-                                                : vita.end
-                                            }
-                                            </div>
-                                        </div>
-                                        <div className={`${styles.vitaContent} col-12 col-xl-9`}>
-                                            <h3 className={`${ranga.className} ${styles.vitaCompany}`}>{vita.company}</h3>
-                                            <p>{vita.description}</p>
+                                <MotionDiv
+                                    variants={variants}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    exit="hidden"
+                                    transition={{
+                                        delay: 0.5,
+                                        ease: "easeInOut",
+                                        duration: 0.5,
+                                    }}
+                                    viewport={{ once: true }}
+                                    className={`${styles.vitaEntry}`}
+                                    key={vita.id}>
+                                    <div className={`${styles.vitaHeadline}`}>
+                                        <h2 className={`${roboto_condensed.className} ${styles.vitaTitle} col-12 col-xl-9`}>{vita.title}</h2>
+                                        <div className={`${styles.vitaStateDate} ${roboto_condensed.className} col-12 col-xl-3`}>
+                                            {vita.start} - {vita.end == 'Now'
+                                            ? monthNow + '/' + yearNow
+                                            : vita.end
+                                        }
                                         </div>
                                     </div>
-                                </>
+                                    <div className={`${styles.vitaContent} col-12 col-xl-9`}>
+                                        <h3 className={`${ranga.className} ${styles.vitaCompany}`}>{vita.company}</h3>
+                                        <p>{vita.description}</p>
+                                    </div>
+                                </MotionDiv>
                             ))}
                         </div>
                         <div className={`${styles.vitaSidebar} secondary--bg col-12 col-lg-4 col-xl-3`}>

@@ -1,6 +1,6 @@
 import HeroContent from "@/components/herocontent/page";
 import Link from "next/link";
-import { ranga, kanit, roboto, roboto_condensed } from "@/app/fonts";
+import { ranga, roboto, roboto_condensed } from "@/app/fonts";
 import { pageContent } from "@/lib/data";
 import Teaser from "@/components/teaser/page";
 import Button from "@/components/button/Button";

@@ -12,6 +12,7 @@
     position: relative;
     box-shadow: #5b5a5a 0 0 6px inset;
     width: 100%;
+    overflow: hidden;
 }
 
 .progressBar span {
@@ -21,6 +22,7 @@
     padding-left: 20px;
 }
 
+/*
 .progressBar:after {
     content: '';
     display: block;
@@ -32,6 +34,21 @@
     background-color: #008075;
     box-shadow: #023602 2px 0px 6px inset;
 }
+*/
+
+.progressBarInner {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    /*width: var(--percentage);*/
+    width: 100%;
+    background-color: #008075;
+    box-shadow: #023602 2px 0px 6px inset;
+}
+
+/*
 
 .Beginner:after {
     background-color: #346f9e;
@@ -42,6 +59,20 @@
 }
 
 .Expert:after {
+    background-color: #1e9367;
+}
+
+*/
+
+.Beginner .progressBarInner {
+    background-color: #346f9e;
+}
+
+.Intermediant .progressBarInner {
+    background-color: #1a9199;
+}
+
+.Expert .progressBarInner {
     background-color: #1e9367;
 }
 

@@ -2,10 +2,27 @@ import styles from "@/app/(portfolio)/blog/styles.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import {ranga, roboto} from "@/app/fonts";
+import {MotionDiv} from "@/components/MotionDiv/MotionDiv";
 
-export default function BlogArticle ({blogEntry ,author= false, tags = false , button = false, articleCols = 'col-12'}) {
+const variants = {
+    hidden: { opacity:0 },
+    visible: { opacity: 1 },
+};
+
+export default function BlogArticle ({blogEntry ,author= false, tags = false , button = false, articleCols = 'col-12', index}) {
+
     return (
-        <article className={`${styles.blogEntryBox} ${articleCols} `} >
+        <MotionDiv
+            variants={variants}
+            initial="hidden"
+            animate="visible"
+            transition={{
+                delay: index * 0.25,
+                ease: "easeInOut",
+                duration: 0.5,
+            }}
+            viewport={{ amount: 0}}
+            className={`${styles.blogEntryBox} ${articleCols} `} >
             <div className={`${styles.blogImageContainer}`}>
                 <Link className={styles.blogImageLink} href={`/blog/${blogEntry.slug}`} >
                     <Image className={`${styles.blogEntryImage}`} src={`/img/blog/${blogEntry.image ? blogEntry.image : 'no-image.jpg'}`} title={`${blogEntry.title}`} width={200} height={200} alt={`${blogEntry.title}`} />
@@ -32,6 +49,6 @@ export default function BlogArticle ({blogEntry ,author= false, tags = false , b
                     <Link href={`/blog/${blogEntry.slug}`}>Weiterlesen</Link>
                 }
             </div>
-        </article>
+        </MotionDiv>
     )
 }
