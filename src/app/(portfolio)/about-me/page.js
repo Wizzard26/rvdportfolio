@@ -35,7 +35,7 @@ export default async function AboutMe() {
                     <div className={'row'}>
                         <div className={`col-12 col-md-6`}>
                             <h2 className={roboto.className}>Erworbene Fähigkeiten</h2>
-                            <Skillset />
+                            <Skillset limit={12}/>
                         </div>
                         <div className={'col-12 col-md-6'}>
                             <h2 className={roboto.className}>Das Gestalterische und Digitale Credo</h2>

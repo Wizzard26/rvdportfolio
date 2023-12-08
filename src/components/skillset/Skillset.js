@@ -13,19 +13,20 @@ const getLevel = (percent) => {
     }
 }
 
-export default function Skillset() {
+export default function Skillset({limit}) {
+    const skillLimit = limit ? limit : skillSet.length;
     return (
         <div className={`${styles.progressRow}`}>
             {
-                skillSet.map((skill) => (
+                skillSet.slice(0, skillLimit).map((skill) => (
                     <div
                         key={skill.id}
                         className={`${styles.progressBar} ${styles[getLevel(skill.percentage)]}`}
                     >
                         <motion.div className={`${styles.progressBarInner}`}
-                                    initial={{left: '-100%'}}
-                                    whileInView={{ left: `${skill.percentage - 100}%` }}
-                                    exit={{left: '-100%'}}
+                                    initial={{width: '0%'}}
+                                    whileInView={{ width: `${skill.percentage}%` }}
+                                    exit={{width: '0%'}}
                                     transition={{
                                         delay: .5,
                                         ease: "easeIn",
