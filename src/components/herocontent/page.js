@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import {ranga, roboto, roboto_condensed} from "@/app/fonts";
 import { heroContent } from "@/lib/data";
@@ -38,6 +39,7 @@ export default function HeroContent({ pageName, imgPos, txtPos}) {
                             className={`${styles.heroContainerImg} ${position}`}
                             src={hero?.imgUrl}
                             alt={hero?.imgAlt}
+                            priority={true}
                             width="1920"
                             height="902" />
                     )}

@@ -7,6 +7,17 @@
     padding: 0 10px 15px;
 }
 
+.vitaSidebar a {
+    color: var(--secondary);
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.vitaSidebar a:hover {
+    color: var(--secondary-dark);
+}
+
 .vitaHeadline {
     display: flex;
     flex-direction: column;

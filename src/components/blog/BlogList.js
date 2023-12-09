@@ -3,6 +3,7 @@ import BlogArticle from "@/components/blog/BlogArticle";
 import {getCategoryPost, getAllPost} from "@/blog/blogPost";
 import {useEffect, useState} from "react";
 import Pagination from "@/components/pagination/Pagination";
+import {scrollToTop} from "@/utils/scrollTop";
 
 
 export default function BlogList({
@@ -43,6 +44,7 @@ export default function BlogList({
 
     const handlePageChange = (newPage) => {
         setActivePage(newPage);
+        scrollToTop();
     };
 
     const startIndex = limit > 0 ? 0 : (activePage - 1 ) * perPage;
