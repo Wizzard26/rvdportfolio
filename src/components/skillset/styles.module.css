@@ -22,58 +22,32 @@
     padding-left: 20px;
 }
 
-/*
-.progressBar:after {
-    content: '';
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: var(--percentage);
-    background-color: #008075;
-    box-shadow: #023602 2px 0px 6px inset;
-}
-*/
-
 .progressBarInner {
     display: block;
     position: absolute;
     top: 0;
     left: 0;
     height: 100%;
-    /*width: var(--percentage);*/
     width: 100%;
     background-color: #008075;
     box-shadow: #023602 2px 0px 6px inset;
 }
 
-/*
-
-.Beginner:after {
-    background-color: #346f9e;
-}
-
-.Intermediant:after {
-    background-color: #1a9199;
-}
-
-.Expert:after {
-    background-color: #1e9367;
-}
-
-*/
-
 .Beginner .progressBarInner {
-    background-color: #346f9e;
+    background-color: #2E5C85;
 }
 
 .Intermediant .progressBarInner {
-    background-color: #1a9199;
+    background-color: #1FA5AD;
 }
 
 .Expert .progressBarInner {
-    background-color: #1e9367;
+    background-color: #23A977;
+}
+
+.Intermediant,
+.Expert {
+    color: #000000;
 }
 
 .levels {
@@ -111,13 +85,13 @@
 }
 
 .levelNoob span {
-    background-color: #346f9e;
+    background-color: #2E5C85;
 }
 
 .levelIntermediant span {
-    background-color: #1a9199;
+    background-color: #1FA5AD;
 }
 
 .levelExpert span {
-    background-color: #1e9367;
+    background-color: #23A977;
 }

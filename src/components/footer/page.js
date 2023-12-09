@@ -82,11 +82,11 @@ export default function Footer() {
                                 </TecIcons>
                                 <h3 className={roboto_condensed.className}>Social Media</h3>
                                 <SocialIcons>
-                                    <Link href="https://github.com/Wizzard26" target="_blank"><BiLogoGithub /></Link>
-                                    <Link href="https://www.linkedin.com/in/rene-van-dinter-6a5a2b14a/" target="_blank"><BiLogoLinkedin /></Link>
-                                    <Link href="https://www.xing.com/profile/Rene_vanDinter/cv" target="_blank"><BiLogoXing /></Link>
-                                    <Link href="https://www.facebook.com/Wizzard26" target="_blank"><BiLogoFacebook /></Link>
-                                    <Link href="https://www.instagram.com/rene.vandinter/" target="_blank"><BiLogoInstagram /></Link>
+                                    <Link href="https://github.com/Wizzard26" target="_blank" aria-label="Github profile with some projects"><BiLogoGithub /></Link>
+                                    <Link href="https://www.linkedin.com/in/rene-van-dinter-6a5a2b14a/" target="_blank" aria-label="LinkedIn profile and portfolio"><BiLogoLinkedin /></Link>
+                                    <Link href="https://www.xing.com/profile/Rene_vanDinter/cv" target="_blank" aria-label="Xing profile and business information"><BiLogoXing /></Link>
+                                    <Link href="https://www.facebook.com/Wizzard26" target="_blank" aria-label="Facebook private profile life and sport"><BiLogoFacebook /></Link>
+                                    <Link href="https://www.instagram.com/rene.vandinter/" target="_blank" aria-label="Instagramm personal information and images"><BiLogoInstagram /></Link>
                                 </SocialIcons>
                             </div>
                             <div className="col-12 col-md-6 col-xl-4 columns navigation">
