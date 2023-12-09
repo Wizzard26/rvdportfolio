@@ -45,9 +45,10 @@
     background-color: #23A977;
 }
 
-.Intermediant,
-.Expert {
-    color: #000000;
+.Beginner span,
+.Intermediant span,
+.Expert span {
+    text-shadow: #000 1px 1px 1px;
 }
 
 .levels {
