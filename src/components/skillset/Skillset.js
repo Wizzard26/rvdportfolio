@@ -26,12 +26,13 @@ export default function Skillset({limit}) {
                         <motion.div className={`${styles.progressBarInner}`}
                                     initial={{width: '0%'}}
                                     whileInView={{ width: `${skill.percentage}%` }}
-                                    exit={{width: '0%'}}
+                                    //exit={{width: '0%'}}
                                     transition={{
                                         delay: .5,
                                         ease: "easeIn",
                                         duration: .5
                                     }}
+                                    viewport={{ once: true}}
                         >
                         </motion.div>
                         <span>{skill.name}</span>
