@@ -5,6 +5,8 @@ import { pageContent } from "@/lib/data";
 import Teaser from "@/components/teaser/page";
 import Button from "@/components/button/Button";
 import BlogList from "@/components/blog/BlogList";
+import ServiceBox from "@/components/service/ServiceBox";
+import ContactBox from "@/components/contact/ContactBox";
 
 const getData = (pageComp, sectionData) => {
     const pageData = pageComp.section.find((section) => section.name === `${sectionData}`);
@@ -62,26 +64,26 @@ export default function Home() {
                         <h2 className={`${roboto.className} is--centered`}>Meine Aufgabengebiete</h2>
                         <div className="row my-todos">
                             {todoData.map((card) => (
-                                <div className="card-dark col-12 col-md-6 col-lg-6 col-xl-3" key={card.id}>
-                                    <h3 className={`${roboto_condensed.className}`}>{card.name}</h3>
-                                    <p>{card.boxtext} </p>
-                                </div>
+                                <ServiceBox
+                                    key={card.id}
+                                    id={card.id}
+                                    title={card.name}
+                                    boxtext={card.boxtext}
+                                />
                             ))}
                         </div>
                         <div className="row more-information">
                             {moreinfoData.map((box) => (
-                                <div className="card-light col-12 col-md-6" key={box.id}>
-                                    <h3 className={`${ranga.className}`}>{box.name}</h3>
-                                    <p>
-                                        {box.boxtext}
-                                    </p>
-                                    <Button
-                                        href={box.link}
-                                        title={box.linktitle}
-                                        style="primary"
-                                        text={box.linktext}
-                                    />
-                                </div>
+                                <ContactBox
+                                    key={box.id}
+                                    id={box.id}
+                                    name={box.name}
+                                    boxtext={box.boxtext}
+                                    link={box.link}
+                                    linktitle={box.linktitle}
+                                    linktext={box.linktext}
+                                    style="primary"
+                                />
                             ))}
                         </div>
                     </div>
