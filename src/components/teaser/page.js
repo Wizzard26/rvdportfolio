@@ -13,8 +13,8 @@ export default function Teaser({pageName, className}) {
                 <div className="row">
                     <div className="col-12 col-lg-6">
                         <motion.h1 className={roboto.className}
-                                   initial={{opacity: '0'}}
-                                   whileInView={{ opacity: '1'}}
+                                   initial={{ transform: 'scale(0)' }}
+                                   whileInView={{ transform: 'scale(1)'}}
                                    viewport={{once: true}}
                                    transition={{
                                        delay: .3,
@@ -23,29 +23,44 @@ export default function Teaser({pageName, className}) {
                                    }}
                         >{teaser.headline}</motion.h1>
                         <motion.h2 className={ranga.className}
-                                   initial={{opacity: '0'}}
-                                   whileInView={{ opacity: '1'}}
+                                   initial={{ transform: 'scale(0)' }}
+                                   whileInView={{ transform: 'scale(1)'}}
                                    viewport={{once: true}}
                                    transition={{
                                        delay: .5,
                                        ease: "easeIn",
-                                       duration: .8
+                                       duration: .5
                                    }}
                         >{teaser.subline}</motion.h2>
                         <motion.p
-                            initial={{ opacity: '0' }}
-                            whileInView={{ opacity: '1' }}
+                            initial={{ transform: 'scale(0)' }}
+                            whileInView={{ transform: 'scale(1)'}}
                             viewport={{once: true}}
                             transition={{
-                                delay: 1,
+                                delay: .8,
                                 ease: "easeIn",
-                                duration: .8
+                                duration: .5
                             }}
-                            dangerouslySetInnerHTML={{ __html: teaser.textBox }}/>
+                            dangerouslySetInnerHTML={{ __html: teaser.textBox }}></motion.p>
                     </div>
                     {teaser.imageUrl &&
                         <div className="col-12 col-lg-6">
-                            <Image className="content-float-svg" src={teaser.imageUrl} alt={teaser.imageAlt} width={900} height={900} />
+                            <motion.img
+                                initial={{ transform: 'scale(0)' }}
+                                whileInView={{ transform: 'scale(1)'}}
+                                viewport={{once: true}}
+                                transition={{
+                                    delay: .8,
+                                    ease: "easeIn",
+                                    duration: .5
+                                }}
+                                loading="lazy"
+                                decoding="async"
+                                className="content-float-svg"
+                                src={teaser.imageUrl}
+                                alt={teaser.imageAlt}
+                                width={900}
+                                height={900} />
                         </div>
                     }
                 </div>

@@ -26,7 +26,7 @@ export default function ContactForm() {
         const isSpam = spamcheck !== '';
 
         if(!isSpam) {
-            const response = await fetch('/api/sendmail', {
+            const response = await fetch('./api/sendmail', {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json'

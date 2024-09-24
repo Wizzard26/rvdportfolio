@@ -681,3 +681,23 @@ span.title {
   justify-content: center;
   padding: 30px 0 15px;
 }
+
+.server-stats {
+  display: inline-block;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.server--active {
+  background-color: rgba(79, 183, 25, 1);
+}
+
+.server--not-active {
+  background-color: rgb(252, 170, 31);
+}
+
+.server--offline {
+  background-color: rgba(206, 71, 96, 1);
+}

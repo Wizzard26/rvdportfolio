@@ -1,20 +1,25 @@
 import nodemailer from 'nodemailer';
 import { NextResponse } from "next/server";
+import smtpTransport from 'nodemailer-smtp-transport';
+
+const mymail= process.env.NEXT_CONTACT_MAIL_ADDRESS
+const mypass = process.env.NEXT_CONTACT_MAIL_PASS
 
 export async function POST(request){
     try {
         const {gender, title, firstName, lastName, company, phone, mail, webUrl, message, sendCopy} = await request.json();
 
-        const transporter = nodemailer.createTransport({
-            service: 'gambit24mailer',
-            host: 'server.gambit24.de',
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.NEXT_PUBLIC_MAIL_ADDRESS,
-                pass: process.env.NEXT_PUBLIC_MAIL_PASS
+        const transporter = nodemailer.createTransport(smtpTransport(
+            {
+                host: process.env.NEXT_CONTACT_MAIL_HOST,
+                port: process.env.NEXT_CONTACT_MAIL_PORT,
+                secureConnection: false,
+                auth: {
+                    user: mymail,
+                    pass: mypass,
+                }
             }
-        })
+        ))
 
         const mailOptions = {
             from: mail,

@@ -1,8 +1,44 @@
 import HeroContent from "@/components/herocontent/page";
 import {ranga, roboto, roboto_condensed} from "@/app/fonts";
+import DockerStats from "@/components/dockerstats/Dockerstats";
+import ServerList from "@/components/dockerstats/ServerList";
 
-export default function ShowCase() {
+
+
+/*
+ async function fetchContainerStatus(name, url) {
+    try {
+        const response = await fetch(url);
+        return { name, status: response.ok ? 'Running' : 'Not running' };
+    } catch (error) {
+        return { name, status: 'Not reachable' };
+    }
+}
+*/
+
+
+export default async function ShowCase() {
     const pageName = "Showcase";
+
+    /*
+    const containerList = [
+        {
+            name: 'Next.rene-van-dinter.de',
+            url: 'http://next.rene-van-dinter.de'
+        },
+        {
+            name: 'rene-van-dinter.de',
+            url: 'http://rene-van-dinter.de'
+        }
+    ];
+
+    const statuses = await Promise.all(
+        containerList.map(container => fetchContainerStatus(container.name, container.url))
+    );
+    */
+
+
+
 
     return(
         <>
@@ -28,6 +64,18 @@ export default function ShowCase() {
                 <section className="secondary--bg">
                     <div className="content-inner">
                         <h2 className={`${roboto.className} is--centered`}>Projekte und Referenzen</h2>
+                        <div className="testContainer">
+                            <h4 className="Dockerzise">Docker Container Runnings</h4>
+                            <div className="docker-table row">
+                                <div className="col-8 col-md-8">Docker Container</div>
+                                <div className="col-4 col-md-4">Status</div>
+                                <DockerStats/>
+                                <div className="col-8 col-md-4">Projekt/Server Name</div>
+                                <div className="col-4 col-md-4">Webadresse</div>
+                                <div className="col-4 col-md-4">Besitzer</div>
+                                <ServerList/>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </main>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" host="rene-van-dinter.de" id="d2a67344-68e8-4fbf-b833-609c476b86e3" port="22" customName="ReneServerNext" nameFormat="CUSTOM" username="rene" useOpenSSHConfig="true">
+        <option name="customName" value="ReneServerNext" />
+      </sshConfig>
+    </configs>
+  </component>
+</project>

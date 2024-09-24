@@ -1,10 +1,10 @@
 'use client';
 
+import { roboto_condensed } from "@/app/fonts";
 import { usePathname } from 'next/navigation';
 import { NavMenu } from '@/lib/pages';
 import Link from "next/link";
 import styled from "styled-components";
-import { roboto_condensed } from "@/app/fonts";
 
 export default function MainNavi({isOpen, isMobile, onToogle}) {
     const currentRoute = usePathname();
@@ -19,9 +19,9 @@ export default function MainNavi({isOpen, isMobile, onToogle}) {
                     navitem.hideTop !== true &&
                         <li key={navitem.label}>
                             <Link href={navitem.href} title={navitem.title}
-                                  className={currentRoute === navitem.href
+                                  className={`${currentRoute === navitem.href
                                       ? "is--active"
-                                      : " "}
+                                      : " "} ${roboto_condensed.className}`}
                             >
                                 {navitem.label}
                             </Link>
