@@ -316,7 +316,8 @@ export const vitaPersonal =  [
             },
             {
                 "id": 9,
-                "entry": "Zertifikat PHP Developer"
+                "entry": "Zertifikat PHP Developer",
+                "link": "/document/ihk-cert.pdf"
             },
             {
                 "id": 10,
