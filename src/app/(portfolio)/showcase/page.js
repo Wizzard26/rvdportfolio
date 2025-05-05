@@ -2,6 +2,7 @@ import HeroContent from "@/components/herocontent/page";
 import {ranga, roboto, roboto_condensed} from "@/app/fonts";
 import DockerStats from "@/components/dockerstats/Dockerstats";
 import ServerList from "@/components/dockerstats/ServerList";
+import Clients from "@/components/crm/clients";
 
 
 
@@ -15,6 +16,7 @@ import ServerList from "@/components/dockerstats/ServerList";
     }
 }
 */
+
 
 
 export default async function ShowCase() {
@@ -76,6 +78,13 @@ export default async function ShowCase() {
                                 <ServerList/>
                             </div>
                         </div>
+                    </div>
+                </section>
+                <section>
+                    <div className="content-inner">
+                        <h3 className={`${roboto.className}`}>Case Studys</h3>
+                        <p>Die folgenden Case Studys helfen dabei, meine Faust zu schlagen. </p>
+                        <Clients/>
                     </div>
                 </section>
             </main>
