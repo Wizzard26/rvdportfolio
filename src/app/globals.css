@@ -681,3 +681,54 @@ span.title {
   justify-content: center;
   padding: 30px 0 15px;
 }
+
+.card-cases {
+  border: 1px solid #d3d3d3;
+
+  & .card-image {
+    aspect-ratio: 5 / 4;
+    overflow: hidden;
+
+    & img {
+      width: 100%;
+      height: auto;
+      margin: 0;
+      padding: 0;
+      display: block;
+      position: relative;
+    }
+
+    &.card-image-web {
+      overflow: scroll;
+    }
+
+    &.card-image-logo {
+      background: #fff;
+      display: flex;
+      align-content: center;
+      justify-content: center;
+      padding: 5%;
+
+      & img {
+        width: auto;
+        height: 100%;
+        max-width: 100%;
+      }
+    }
+
+  }
+
+  & .card-content {
+    padding: 10px 10px 0;
+
+    & h3 {
+      margin: 0 0 5px;
+      font-size: 1.2rem;
+    }
+
+    & p {
+      margin-bottom: 5px;
+      font-size: 1.1rem;
+    }
+  }
+}
