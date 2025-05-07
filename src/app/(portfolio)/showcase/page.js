@@ -30,7 +30,7 @@ export default function ShowCase() {
                 </section>
                 <section className="secondary--bg">
                     <div className="content-inner">
-                        <h2 className={`${roboto.className} is--centered`}>E-Commerce Referenzen</h2>
+                        <h2 className={`${roboto.className} is--centered`}>E-Commerce Layouts</h2>
                         <div className={`row`}>
 
                             <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
@@ -121,7 +121,7 @@ export default function ShowCase() {
                 </section>
                 <section>
                     <div className="content-inner">
-                        <h2 className={`${roboto.className} is--centered`}>Web Referenzen</h2>
+                        <h2 className={`${roboto.className} is--centered`}>Web Layouts</h2>
                         <div className={`row`}>
 
                             <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
@@ -214,7 +214,7 @@ export default function ShowCase() {
 
                 <section className="secondary--bg">
                     <div className="content-inner">
-                        <h2 className={`${roboto.className} is--centered`}>Logo Referenzen</h2>
+                        <h2 className={`${roboto.className} is--centered`}>Logo Designs</h2>
                         <div className={`row`}>
 
                             <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>

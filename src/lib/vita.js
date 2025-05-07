@@ -109,7 +109,7 @@ export const vitaEntries = [
         "company": "digidesk – media solutions",
         "description": "Theme und Modulentwicklung Shopware 6 und Oxid Visual CMS Anpassungen. Wartung, Planung und Aufwandsschätzungen, Bearbeitung von Tickets und Kundenaufträgen. Konfiguration und Installation von Shopware 6 und Oxid CMS",
         "start": "08/2024",
-        "end": "11/2024"
+        "end": "12/2024"
     }
 ]
 
