@@ -1,0 +1,157 @@
+.content .inner {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.content .inner p {
+    width: 48%;
+}
+
+.layer-text {
+    background-color: rgba(32,32,32, .6);
+    color: #f1f1f1;
+    padding: 5px 15px;
+    position: absolute;
+    bottom: 15%;
+    max-width: 90%;
+    left: 4%;
+    opacity: 0;
+    transition: opacity 800ms ease-in;
+    transition-delay: 1500ms;
+}
+
+.active .layer-text {
+    opacity: 1;
+}
+
+.layer-text p {
+    font-size: 18px
+}
+
+.layer-text button {
+    border: 1px solid #f1f1f1;
+    background-color: transparent;
+    color: rgb(232,232,232);
+    padding: 8px 15px;
+    text-transform: uppercase;
+    margin: 10px 0 20px;
+}
+
+.layer-text button:hover {
+    background-color: rgb(232,232,232);
+    color: rgb(32,32,32);
+}
+
+/** SLIDER STYLES **/
+
+.js_slider {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+}
+.js_slider:not(.fullscreen) {
+    max-width: 1260px;
+}
+
+.slider {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    transform: translateX(0);
+    transition: all 1400ms ease-in-out;
+}
+
+.slides {
+    width: 100%;
+    position: relative;
+}
+
+.slides img {
+    width: 100%;
+}
+
+/* SLIDE NAVIGATION */
+
+.arrows {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 60px;
+    color: rgba(235,235,235, .4);
+    cursor: pointer;
+    background-color: rgba(149, 149, 149, .4);
+    transition: all 600ms ease-in;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 87px;
+}
+
+.arrows:hover {
+    background-color: rgba(32,32,32, .4);
+    color: rgba(235,235,235, .8);
+}
+
+.arrows span {
+    display: none;
+}
+
+.arrow-prev {
+    left: 20px;
+}
+
+.arrow-prev i {
+    margin-right: 5px;
+}
+
+.arrow-next {
+    right: 20px;
+}
+
+.arrow-next i {
+    margin-left: 5px;
+}
+
+.js_slider nav {
+    position: absolute;
+    width: auto;
+    text-align: center;
+    bottom: 30px;
+    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.js_slider nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+}
+.js_slider nav ul li {
+    margin: 0 5px;
+    width: 20px;
+    height: 20px;
+    display:block;
+    border: 1px solid #999;
+    border-radius: 50%;
+    cursor: pointer;
+    background-color: rgba(200, 200, 200, 0.4);
+}
+
+.js_slider nav ul li:hover {
+    background-color: rgba(33, 81, 113, 0.62);
+}
+
+.js_slider nav ul li.active {
+    background-color: rgba(88, 88, 88, 0.6);
+}
+
+.js_slider nav ul li span {
+
+}

@@ -719,7 +719,7 @@ span.title {
   }
 
   & .card-content {
-    padding: 10px 10px 0;
+    padding: 10px;
 
     & h3 {
       margin: 0 0 5px;
@@ -729,6 +729,76 @@ span.title {
     & p {
       margin-bottom: 5px;
       font-size: 1.1rem;
+      line-height: 1.3rem;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
     }
   }
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 2fr 4fr;
+  grid-gap: 15px;
+  grid-auto-flow: dense;
+
+  & .grid-contentbox {
+    grid-column: 1 / 2;
+  }
+
+  & .row {
+    grid-column: 2 / 3;
+  }
+}
+
+.grid-reverse {
+  grid-template-columns: 4fr 2fr;
+
+  & .grid-contentbox {
+    grid-column: 2 / 3;
+    margin-left: 15px;
+  }
+
+  & .row {
+    grid-column: 1 / 2;
+  }
+}
+
+.grid-contentbox {
+  background: #dedede;
+  padding: 10px;
+  position: relative;
+  width: calc(100% - 15px);
+}
+
+.grid-titlebox {
+  border: 2px solid #969696;
+  padding: 10px;
+  height: 100%;
+
+  & h3 {
+    display: flex;
+    align-items: center;
+    margin: 0 0 5px;
+  }
+
+  & svg {
+    font-size: 3rem;
+    margin-right: 10px;
+  }
+}
+
+.switch-btn {
+  display: flex;
+  gap: 20px;
+
+  & .btn {
+    cursor: pointer;
+  }
+}
+
+.content-list {
+  padding-left: 20px;
 }
