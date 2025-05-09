@@ -12,9 +12,9 @@ export default function Cartsystem() {
                 producer: "AEG",
                 description: "Lorem ipsum dolor sit amet",
                 images: [
-                    "./src/cart/images/bild-1.jpg",
-                    "./src/cart/images/bild-2.jpg",
-                    "./src/cart/images/bild-3.jpg"
+                    "/demoimg/cart/images/bild-1.jpg",
+                    "/demoimg/cart/images/bild-2.jpg",
+                    "/demoimg/cart/images/bild-3.jpg"
                 ],
                 quantity: 23,
                 price: 389.98,
@@ -27,9 +27,9 @@ export default function Cartsystem() {
                 producer: "Bosch",
                 description: "Lorem ipsum dolor sit amet",
                 images: [
-                    "./src/cart/images/bild-1.jpg",
-                    "./src/cart/images/bild-2.jpg",
-                    "./src/cart/images/bild-3.jpg"
+                    "/demoimg/cart/images/bild-1.jpg",
+                    "/demoimg/cart/images/bild-2.jpg",
+                    "/demoimg/cart/images/bild-3.jpg"
                 ],
                 quantity: 3,
                 price: 1250.00,
@@ -42,9 +42,9 @@ export default function Cartsystem() {
                 producer: "Telefunken",
                 description: "Lorem ipsum dolor sit amet",
                 images: [
-                    "./src/cart/images/bild-1.jpg",
-                    "./src/cart/images/bild-2.jpg",
-                    "./src/cart/images/bild-3.jpg"
+                    "/demoimg/cart/images/bild-1.jpg",
+                    "/demoimg/cart/images/bild-2.jpg",
+                    "/demoimg/cart/images/bild-3.jpg"
                 ],
                 quantity: 7,
                 price: 299.80,
@@ -57,9 +57,9 @@ export default function Cartsystem() {
                 producer: "Toschiba",
                 description: "Lorem ipsum dolor sit amet",
                 images: [
-                    "./src/cart/images/bild-1.jpg",
-                    "./src/cart/images/bild-2.jpg",
-                    "./src/cart/images/bild-3.jpg"
+                    "/demoimg/cart/images/bild-1.jpg",
+                    "/demoimg/cart/images/bild-2.jpg",
+                    "/demoimg/cart/images/bild-3.jpg"
                 ],
                 quantity: 3,
                 price: 499.99,

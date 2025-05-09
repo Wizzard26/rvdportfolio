@@ -4,6 +4,7 @@ import {ranga, roboto} from "@/app/fonts";
 import Slider from "@/components/scripts/Slider";
 import Lottogenerator from "@/components/scripts/Lottogenerator";
 import Cartsystem from "@/components/scripts/Cartsystem";
+import Modalbox from "@/components/scripts/Modalbox";
 
 export default function ShowJavascripts() {
     return (
@@ -46,14 +47,16 @@ export default function ShowJavascripts() {
                         <div className={`col-12 col-md-6`}>
                             <h3 className={`${ranga.className}`}>Automatisierte Tipps für den nächsten
                                 Lottoschein</h3>
-                            <p>Immer wieder Ratlos, welche Zahlen Sie auf dem Lottoschein ankreutzen
+                            <p>Immer wieder Ratlos, welche Zahlen Sie auf dem Lottoschein ankreuzen
                                 sollen? <br/>
                                 Jetzt können Sie einfach den von mir erstellten Generator nutzen und sich bis zu
                                 30 Felder
                                 vorgeben lassen.</p>
-                            <p>Egal ob 6 aus 49 oder der EuroJackpott, beide Spielsysteme können Sie einfach
+                            <p>Egal ob 6 aus 49 oder der EuroJackpot, beide Spielsysteme können Sie einfach
                                 auswählen und
                                 mit etwas Glück werden Ihre Zahlen auch gezogen.</p>
+                            <p>Zu berücksichtigen ist, das dieses Script noch zu dem Alten Jackpot System erstellt
+                                wurde, mit weniger Zusatzzahlen.</p>
                         </div>
                         <div className={`col-12 col-md-6`}>
                             <Lottogenerator/>
@@ -81,6 +84,23 @@ export default function ShowJavascripts() {
                     </div>
                 </div>
 
+            </section>
+
+            <section className="">
+                <div className="content-inner">
+                    <h2 className={`${roboto.className}`}>Modalbox TestScript</h2>
+                    <div className={`row row-reverse`}>
+                        <div className={`col-12 col-md-6`}>
+                            <h3 className={`${ranga.className}`}>Modalbox schnell erstellt als Testaufgabe</h3>
+                            <p>Bei einem Gespräch wurde diese Modalbox erstellt um meine Rangeheweise an eine Aufgabenstellung zu testen. Verständniss für die Aufgabenstellung, welche Rückfragen ergeben sich und wie plane ich die Aufgabe zu lösen.</p>
+                            <p>Danach folgte dann die Umsetzung im LiveCoding, dabei erstellte ich auf der Grünen Wiese, erst die Html und CSS Struktur mit dem Demo Content. Danach im Javascript die Events und Funktionen.</p>
+                            <p>Letztendlich folgte dann das Debugging und weitere Umsetzungen, welche nicht direkt in der Aufgabenstellung vorgesehen waren.</p>
+                        </div>
+                        <div className={`col-12 col-md-6`}>
+                            <Modalbox />
+                        </div>
+                    </div>
+                </div>
             </section>
         </>
     )
