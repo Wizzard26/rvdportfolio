@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@js-temporal/polyfill": "^0.5.1",
     "eslint": "8.42.0",
     "eslint-config-next": "13.4.5",
     "framer-motion": "^10.16.14",
