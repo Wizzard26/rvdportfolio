@@ -92,15 +92,116 @@ export default function ShowJavascripts() {
                     <div className={`row row-reverse`}>
                         <div className={`col-12 col-md-6`}>
                             <h3 className={`${ranga.className}`}>Modalbox schnell erstellt als Testaufgabe</h3>
-                            <p>Bei einem Gespräch wurde diese Modalbox erstellt um meine Rangeheweise an eine Aufgabenstellung zu testen. Verständniss für die Aufgabenstellung, welche Rückfragen ergeben sich und wie plane ich die Aufgabe zu lösen.</p>
-                            <p>Danach folgte dann die Umsetzung im LiveCoding, dabei erstellte ich auf der Grünen Wiese, erst die Html und CSS Struktur mit dem Demo Content. Danach im Javascript die Events und Funktionen.</p>
-                            <p>Letztendlich folgte dann das Debugging und weitere Umsetzungen, welche nicht direkt in der Aufgabenstellung vorgesehen waren.</p>
+                            <p>Bei einem Gespräch wurde diese Modalbox erstellt um meine Rangeheweise an eine
+                                Aufgabenstellung zu testen. Verständniss für die Aufgabenstellung, welche Rückfragen
+                                ergeben sich und wie plane ich die Aufgabe zu lösen.</p>
+                            <p>Danach folgte dann die Umsetzung im LiveCoding, dabei erstellte ich auf der Grünen Wiese,
+                                erst die Html und CSS Struktur mit dem Demo Content. Danach im Javascript die Events und
+                                Funktionen.</p>
+                            <p>Letztendlich folgte dann das Debugging und weitere Umsetzungen, welche nicht direkt in
+                                der Aufgabenstellung vorgesehen waren.</p>
                         </div>
                         <div className={`col-12 col-md-6`}>
-                            <Modalbox />
+                            <Modalbox/>
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <section className="secondary--bg">
+                <div className="content-inner">
+                    <h2 className={`${roboto.className} is--centered`}>Weitere Projekte</h2>
+                    <div className={`row`}>
+                        <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
+                            <div className={`card card-cases`}>
+                                <div className={`card-image card-image-info`}>
+                                    <img src={`/img/blog/code.jpg`}
+                                         alt={`Futterbedarfsrechner`} width={900}
+                                         height={900}/>
+                                </div>
+                                <div className={`card-content`}>
+                                    <h3 className={roboto.className}>Futterrechner</h3>
+                                    <p>Futterbedarfsrechner für Hunde und Katzen, anhand Tiergewicht und
+                                        Inhaltsstoffe</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
+                            <div className={`card card-cases`}>
+                                <div className={`card-image card-image-info`}>
+                                    <img src={`/img/blog/code.jpg`}
+                                         alt={`Optimix Futterrechner`} width={900}
+                                         height={900}/>
+                                </div>
+                                <div className={`card-content`}>
+                                    <h3 className={roboto.className}>Optimix Rechner</h3>
+                                    <p>Rechner für Optimix Tierfutter, welches die Nährstoffe anhand des gewichts
+                                        berechnet.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
+                            <div className={`card card-cases`}>
+                                <div className={`card-image card-image-info`}>
+                                    <img src={`/img/blog/code.jpg`}
+                                         alt={`Dart Scorer`} width={900}
+                                         height={900}/>
+                                </div>
+                                <div className={`card-content`}>
+                                    <h3 className={roboto.className}>Darts Scorer</h3>
+                                    <p>Scoring System für Dartspieler. Finishwege und Punkte berechnen.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
+                            <div className={`card card-cases`}>
+                                <div className={`card-image card-image-info`}>
+                                    <img src={`/img/blog/code.jpg`}
+                                         alt={`Mega Menue`} width={900}
+                                         height={900}/>
+                                </div>
+                                <div className={`card-content`}>
+                                    <h3 className={roboto.className}>Mega Menü</h3>
+                                    <p>Einfaches Mega Menü mit Hover Effekte und mehrere Untermenüs, als
+                                        Übungsprojekt.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
+                            <div className={`card card-cases`}>
+                                <div className={`card-image card-image-info`}>
+                                    <img src={`/img/blog/code.jpg`}
+                                         alt={`Collapese Boxen`} width={900}
+                                         height={900}/>
+                                </div>
+                                <div className={`card-content`}>
+                                    <h3 className={roboto.className}>Collapse Boxen</h3>
+                                    <p>Info Collapse boxen für verschieden Anwendungsbereiche als Übungsprojekt.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
+                            <div className={`card card-cases`}>
+                                <div className={`card-image card-image-info`}>
+                                    <img src={`/img/blog/code.jpg`}
+                                         alt={`Filter System`} width={900}
+                                         height={900}/>
+                                </div>
+                                <div className={`card-content`}>
+                                    <h3 className={roboto.className}>Inhalts Filter</h3>
+                                    <p>Inhalte nach vorgebene Attribute filter und ausgeben lassen als Probeprojekt.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
             </section>
         </>
     )

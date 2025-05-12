@@ -702,6 +702,10 @@ span.title {
       overflow: scroll;
     }
 
+    &.card-image-info {
+      overflow: hidden;
+    }
+
     &.card-image-logo {
       background: #fff;
       display: flex;
@@ -792,13 +796,20 @@ span.title {
 
 .switch-btn {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
 
   & .btn {
     cursor: pointer;
+    text-wrap: none;
   }
 }
 
 .content-list {
   padding-left: 20px;
+}
+
+.promo-video {
+  max-width: 500px;
+  max-height: 500px;
 }
