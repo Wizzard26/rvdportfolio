@@ -25,7 +25,7 @@ export default function ShowReact() {
 
                         <div className={`col-12 col-md-6`}>
                             <h3 className={`${ranga.className}`}>React/Next Capstone Project</h3>
-                            <p>Im zuge eines React/Next Bootcamps habe ich eine art Social Network App entwickelt,
+                            <p>Im Zuge eines React/Next Bootcamps habe ich eine art Social Network App entwickelt,
                                 welche Darts Intusiasten miteinander verbinden soll.</p>
                             <p>Aufgaben waren erstmals die Planung von Funktionen und Bereiche, die innerhalb der
                                 vorgegebenen Zeit zu realisieren waren.</p>
@@ -55,11 +55,11 @@ export default function ShowReact() {
                     <h2 className={`${roboto.className}`}>Calendly Meeting Clone</h2>
 
                     <div className={`row row-reverse`}>
-                        <div className={`col-12 col-md-6 is--centered`}>
+                        <div className={`col-12 col-md-7 col-lg-7 col-xl-7 is--centered`}>
                             <CallEvent/>
                         </div>
 
-                        <div className={`col-12 col-md-6`}>
+                        <div className={`col-12 col-md-5 col-lg-5 col-xl-5 `}>
                             <h3 className={`${ranga.className}`}>React/Next Meeting Planer</h3>
                             <p>Im Rahmen eines Portfolios habe ich einen Calendly-ähnlichen Meeting-Planer mit Next.js
                                 entwickelt – komplett ohne Abo-Modell oder Einschränkungen, um Meetings schnell und
@@ -124,15 +124,77 @@ export default function ShowReact() {
 
                     <div className={`row row-reverse`}>
                         <div className={`col-12 col-md-6 is--centered`}>
-                            <WebPage />
+                            <WebPage/>
                         </div>
 
                         <div className={`col-12 col-md-6`}>
                             <h3 className={`${ranga.className}`}>React/Next Multistep Formular</h3>
-                            <p>Mit diesem interaktiven Multi-Step Konfigurator können Interessenten ihr geplantes Webprojekt Schritt für Schritt strukturieren und erste Anforderungen definieren – ganz ohne technisches Vorwissen.</p>
-                            <p>In mehreren logisch aufgebauten Abschnitten werden gezielte Fragen zu wichtigen Projektbereichen gestellt, darunter z.B. Zielsetzung, Funktionsumfang, Designvorstellungen, technische Anforderungen oder Zeitplan. Die Antworten lassen sich bequem per Klick auswählen oder in Textfeldern ergänzen.</p>
-                            <p>Am Ende wird der ausgefüllte Konfigurator über eine E-Mail-API an den Betreiber übermittelt. Auf Basis dieser Informationen kann eine erste Machbarkeitsanalyse erfolgen, um den Projektumfang besser einzuschätzen und ein individuelles, zielgerichtetes Angebot zu erstellen.</p>
-                            <p>Der Konfigurator ist flexibel erweiterbar und lässt sich auf verschiedene Use-Cases anpassen – z.B. für Websites, Shops, Plattformen oder individuelle Web-Apps.</p>
+                            <p>Mit diesem interaktiven Multi-Step Konfigurator können Interessenten ihr geplantes
+                                Webprojekt Schritt für Schritt strukturieren und erste Anforderungen definieren – ganz
+                                ohne technisches Vorwissen.</p>
+                            <p>In mehreren logisch aufgebauten Abschnitten werden gezielte Fragen zu wichtigen
+                                Projektbereichen gestellt, darunter z.B. Zielsetzung, Funktionsumfang,
+                                Designvorstellungen, technische Anforderungen oder Zeitplan. Die Antworten lassen sich
+                                bequem per Klick auswählen oder in Textfeldern ergänzen.</p>
+                            <p>Am Ende wird der ausgefüllte Konfigurator über eine E-Mail-API an den Betreiber
+                                übermittelt. Auf Basis dieser Informationen kann eine erste Machbarkeitsanalyse
+                                erfolgen, um den Projektumfang besser einzuschätzen und ein individuelles,
+                                zielgerichtetes Angebot zu erstellen.</p>
+                            <p>Der Konfigurator ist flexibel erweiterbar und lässt sich auf verschiedene Use-Cases
+                                anpassen – z.B. für Websites, Shops, Plattformen oder individuelle Web-Apps.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="secondary--bg">
+                <div className="content-inner">
+                    <h2 className={`${roboto.className}`}>Mini CMS System</h2>
+
+                    <div className={`row`}>
+                        <div className={`col-12 col-md-6 is--centered`}>
+                            <Image src={`/img/blog/code.jpg`} width={500} height={500}
+                                   alt={`Kalender Planer App`}/>
+                        </div>
+
+                        <div className={`col-12 col-md-6`}>
+                            <h3 className={`${ranga.className}`}>React/Next Portfolio CMS</h3>
+                            <p>Für ein Portfolio habe ich ein eigenes, leichtgewichtiges Content-Management-System (CMS)
+                                auf Basis von Next.js entwickelt – komplett als Fullstack-Lösung. Ziel war es, sowohl
+                                das Frontend als auch das Backend inklusive Adminbereich eigenständig zu realisieren, um
+                                zentrale CMS-Funktionalitäten und moderne Technologien praxisnah zu vereinen.</p>
+                            <p>Der Fokus lag auf einer modularen und erweiterbaren Struktur, die sich flexibel an
+                                individuelle Anforderungen anpassen lässt.</p>
+                            <p>
+                                <strong>Zu den umgesetzten Funktionen gehören unter anderem:</strong><br/>
+                            </p>
+                            <ul className={`content-list`}>
+                                <li>Dynamisches Navigationssystem – Menüpunkte und Seiten lassen sich zentral
+                                    verwalten und beliebig erweitern
+                                </li>
+                                <li>Landingpages mit individuellen URLs – Inhalte und Strukturen sind vollständig
+                                    anpassbar
+                                </li>
+                                <li>Benutzerverwaltung – Anlage, Bearbeitung und Rechtevergabe von Nutzern im
+                                    Adminbereich
+                                </li>
+                                <li>Blog-/News-System – Einfache Verwaltung und Veröffentlichung von Beiträgen</li>
+                                <li>Meeting-System im Stil von Calendly – Termine und Timeslots können erstellt und
+                                    gebucht werden
+                                </li>
+                                <li>Dashboard mit Besucherzähler – Übersicht über Seitenaufrufe und Anfragen</li>
+                                <li>Bilder-Upload – Hochladen und Verwalten von Bildern direkt auf dem eigenen
+                                    Server
+                                </li>
+                                <li>Case Studies & Referenzen – Verwaltung und Darstellung im Frontend über ein
+                                    strukturiertes Datensystem
+                                </li>
+                            </ul>
+                            <p></p>
+                            <p>Dieses Projekt diente nicht nur der Weiterentwicklung meiner Next.js- und
+                                Fullstack-Kompetenzen, sondern zeigt auch, wie mit einem durchdachten Aufbau bereits mit
+                                wenig Overhead ein eigenständiges CMS-System realisiert werden kann – ideal für
+                                individuelle Portfolios oder kleinere Kundenprojekte.</p>
                         </div>
                     </div>
                 </div>

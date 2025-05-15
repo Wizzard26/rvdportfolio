@@ -1,0 +1,9 @@
+.imageAuto {
+    width: 100%;
+    height: auto;
+}
+
+.imageRatio {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+}

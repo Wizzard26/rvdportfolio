@@ -88,6 +88,7 @@ export default function Home() {
                         </div>
                     </div>
                 </section>
+                {/*
                 <section>
                     <div className="content-inner">
                         <h2 className={`${roboto.className} is--centered`}>News und Blogbeiträge</h2>
@@ -119,6 +120,22 @@ export default function Home() {
                         </div>
                     </div>
                 </section>
+                */}
+
+                <section>
+                    <div className="content-inner">
+                        <h2 className={`${roboto.className} is--centered`}>Sie haben Interesse an ein Gespräch ?</h2>
+                        <div className="col-12  align-center">
+                            <Button
+                                href="/contact"
+                                title="Kontaktieren"
+                                style="secondary-full"
+                                text="Nachricht Schreiben"
+                            />
+                        </div>
+                    </div>
+                </section>
+
             </main>
         </>
     )

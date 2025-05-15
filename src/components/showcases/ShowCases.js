@@ -7,6 +7,7 @@ import ShowPrints from "@/components/showcases/ShowPrints";
 import {ranga, roboto} from "@/app/fonts";
 import ShowJavascripts from "@/components/showcases/ShowJavascripts";
 import ShowReact from "@/components/showcases/ShowReact";
+import ShowShopware from "@/components/showcases/ShowShopware";
 
 
 export default function ShowCases({cases}) {
@@ -64,14 +65,9 @@ export default function ShowCases({cases}) {
                 </>
             }
 
-            {cases === 'shopware5' &&
+            {cases === 'shopware' &&
                 <>
-                    <div>HERE SHOPWRE 5 MODULES</div>
-                </>
-            }
-            {cases === 'shopware6' &&
-                <>
-                    <div>HERE SHOPWRE 6 MODULES</div>
+                    <ShowShopware />
                 </>
             }
         </>
