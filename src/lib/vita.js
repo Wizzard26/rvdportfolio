@@ -97,11 +97,19 @@ export const vitaEntries = [
     },
     {
         "id": 13,
-        "title": "Shopware Fullstack Developer",
+        "title": "Developer - Durchgeblueht.de SW6",
         "company": "Simonsen Freianlagen Freiraumplanungsgesellschaft mbH",
-        "description": "Entwicklung und Wartung der E-Commerce Shopware 6 Plattform. Pluginerstellung sowie Änderungen und verbesserungen vorhandener Plugins",
+        "description": "Entwicklung und Wartung der E-Commerce Shopware 6 Plattform. Pluginerstellung sowie Änderungen und verbesserungen vorhandener Plugins. Abstimmung mit der Geschäftsführung sowie Externer Agentur zur Planung neuer Erweiterungen und bestehende Anpassungen.",
         "start": "09/2023",
-        "end": "Now"
+        "end": "08/2024"
+    },
+    {
+        "id": 14,
+        "title": "eCommerce Developer",
+        "company": "digidesk – media solutions",
+        "description": "Theme und Modulentwicklung Shopware 6 und Oxid Visual CMS Anpassungen. Wartung, Planung und Aufwandsschätzungen, Bearbeitung von Tickets und Kundenaufträgen. Konfiguration und Installation von Shopware 6 und Oxid CMS",
+        "start": "08/2024",
+        "end": "12/2024"
     }
 ]
 
@@ -211,7 +219,7 @@ export const vitaPersonal =  [
             },
             {
                 "id": 3,
-                "entry": "neue fische: Web-Developer React"
+                "entry": "neue fische: Web-Developer React/Next.Js"
             }
         ]
     },
@@ -234,7 +242,7 @@ export const vitaPersonal =  [
             },
             {
                 "id": 4,
-                "entry": "Mobile: IPhone X"
+                "entry": "Mobile: IPhone 14 Pro"
             },
             {
                 "id": 5,
@@ -271,7 +279,7 @@ export const vitaPersonal =  [
     },
     {
         "id": 9,
-        "area": "Dokumente & Zertifikate:",
+        "area": "Zeugnisse:",
         "showheadline": true,
         "entries": [
             {
@@ -296,31 +304,40 @@ export const vitaPersonal =  [
             },
             {
                 "id": 5,
+                "entry": "Arbeitszeugnis Durchgeblueht",
+                "link": "/document/simonsen-cert.pdf"
+            }
+        ]
+    },
+    {
+        "id": 10,
+        "area": "Zertifikate",
+        "showheadline": true,
+        "entries": [
+            {
+                "id": 1,
                 "entry": "Zertifikat SW 5 Template Entwickler",
                 "link": "/document/sw5-cert.pdf"
             },
             {
-                "id": 6,
+                "id": 2,
                 "entry": "Zertifikat SW 6 Template Designer",
                 "link": "/document/sw6CertifiedTemplate.pdf"
             },
             {
-                "id": 7,
+                "id": 3,
                 "entry": "Zertifikat JavaScript Developer",
                 "link": "/document/Zertifikat_Javascript.pdf"
             },
             {
-                "id": 8,
+                "id": 4,
                 "entry": "Zertifikat PHP MySQL Lehrgang",
                 "link": "/document/Zertifikat_PHP_Developer.pdf"
             },
             {
-                "id": 9,
-                "entry": "Zertifikat PHP Developer"
-            },
-            {
-                "id": 10,
-                "entry": "Zertifikat Web Developer React/Next.js"
+                "id": 5,
+                "entry": "Zertifikat Web Developer React/Next.js",
+                "link": "/document/neuefische-cert.pdf"
             }
         ]
     }

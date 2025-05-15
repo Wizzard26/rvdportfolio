@@ -681,3 +681,135 @@ span.title {
   justify-content: center;
   padding: 30px 0 15px;
 }
+
+.card-cases {
+  border: 1px solid #d3d3d3;
+
+  & .card-image {
+    aspect-ratio: 5 / 4;
+    overflow: hidden;
+
+    & img {
+      width: 100%;
+      height: auto;
+      margin: 0;
+      padding: 0;
+      display: block;
+      position: relative;
+    }
+
+    &.card-image-web {
+      overflow: scroll;
+    }
+
+    &.card-image-info {
+      overflow: hidden;
+    }
+
+    &.card-image-logo {
+      background: #fff;
+      display: flex;
+      align-content: center;
+      justify-content: center;
+      padding: 5%;
+
+      & img {
+        width: auto;
+        height: 100%;
+        max-width: 100%;
+      }
+    }
+
+  }
+
+  & .card-content {
+    padding: 10px;
+
+    & h3 {
+      margin: 0 0 5px;
+      font-size: 1.2rem;
+    }
+
+    & p {
+      margin-bottom: 5px;
+      font-size: 1.1rem;
+      line-height: 1.3rem;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
+    }
+  }
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 2fr 4fr;
+  grid-gap: 15px;
+  grid-auto-flow: dense;
+
+  & .grid-contentbox {
+    grid-column: 1 / 2;
+  }
+
+  & .row {
+    grid-column: 2 / 3;
+  }
+}
+
+.grid-reverse {
+  grid-template-columns: 4fr 2fr;
+
+  & .grid-contentbox {
+    grid-column: 2 / 3;
+    margin-left: 15px;
+  }
+
+  & .row {
+    grid-column: 1 / 2;
+  }
+}
+
+.grid-contentbox {
+  background: #dedede;
+  padding: 10px;
+  position: relative;
+  width: calc(100% - 15px);
+}
+
+.grid-titlebox {
+  border: 2px solid #969696;
+  padding: 10px;
+  height: 100%;
+
+  & h3 {
+    display: flex;
+    align-items: center;
+    margin: 0 0 5px;
+  }
+
+  & svg {
+    font-size: 3rem;
+    margin-right: 10px;
+  }
+}
+
+.switch-btn {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  & .btn {
+    cursor: pointer;
+    text-wrap: none;
+  }
+}
+
+.content-list {
+  padding-left: 20px;
+}
+
+.promo-video {
+  max-width: 500px;
+  max-height: 500px;
+}

@@ -1,0 +1,267 @@
+.confCard {
+    border: 1px solid #314157;
+    padding: 15px 10px;
+    border-radius: 5px;
+    margin: 20px 0;
+    transition: all 0.3s ease;
+    background: #1c283a;
+}
+
+.confCardInner {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.confCardInner .confBtn {
+    flex-basis: calc(50% - 10px);
+}
+
+.confHeadline {
+    flex: 0 0 100%;
+    text-align: center;
+    font-size: 1.4rem;
+    margin: 20px 0;
+}
+
+.confHeadline .confSubline {
+    display: block;
+    font-size: 1rem;
+    margin: 10px 0 0;
+}
+
+.confIcon {
+    font-size: 3rem;
+    display: flex;
+    justify-content: center;
+}
+
+.confTitle {
+
+}
+
+.confInput.confInputUrl {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.confInput .confTextInput {
+    width: 50%;
+    background: transparent;
+    font-size: 1.2rem;
+}
+
+.confActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.confActions .confBtnPrev {
+    background-color: #c50eae;
+    background: linear-gradient(90deg,#892be1, #671eb5);
+    color: #ffffff;
+    padding: 10px 15px 10px 0;
+    transition: all .3s ease-in-out;
+    border: none;
+}
+
+.confActions .confBtnPrev:hover {
+    filter: brightness(90%);
+}
+
+.confActions .confBtnNext {
+    background: linear-gradient(90deg,#c50eae, #bb27dc);
+    color: #fff;
+    padding: 10px 0 10px 15px;
+    transition: all .3s ease-in-out;
+    border: none;
+}
+
+.confActions .confBtnNext:hover {
+    filter: brightness(90%);
+}
+
+.confActions button {
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.confActions button svg {
+    font-size: 2rem;
+}
+
+.confBtn {
+    padding: 15px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    border: 5px solid #233147;
+    background-color: #1c283a;
+    position: relative;
+    color: #f1f1f1;
+}
+
+.confBtn:hover {
+    background-color: #233147;
+}
+
+.confBtn.confActive {
+    border-color: transparent;
+    background: linear-gradient(90deg,#892be1, #1e1eb5) padding-box,
+    linear-gradient(90deg,#892be1, #1e1eb5)border-box;
+    color: #fff;
+}
+
+
+.confInput {
+    height: 0;
+    flex: 1 1 100%;
+    padding-top: 0;
+    transition: all 0.3s ease;
+    align-items: center;
+}
+
+.confInput .confTextInput {
+    padding: 8px 10px;
+    border-color:#549bc4;
+    border-style: solid;
+    border-width: 0 0 2px 0;
+    transition: border-color 0.3s ease;
+}
+
+.confInput .confTextInput:focus {
+    outline: none;
+    border-color: #c50eae
+}
+
+.confInput.confInputActive {
+    height: 120px;
+    padding-top: 25px;
+}
+
+.confTextArea {
+    width: 100%;
+    height: auto;
+    min-height: 160px;
+    padding: 8px 10px;
+    background-color: #314157;
+    color: #f2f2f2;
+}
+
+.confTextArea:focus {
+    outline: none;
+}
+
+.stepsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.stepsContainer .stepsPointer {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #e096d5;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.stepsContainer .stepsPointer.done {
+    background-color: #007bff;
+}
+
+.stepsContainer .stepsPointer.active {
+    background-color: #c50eae;
+}
+
+.confTitleHeadline {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+    padding-left: 10px;
+}
+
+.confTable {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.confTable .confTableRow {
+    display: table-row;
+}
+
+.confTable .confTableRow span {
+    display: table-cell;
+    padding: 15px 10px;
+    border: 1px solid #233147;
+}
+
+.confTable .confTableRow span:first-child {
+    width: 350px;
+    font-weight: 600;
+}
+
+.confTable .confTableRow span span {
+    font-weight: 400!important;
+    width: auto !important;
+    border: none;
+    display: block;
+    padding: 5px 0;
+}
+
+.confFormRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    flex: 0 0 100%;
+}
+
+.confFormCol {
+    display: flex;
+    flex-direction: column;
+    min-width: calc(50% - 10px);
+}
+
+.confFormCol label {
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.confInputSelect {
+    padding: 14px 12px;
+    min-width: 150px;
+    border-radius: 3px;
+    background-color: #314157;
+    color: #f2f2f2;
+}
+
+.confInputText {
+    padding: 12px 12px;
+    border-radius: 3px;
+    background-color: #314157;
+    color: #f2f2f2;
+}
+
+.confInputText:focus {
+    outline: none;
+}
+
+.confError {
+    flex: 0 0 100%;
+    padding: 8px 0 15px;
+    color: #bd0527;
+}
