@@ -27,12 +27,12 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# server-side production secrets (never committed; lives only on the server)
+.env.production
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# secure config
-next.config.js

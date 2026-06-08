@@ -5,14 +5,16 @@ export async function POST(request){
     try {
         const {gender, title, firstName, lastName, company, phone, mail, webUrl, message, sendCopy} = await request.json();
 
+        const mailPort = Number(process.env.NEXT_CONTACT_MAIL_PORT) || 465;
+
         const transporter = nodemailer.createTransport({
-            service: 'gambit24mailer',
-            host: 'server.gambit24.de',
-            port: 465,
-            secure: true,
+            service: process.env.NEXT_CONTACT_MAIL_SERVICE || 'gambit24mailer',
+            host: process.env.NEXT_CONTACT_MAIL_HOST || 'server.gambit24.de',
+            port: mailPort,
+            secure: mailPort === 465,
             auth: {
-                user: process.env.NEXT_PUBLIC_MAIL_ADDRESS,
-                pass: process.env.NEXT_PUBLIC_MAIL_PASS
+                user: process.env.NEXT_CONTACT_MAIL_ADDRESS,
+                pass: process.env.NEXT_CONTACT_MAIL_PASS
             }
         })
 
