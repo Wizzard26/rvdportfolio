@@ -1,4 +1,6 @@
 import './../globals.css';
+import Header from "@/components/header/page";
+import Footer from "@/components/footer/page";
 
 export const metadata = {
     title: 'Rene van Dinter Portfolio',
@@ -8,8 +10,9 @@ export const metadata = {
 export default function PortfolioLayout({ children }) {
     return (
         <>
+            <Header />
             {children}
+            <Footer />
         </>
-
     )
 }

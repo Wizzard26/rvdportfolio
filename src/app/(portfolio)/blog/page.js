@@ -4,7 +4,7 @@ import Link from "next/link";
 import styles from "./styles.module.css";
 import {ranga, roboto} from "@/app/fonts";
 import {useSearchParams} from "next/navigation";
-import {useEffect, useState} from "react";
+import {Suspense, useEffect, useState} from "react";
 import BlogList from "@/components/blog/BlogList";
 import BlogCategories from "@/components/blog/BlogCategories";
 
@@ -19,7 +19,7 @@ import BlogCategories from "@/components/blog/BlogCategories";
 
 
 
-export default function Blog() {
+function BlogContent() {
     const searchParams = useSearchParams();
     const cat = searchParams.get('cat');
 
@@ -71,5 +71,13 @@ export default function Blog() {
                 </section>
             </main>
         </>
+    )
+}
+
+export default function Blog() {
+    return (
+        <Suspense fallback={<main className="main-content"><section><div className="content-inner">Beiträge werden geladen …</div></section></main>}>
+            <BlogContent />
+        </Suspense>
     )
 }

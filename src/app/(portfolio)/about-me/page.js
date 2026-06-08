@@ -1,16 +1,11 @@
 import HeroContent from "@/components/herocontent/page";
 import Teaser from "@/components/teaser/page";
 import { getQuoteData } from "@/utils/getQuoteData";
-import dynamic from 'next/dynamic';
 import {ranga, roboto} from "@/app/fonts";
 import styles from "./styles.module.css";
 import Button from "@/components/button/Button";
 import Skillset from "@/components/skillset/Skillset";
-
-const Blockqoutes = dynamic(() => import('@/components/blockqoutes/page'), {
-    ssr: false,
-    loading: () => <section><div className="content-inner"><blockquote style={{ textAlign: 'center' }}>Loading random quote ...</blockquote></div></section>
-})
+import BlockqoutesClient from "@/components/blockqoutes/BlockqoutesClient";
 
 export default async function AboutMe() {
     const pageName = "AboutMe";
@@ -28,7 +23,7 @@ export default async function AboutMe() {
                 className="main--teaser"
                 pageName={pageName}
             />
-            <Blockqoutes quoteData={quoteData}  />
+            <BlockqoutesClient quoteData={quoteData}  />
             <section className="secondary--bg">
                 <div className="content-inner">
                     <h2 className={`${roboto.className} is--centered`}>Meine Kenntnisse</h2>
