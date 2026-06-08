@@ -110,6 +110,14 @@ export const vitaEntries = [
         "description": "Theme und Modulentwicklung Shopware 6 und Oxid Visual CMS Anpassungen. Wartung, Planung und Aufwandsschätzungen, Bearbeitung von Tickets und Kundenaufträgen. Konfiguration und Installation von Shopware 6 und Oxid CMS",
         "start": "08/2024",
         "end": "12/2024"
+    },
+    {
+        "id": 15,
+        "title": "Shopware 6 - Developer",
+        "company": "TC-Innovations GmbH",
+        "description": "Frontend- und Plugin-Entwicklung im Shopware 6 Umfeld. Konzeption und Umsetzung individueller Storefront-Themes sowie Entwicklung und Wartung eigener Plugins und Apps. Eingesetzte Technologien Twig, SCSS, JavaScript und Bootstrap im Storefront sowie Vue.js in der Shopware Administration. Entwicklung in dockerisierten Umgebungen (vergleichbar mit Dockware) und Versionierung mit Git. Aufbau und Anbindung einer App-Server-Landschaft inklusive Integration von In-App-Purchase-Mechanismen (IAP) und angebundenen Applikationen.",
+        "start": "07/2025",
+        "end": "07/2026"
     }
 ]
 
