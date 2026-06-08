@@ -5,7 +5,7 @@ import {ranga, roboto_condensed} from "@/app/fonts";
 import Button from "@/components/button/Button";
 import {Fragment} from "react";
 import { MotionDiv } from "@/components/MotionDiv/MotionDiv";
-import { SiAdobeacrobatreader } from "react-icons/si";
+import { TbFileTypePdf } from "react-icons/tb";
 
 function getWorkStations() {
     const vitaStation = vitaEntries;
@@ -78,7 +78,7 @@ export default function Vita() {
                                         {personal.entries.map(entries => (
                                             <Fragment key={entries.id}>
                                                 {entries.link
-                                                    ? <><a href={entries.link} title={entries.entry} download={entries.entry}><SiAdobeacrobatreader /> {entries.entry}</a><br/></>
+                                                    ? <><a href={entries.link} title={entries.entry} download={entries.entry}><TbFileTypePdf /> {entries.entry}</a><br/></>
                                                     : <>{entries.entry}<br/></>
                                                 }
                                             </Fragment>

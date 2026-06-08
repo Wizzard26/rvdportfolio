@@ -1,15 +1,17 @@
 'use client';
+import { use } from "react";
 import { blogEntries } from "@/lib/blog";
 import Image from "next/image";
 import styles from "./styles.module.css";
 import { roboto, ranga } from "@/app/fonts";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 
 export default function Slug({ params }) {
     const router = useRouter();
-    const { title,subline,image,  teaser} = blogEntries.find(entry => {
-        return entry.slug === params.slug;
-    })
+    const { slug } = use(params);
+    const entry = blogEntries.find((entry) => entry.slug === slug);
+    if (!entry) notFound();
+    const { title, subline, image, teaser } = entry;
 
     return(
         <>

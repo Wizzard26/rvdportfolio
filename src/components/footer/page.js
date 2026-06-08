@@ -19,17 +19,20 @@ import {
 } from "react-icons/di";
 import {BiLogoDocker, BiLogoFacebook, BiLogoGithub, BiLogoInstagram, BiLogoLinkedin, BiLogoXing} from "react-icons/bi";
 import {
-    SiAdobeacrobatreader,
-    SiAdobecreativecloud,
-    SiAdobeillustrator, SiAdobeindesign,
-    SiAdobephotoshop, SiAdobexd,
-    SiContao, SiFigma,
+    SiContao,
     SiNextdotjs,
     SiPhpstorm,
     SiShopware,
-    SiSymfony, SiWebstorm,
+    SiSymfony,
+    SiWebstorm,
     SiWordpress
 } from "react-icons/si";
+import {
+    TbBrandAdobePhotoshop,
+    TbBrandAdobeIllustrator,
+    TbBrandAdobeIndesign,
+    TbBrandAdobeXd
+} from "react-icons/tb";
 import {PiGitlabLogo} from "react-icons/pi";
 import {AiOutlineCopyrightCircle} from "react-icons/ai";
 import {roboto_condensed} from "@/app/fonts";
@@ -73,10 +76,10 @@ export default function Footer() {
                             <div className="col-12 col-md-6 col-xl-4 columns">
                                 <h3 className={roboto_condensed.className}>Software</h3>
                                 <TecIcons>
-                                    <SiAdobephotoshop />
-                                    <SiAdobeillustrator />
-                                    <SiAdobeindesign />
-                                    <SiAdobexd />
+                                    <TbBrandAdobePhotoshop />
+                                    <TbBrandAdobeIllustrator />
+                                    <TbBrandAdobeIndesign />
+                                    <TbBrandAdobeXd />
                                     <SiPhpstorm />
                                     <SiWebstorm />
                                 </TecIcons>
