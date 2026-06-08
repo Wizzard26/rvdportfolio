@@ -1,29 +1,40 @@
-import { Roboto, Roboto_Condensed, Kanit, Ranga } from 'next/font/google';
+import localFont from 'next/font/local';
 
-export const roboto = Roboto({
-    subsets: ['latin'],
+// Self-hosted to keep the production build network-independent (CI builds
+// previously failed fetching these from Google Fonts at build time).
+// Roboto and Roboto Condensed are variable fonts (single file, weight range);
+// Kanit and Ranga are static per-weight files. Latin subset only.
+
+export const roboto = localFont({
+    src: './fonts/roboto-variable.woff2',
+    weight: '100 900',
     variable: '--font-roboto',
-    weight: ['100', '300', '400', '500', '700', '900'],
-    display: "swap",
+    display: 'swap',
 })
 
-export const roboto_condensed = Roboto_Condensed({
-    subsets: ['latin'],
+export const roboto_condensed = localFont({
+    src: './fonts/roboto-condensed-variable.woff2',
+    weight: '100 900',
     variable: '--font-roboto-condensed',
-    weight: ['300', '400', '700'],
-    display: "swap",
+    display: 'swap',
 })
 
-export const kanit = Kanit({
-    subsets: ['latin'],
+export const kanit = localFont({
+    src: [
+        { path: './fonts/kanit-200.woff2', weight: '200', style: 'normal' },
+        { path: './fonts/kanit-400.woff2', weight: '400', style: 'normal' },
+        { path: './fonts/kanit-500.woff2', weight: '500', style: 'normal' },
+        { path: './fonts/kanit-700.woff2', weight: '700', style: 'normal' },
+    ],
     variable: '--font-kanit',
-    weight: ['200','400','500','700'],
-    display: "swap",
+    display: 'swap',
 })
 
-export const ranga = Ranga({
-    subsets: ['latin'],
+export const ranga = localFont({
+    src: [
+        { path: './fonts/ranga-400.woff2', weight: '400', style: 'normal' },
+        { path: './fonts/ranga-700.woff2', weight: '700', style: 'normal' },
+    ],
     variable: '--font-ranga',
-    weight: ['400','700'],
-    display: "swap",
+    display: 'swap',
 })
