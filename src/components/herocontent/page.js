@@ -31,6 +31,8 @@ export default function HeroContent({ pageName, imgPos, txtPos}) {
                             src={hero?.imgUrl}
                             alt={hero?.imgAlt}
                             priority={true}
+                            fetchPriority="high"
+                            sizes="100vw"
                             width="1920"
                             height="902" />
                     )}
@@ -38,13 +40,11 @@ export default function HeroContent({ pageName, imgPos, txtPos}) {
                         <article className={`${textPosition}`}>
                             <motion.div className={`${boxBg}`}
                                         initial={{opacity: 0}}
-                                        whileInView={{ opacity: 1 }}
+                                        animate={{ opacity: 1 }}
                                         transition={{
-                                            delay: .5,
                                             ease: "easeIn",
-                                            duration: .5
+                                            duration: .4
                                         }}
-                                        viewport={{once: true}}
                             >
                                 <h2 className={`${roboto.className} ${styles.heroHeadline}`}>{hero?.headline}</h2>
                                 <h3 className={`${ranga.className} ${styles.heroHeadSubline}`}>{hero?.headSubline}</h3>
@@ -68,13 +68,12 @@ export default function HeroContent({ pageName, imgPos, txtPos}) {
                             {hero?.btnOne && (
                                 <motion.div className={`${styles.actionButtons} row`}
                                             initial={{opacity: 0}}
-                                            whileInView={{ opacity: 1 }}
+                                            animate={{ opacity: 1 }}
                                             transition={{
-                                                delay: 1,
+                                                delay: .2,
                                                 ease: "easeIn",
-                                                duration: .5
+                                                duration: .4
                                             }}
-                                            viewport={{once: true}}
                                 >
                                     <Button
                                         href={hero?.btnOne.url}
