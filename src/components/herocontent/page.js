@@ -1,10 +1,8 @@
-"use client";
 import Image from "next/image";
 import {ranga, roboto, roboto_condensed} from "@/app/fonts";
 import { heroContent } from "@/lib/data";
 import styles from './styles.module.css';
 import Button from "@/components/button/Button";
-import { motion } from "framer-motion";
 
 export default function HeroContent({ pageName, imgPos, txtPos}) {
     const activePage = pageName;
@@ -38,14 +36,7 @@ export default function HeroContent({ pageName, imgPos, txtPos}) {
                     )}
                     {hero?.headline && (
                         <article className={`${textPosition}`}>
-                            <motion.div className={`${boxBg}`}
-                                        initial={{opacity: 0}}
-                                        animate={{ opacity: 1 }}
-                                        transition={{
-                                            ease: "easeIn",
-                                            duration: .4
-                                        }}
-                            >
+                            <div className={`${boxBg}`}>
                                 <h2 className={`${roboto.className} ${styles.heroHeadline}`}>{hero?.headline}</h2>
                                 <h3 className={`${ranga.className} ${styles.heroHeadSubline}`}>{hero?.headSubline}</h3>
                                 <p className={`${styles.heroListHeadline}`}>{hero?.listHeadline}</p>
@@ -63,18 +54,10 @@ export default function HeroContent({ pageName, imgPos, txtPos}) {
                                         <p className={`${styles.heroText}`} dangerouslySetInnerHTML={{ __html: hero?.textbox }}/>
                                     </>
                                 )}
-                            </motion.div>
+                            </div>
 
                             {hero?.btnOne && (
-                                <motion.div className={`${styles.actionButtons} row`}
-                                            initial={{opacity: 0}}
-                                            animate={{ opacity: 1 }}
-                                            transition={{
-                                                delay: .2,
-                                                ease: "easeIn",
-                                                duration: .4
-                                            }}
-                                >
+                                <div className={`${styles.actionButtons} row`}>
                                     <Button
                                         href={hero?.btnOne.url}
                                         title={hero?.btnOne.title}
@@ -89,7 +72,7 @@ export default function HeroContent({ pageName, imgPos, txtPos}) {
                                             text={hero?.btnTwo.text}
                                         />
                                     )}
-                                </motion.div>
+                                </div>
                             )}
                         </article>
                     )}
