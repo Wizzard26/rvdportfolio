@@ -15,13 +15,13 @@ export default function Imprint() {
             <main className="main-content">
                 <div className="content-inner">
                     <h1 className={`${roboto.className} is--centered`}>Impressum und Informationen</h1>
-                    <h2 className={`${ranga.className} is--centered`}>Rechliche Informationen</h2>
+                    <h2 className={`${ranga.className} is--centered`}>Rechtliche Informationen</h2>
                 </div>
                 <section>
                     <div className="content-inner">
                         <div className={`row`}>
                             <div className={`col-12 col-md-6`}>
-                                <h3 className={`${ranga.className}`}>Angaben gemäß § 5 TMG:</h3>
+                                <h3 className={`${ranga.className}`}>Angaben gemäß § 5 DDG:</h3>
                                 <div>Betreiber:</div>
                                 <div>René van Dinter</div>
                                 <div>Adresse:</div>
@@ -30,21 +30,22 @@ export default function Imprint() {
                             </div>
                             <div className={`col-12 col-md-6`}>
                                 <h3 className={`${ranga.className}`}>Aufgabengebiete:</h3>
-                                <div>Mediengestalter Digital und Print</div>
-                                <div>Web & Grafikdesigner</div>
-                                <div>Frontend-Webentwickler</div>
+                                <div>Shopware- & Web-Development</div>
+                                <div>Frontend- & Web-App-Entwicklung</div>
+                                <div>Mediengestaltung (Digital & Print)</div>
                                 <h3 className={`${ranga.className}`}>Kontaktdaten:</h3>
-                                <Link href={`mailto:info@rene-van-dinter.de`} title={`Mail to me`}>info@rene-van-dinter.de</Link><br/>
-                                <Link href={`https://www.rene-van-dinter.de`} title={`Mail to me`}>https://www.rene-van-dinter.de</Link>
+                                <div>Telefon: <Link href={`tel:+491749327538`} title={`Anrufen`}>0174 / 93 27 538</Link></div>
+                                <Link href={`mailto:info@rene-van-dinter.de`} title={`E-Mail schreiben`}>info@rene-van-dinter.de</Link><br/>
+                                <Link href={`https://www.rene-van-dinter.de`} title={`Zur Website`}>https://www.rene-van-dinter.de</Link>
                             </div>
                         </div>
                     </div>
                 </section>
                 <section className={`secondary--bg`}>
                     <div className="content-inner">
-                        <h2 className={`${roboto_condensed.className}`}>Haftungsausschluß</h2>
+                        <h2 className={`${roboto_condensed.className}`}>Haftungsausschluss</h2>
                         <h3 className={`${ranga.className}`}>Haftung für Inhalte</h3>
-                        <p>Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+                        <p>Als Diensteanbieter sind wir gemäß § 7 Abs.1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
                         <p>Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p>
                     </div>
                 </section>
@@ -65,10 +66,8 @@ export default function Imprint() {
                 <section>
                     <div className="content-inner">
                         <h3 className={`${ranga.className}`}>Datenschutz</h3>
-                        <p>Die Nutzung unserer Webseite ist in der Regel ohne Angabe personenbezogener Daten möglich. Soweit auf unseren Seiten personenbezogene Daten (beispielsweise Name, Anschrift oder eMail-Adressen) erhoben werden, erfolgt dies, soweit möglich, stets auf freiwilliger Basis. Diese Daten werden ohne Ihre ausdrückliche Zustimmung nicht an Dritte weitergegeben.</p>
-                        <p>Wir weisen darauf hin, dass die Datenübertragung im Internet (z.B. bei der Kommunikation per E-Mail) Sicherheitslücken aufweisen kann. Ein lückenloser Schutz der Daten vor dem Zugriff durch Dritte ist nicht möglich.</p>
-                        <p>Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten durch Dritte zur Übersendung von nicht ausdrücklich angeforderter Werbung und Informationsmaterialien wird hiermit ausdrücklich widersprochen. Die Betreiber der Seiten behalten sich ausdrücklich rechtliche Schritte im Falle der unverlangten Zusendung von Werbeinformationen, etwa durch Spam-Mails, vor.</p>
-                        <p>Quellverweis: <Link href={`http://www.e-recht24.de/muster-disclaimer.html`} title={`e-recht24`}>eRecht24</Link></p>
+                        <p>Informationen zum Umgang mit personenbezogenen Daten auf dieser Website finden Sie in unserer <Link href={`/disclaimer`} title={`Zur Datenschutzerklärung`}>Datenschutzerklärung</Link>.</p>
+                        <p>Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten zur Übersendung von nicht ausdrücklich angeforderter Werbung und Informationsmaterialien wird hiermit ausdrücklich widersprochen.</p>
                     </div>
                 </section>
             </main>
