@@ -8,6 +8,40 @@ import TechTags from "@/components/showcases/TechTags";
 export default function ShowReact() {
     return (
         <>
+            <section>
+                <div className="content-inner">
+                    <h2 className={`${roboto.className}`}>DartPlaner – Web- & App-Plattform</h2>
+
+                    <div className={`row`}>
+                        <div className={`col-12 col-md-6 is--centered`}>
+                            <Image src={`/img/blog/code.jpg`} width={500} height={500}
+                                   alt={`DartPlaner Plattform`}/>
+                        </div>
+
+                        <div className={`col-12 col-md-6`}>
+                            <h3 className={`${ranga.className}`}>Symfony · Next.js · PWA – in Entwicklung</h3>
+                            <p>DartPlaner ist eine umfangreiche Plattform zur Verwaltung von Dart-Ligen, -Turnieren
+                                und -Vereinen, die ich aktuell als Fullstack-Projekt entwickle. Sie ist als
+                                API-getriebenes System mit mehreren eigenständigen Anwendungen aufgebaut.</p>
+                            <p>Ein Backend mit Symfony und API Platform (PostgreSQL, Redis, Echtzeit über Mercure)
+                                bildet die Datenbasis – modelliert nach Domain-Driven-Design über mehrere Bounded
+                                Contexts. Darauf setzen mehrere Next.js-Anwendungen auf:</p>
+                            <ul className={`content-list`}>
+                                <li>Admin-Dashboard – Verwaltung von Verbänden, Ligen, Saisons, Spielplänen und
+                                    Statistiken
+                                </li>
+                                <li>Player-App (PWA) – mobile, offline-fähige App für Spieler inkl. Trainingsmodi</li>
+                                <li>Scorer-App (PWA) – eigenständiges, offline-fähiges Dart-Scoring</li>
+                            </ul>
+                            <p>Technische Schwerpunkte: offline-fähige PWAs mit lokaler Datenhaltung und
+                                Synchronisation, Echtzeit-Updates per WebSocket sowie eine sauber nach Domänen
+                                strukturierte Architektur. Das Projekt befindet sich in aktiver Entwicklung.</p>
+                            <TechTags tags={["Symfony", "API Platform", "PostgreSQL", "Mercure", "Next.js", "React", "TypeScript", "PWA"]} />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section className="secondary--bg">
                 <div className="content-inner">
                     <h2 className={`${roboto.className}`}>DartsConnect Netzwerk App</h2>
