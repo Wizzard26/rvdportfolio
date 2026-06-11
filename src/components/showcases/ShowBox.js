@@ -1,4 +1,5 @@
 import {roboto} from "@/app/fonts";
+import TechTags from "./TechTags";
 
 export default function ShowBox({headline,data, boxClass = 'web', category = ''}) {
     const caseEntries = data.filter((entry) => entry.category === category);
@@ -19,6 +20,7 @@ export default function ShowBox({headline,data, boxClass = 'web', category = ''}
                             <div className={`card-content`}>
                                 <h3 className={roboto.className}>{entry.title}</h3>
                                 <p>{entry.description}</p>
+                                <TechTags tags={entry.technik ? [entry.technik] : []} />
                             </div>
                         </div>
                     </div>

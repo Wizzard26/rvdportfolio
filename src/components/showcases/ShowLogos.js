@@ -80,7 +80,7 @@ export default function ShowLogos() {
                 <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
                     <div className={`card card-cases`}>
                         <div className={`card-image card-image-logo`}>
-                            <img src="/img/casestudy/logo/tcc-logo.png" alt="Chaufferur College"
+                            <img src="/img/casestudy/logo/tcc-logo.png" alt="Chauffeur College"
                                  width={900}
                                  height={900}/>
                         </div>

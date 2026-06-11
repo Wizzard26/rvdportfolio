@@ -16,6 +16,14 @@ export default function ShowCases({cases}) {
         <>
             {cases === 'layouts' &&
                 <>
+                    <section>
+                        <div className="content-inner">
+                            <h2 className={`${roboto.className} is--centered`}>Design & Gestaltung</h2>
+                            <p className="is--centered">Mein Ursprung als Mediengestalter: Web- und Shop-Layouts,
+                                Logos und Printdesign. Dieser gestalterische Hintergrund ist die Basis dafür, dass
+                                ich als Developer Design und User Experience von Anfang an mitdenke.</p>
+                        </div>
+                    </section>
                     <section className="secondary--bg">
                         <div className="content-inner">
                             <ShowBox

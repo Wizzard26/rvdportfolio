@@ -71,8 +71,8 @@ export const caseWebEntries = [
     },
     {
         "id": 8,
-        "title": "Limosinen Service",
-        "description": "Landingpage für einen Limosinen Service, erstellt auf Grundlage eines Wettbewerbs.",
+        "title": "Limousinen-Service",
+        "description": "Landingpage für einen Limousinen-Service, erstellt auf Grundlage eines Wettbewerbs.",
         "imgPath": "web",
         "category": "website",
         "image": "limoservice.jpg",
@@ -92,7 +92,7 @@ export const caseWebEntries = [
     {
         "id": 10,
         "title": "Gambit24 Media",
-        "description": "Neuentwicklung eines Designkonzepts für ein Freelancer Portfolio, welches sich mit Shopware, Contao und NextJs Entwicklungen beschäftigt.",
+        "description": "Designkonzept einer Agentur-Website mit Schwerpunkt auf Shopware-, Contao- und Next.js-Entwicklung.",
         "imgPath": "web",
         "category": "website",
         "image": "gambit24_prev.png",
@@ -112,7 +112,7 @@ export const caseWebEntries = [
     {
         "id": 12,
         "title": "GBS-Nord",
-        "description": "Webseite für ein kleines Mittelständiges Unternehmen, welches auf Tankkorrisionsschutz spezialisiert ist.",
+        "description": "Webseite für ein kleines mittelständisches Unternehmen, das auf Tankkorrosionsschutz spezialisiert ist.",
         "imgPath": "web",
         "category": "website",
         "image": "gbs-web.png",
