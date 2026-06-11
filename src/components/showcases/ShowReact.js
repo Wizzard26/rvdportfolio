@@ -151,53 +151,44 @@ export default function ShowReact() {
 
             <section className="secondary--bg">
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Mini CMS System</h2>
+                    <h2 className={`${roboto.className}`}>Eigene Fullstack-Business-Plattform</h2>
 
                     <div className={`row`}>
                         <div className={`col-12 col-md-6 is--centered`}>
                             <Image src={`/img/blog/code.jpg`} width={500} height={500}
-                                   alt={`Kalender Planer App`}/>
+                                   alt={`Fullstack-Business-Plattform`}/>
                         </div>
 
                         <div className={`col-12 col-md-6`}>
-                            <h3 className={`${ranga.className}`}>React/Next Portfolio CMS</h3>
-                            <p>Für ein Portfolio habe ich ein eigenes, leichtgewichtiges Content-Management-System (CMS)
-                                auf Basis von Next.js entwickelt – komplett als Fullstack-Lösung. Ziel war es, sowohl
-                                das Frontend als auch das Backend inklusive Adminbereich eigenständig zu realisieren, um
-                                zentrale CMS-Funktionalitäten und moderne Technologien praxisnah zu vereinen.</p>
-                            <p>Der Fokus lag auf einer modularen und erweiterbaren Struktur, die sich flexibel an
-                                individuelle Anforderungen anpassen lässt.</p>
+                            <h3 className={`${ranga.className}`}>Next.js · React · MongoDB – produktiv im Einsatz</h3>
+                            <p>Was als CMS begann, ist zu einer vollständigen, selbst entwickelten Business-Plattform
+                                gewachsen – umgesetzt als Next.js-Fullstack-Anwendung mit MongoDB. Sie läuft produktiv
+                                (im Einsatz hinter Gambit24) und geht weit über ein klassisches CMS hinaus: Website,
+                                Kundenverwaltung und internes Projektmanagement in einem System.</p>
+                            <p>Konzept, Frontend, Backend, Adminbereich und ein eigenes Kundenportal habe ich
+                                eigenständig umgesetzt.</p>
                             <p>
-                                <strong>Zu den umgesetzten Funktionen gehören unter anderem:</strong><br/>
+                                <strong>Funktionsbereiche:</strong><br/>
                             </p>
                             <ul className={`content-list`}>
-                                <li>Dynamisches Navigationssystem – Menüpunkte und Seiten lassen sich zentral
-                                    verwalten und beliebig erweitern
+                                <li>CMS – dynamische Seiten & Navigationen, News, FAQ, Case Studies und
+                                    Medienverwaltung mit Rich-Text-Editor
                                 </li>
-                                <li>Landingpages mit individuellen URLs – Inhalte und Strukturen sind vollständig
-                                    anpassbar
+                                <li>CRM – Kunden, Angebote & Angebotsanfragen, Rechnungen, Nachrichten und
+                                    Service-Pakete
                                 </li>
-                                <li>Benutzerverwaltung – Anlage, Bearbeitung und Rechtevergabe von Nutzern im
-                                    Adminbereich
+                                <li>Projektmanagement – Projekte, To-dos, Zeiterfassung, Status-Updates und
+                                    Controlling
                                 </li>
-                                <li>Blog-/News-System – Einfache Verwaltung und Veröffentlichung von Beiträgen</li>
-                                <li>Meeting-System im Stil von Calendly – Termine und Timeslots können erstellt und
-                                    gebucht werden
+                                <li>Kundenportal – eigener, geschützter Login-Bereich für Kunden</li>
+                                <li>Analytics – eigenes Tracking & Auswertungen (Besucher, Seitenaufrufe) mit
+                                    Dashboards
                                 </li>
-                                <li>Dashboard mit Besucherzähler – Übersicht über Seitenaufrufe und Anfragen</li>
-                                <li>Bilder-Upload – Hochladen und Verwalten von Bildern direkt auf dem eigenen
-                                    Server
-                                </li>
-                                <li>Case Studies & Referenzen – Verwaltung und Darstellung im Frontend über ein
-                                    strukturiertes Datensystem
-                                </li>
+                                <li>Rollen- & Rechteverwaltung, Termin-Buchung, Newsletter und Benachrichtigungen</li>
                             </ul>
-                            <p></p>
-                            <p>Dieses Projekt diente nicht nur der Weiterentwicklung meiner Next.js- und
-                                Fullstack-Kompetenzen, sondern zeigt auch, wie mit einem durchdachten Aufbau bereits mit
-                                wenig Overhead ein eigenständiges CMS-System realisiert werden kann – ideal für
-                                individuelle Portfolios oder kleinere Kundenprojekte.</p>
-                            <TechTags tags={["Next.js", "React", "MongoDB", "REST-API"]} />
+                            <p>Das Projekt zeigt, dass ich komplexe Fullstack-Anwendungen eigenständig konzipieren,
+                                bauen und produktiv betreiben kann.</p>
+                            <TechTags tags={["Next.js", "React", "MongoDB", "NextAuth", "Recharts", "REST-API"]} />
                         </div>
                     </div>
                 </div>
