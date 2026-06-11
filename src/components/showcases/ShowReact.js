@@ -30,12 +30,13 @@ export default function ShowReact() {
                                 die Darts-Enthusiasten miteinander verbinden soll.</p>
                             <p>Zunächst galt es, die Funktionen und Bereiche zu planen, die sich innerhalb der
                                 vorgegebenen Zeit umsetzen ließen.</p>
-                            <p>Nach Vorstellung und Besprechung wurden die einzelnen Komponenten und das Layout
-                                erstellt. Diese wurden anschließend per Code-Review als Merge-Requests geprüft und
-                                implementiert.</p>
-                            <p>Das Projekt wurde als Fullstack-App mit Next.js und einer MongoDB entwickelt. Aufgrund
-                                des knappen Zeitfensters lag der Fokus zunächst auf den Basis-Funktionalitäten; weitere
-                                Features blieben einer späteren Planung vorbehalten.</p>
+                            <p>Nach Konzeption und Abstimmung habe ich die einzelnen Komponenten und das Layout selbst
+                                umgesetzt – eingebunden über einen Git-Workflow mit Pull-Requests, die im Team per
+                                Code-Review abgenommen wurden.</p>
+                            <p>Die App habe ich als Fullstack-Anwendung mit Next.js und einer MongoDB umgesetzt – der
+                                gesamte Code stammt von mir, darunter Authentifizierung, Benutzerprofile und das
+                                Chat-System. Aufgrund des knappen Zeitfensters lag der Fokus auf den
+                                Kern-Funktionalitäten.</p>
                             <p>Aktuelle Funktionen: </p>
                             <ul className={`content-list`}>
                                 <li>Register & Login</li>
@@ -69,10 +70,8 @@ export default function ShowReact() {
                             <p>In der ersten Entwicklungsphase wurden die grundlegenden Funktionen umgesetzt. Die
                                 verfügbaren Termine wurden dabei zunächst aus einer statischen JSON-Datei geladen – wie
                                 in der Demo zu sehen. Für aktive Tage wurden entsprechende Time-Slots definiert, die –
-                                sofern verfügbar – vom Nutzer ausgewählt werden können. Die JSON-Struktur wurde so
-                                vorbereitet, dass sich daraus problemlos ein Datenbankschema ableiten lässt. Geplant
-                                ist, darin Informationen wie Start- und Endzeit, den Anfragesteller sowie etwaige
-                                eingeladene Gäste zu speichern.</p>
+                                sofern verfügbar – vom Nutzer ausgewählt werden können. Die JSON-Struktur wurde dabei
+                                so aufgebaut, dass sich daraus direkt ein Datenbankschema ableiten lässt.</p>
                             <p>Nach dem Abschluss dieser ersten Version folgte die Entwicklung einer datenbankgestützten
                                 Variante – erneut mit Next.js, nun in Kombination mit einer MongoDB. Diese Version wurde
                                 als Fullstack-Anwendung realisiert, inklusive eines Admin-Bereichs zur Pflege der
@@ -80,8 +79,7 @@ export default function ShowReact() {
                                 Betreiber bestätigt oder abgelehnt werden.</p>
                             <p>Sobald ein Nutzer einen Termin bucht, werden die entsprechenden Informationen und
                                 Bestätigungen automatisiert per E-Mail sowohl an den Nutzer als auch an den Betreiber
-                                gesendet – ebenfalls über eine API. Die Anwendung wird laufend weiterentwickelt, um
-                                zusätzliche Funktionen zu integrieren.</p>
+                                gesendet – ebenfalls über eine API.</p>
                             <TechTags tags={["Next.js", "React", "MongoDB", "REST-API", "Mail-API"]} />
                         </div>
                     </div>
@@ -110,9 +108,8 @@ export default function ShowReact() {
                                 Mehrere Einträge am selben Tag werden gestapelt dargestellt und sind interaktiv
                                 anklickbar.</p>
                             <p>Die Termin-Daten stammen in der aktuellen Version aus einer strukturierten JSON-Datei,
-                                wodurch sich die App leicht an eine Datenbank-gestützte Version anbinden lässt. Ziel ist
-                                es, daraus später ein vollständiges Backend mit Datenbankanbindung zu entwickeln,
-                                inklusive Rollenverwaltung, Rechtevergabe und Terminverwaltung per API.</p>
+                                wodurch sich die App leicht an eine datenbankgestützte Version mit Rollen- und
+                                Rechteverwaltung anbinden lässt.</p>
                             <p>Die Ansicht ist voll responsiv und lässt sich flexibel auf verschiedene Anforderungen und
                                 Nutzergruppen anpassen – sei es als interne Projektübersicht, Eventkalender oder
                                 Booking-System.</p>
