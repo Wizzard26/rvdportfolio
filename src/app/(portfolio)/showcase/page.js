@@ -7,7 +7,7 @@ import ShowSwitch from "@/components/showcases/ShowSwitch";
 
 export default function ShowCase() {
     const pageName = "Showcase";
-    const [cases, setCases] = useState('layouts');
+    const [cases, setCases] = useState('shopware');
 
     return(
         <>

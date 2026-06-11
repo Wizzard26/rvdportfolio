@@ -4,15 +4,15 @@ export const heroContent = [
         imgUrl: "/img/hero_home.jpg",
         imgAlt: "Welcome on my portfolio",
         textBoxBg: false,
-        headline: "Design vermag uns eine eigene Welt zu erschaffen",
-        headSubline: "Wo wir nur auf unsere eigene Phantasie begrenzt sind",
-        listHeadline: "Sie sind auf der Suche nach:",
+        headline: "Shopware-6- & Web-Developer mit Designhintergrund",
+        headSubline: "Ich entwickle E-Commerce-Lösungen, Plugins und moderne Web-Apps – sauber, durchdacht und benutzerfreundlich.",
+        listHeadline: "Womit ich arbeite:",
         list: [
-            "- Einem Grafikdesigner / Mediengestalter",
-            "- Webdesigner und / oder Frontendentwickler",
-            "- Unterstützung für Contao, Wordpress und Shopware"
+            "- Shopware 6: Plugins, Apps & Storefront-Themes",
+            "- Frontend mit JavaScript, React & Next.js",
+            "- PHP/Symfony, REST-APIs, Git & Docker"
         ],
-        textbox: "Dann sollten wir uns einmal kennenlernen.<br />Am besten schreiben Sie mich noch heute an, gerne können Sie sich aber auch hier erstmal ein genaueres Bild von mir machen.",
+        textbox: "Über 15 Jahre Erfahrung aus Agentur und E-Commerce – als Entwickler, der dank seines Mediengestalter-Hintergrunds auch Design und UX mitdenkt. Werfen Sie einen Blick auf meine Arbeiten oder schreiben Sie mir direkt.",
         btnOne: {
                 url: "/contact",
                 text: "Kontakt Aufnehmen",
@@ -35,11 +35,11 @@ export const heroContent = [
         headSubline: "Finden Sie raus wer hinter diesem Namen steckt",
         listHeadline: "Lesen Sie mehr zu meinen Qualifikationen und Werdegang:",
         list: [
-            "- Meine Anfänge als Grafikdesigner",
-            "- Wie bin ich zum Webdesign gekommen",
-            "- Der blick über den Tellerrand vom Webdesigner zum Entwickler"
+            "- Meine Anfänge als Mediengestalter & Grafiker",
+            "- Der Weg über das Webdesign zur Entwicklung",
+            "- Heute: Shopware-6- & Web-Developer"
         ],
-        textbox: "Meine Neugier und der stetige Wille zum Weiterlernen. Gerade die Digitale Welt steht nicht still und entwickelt sich Immer weiter. So muß man sich auch immer auf den neusten Stand halten und mit dem Zahn der Zeit gehen.",
+        textbox: "Was mich antreibt, ist Neugier und der stetige Wille weiterzulernen. Die digitale Welt steht nicht still – also halte ich mein Wissen aktuell und gehe mit dem Zahn der Zeit.",
         btnOne: {
             url: "/contact",
             text: "Kontakt Aufnehmen",
@@ -81,12 +81,9 @@ export const heroContent = [
         textBoxBg: false,
         headline: "Stöbern Sie doch mal durch meine Arbeiten",
         headSubline: "So können Sie sich ein besseres Bild von mir machen",
-        textbox: "In meiner Laufbahn haben sich Referenz Arbeiten aus den verschiedenen Bereichen angesammelt.\n" +
-            "Eine kleine Auswahl stelle ich Ihnen hier gerne vor.\n" +
+        textbox: "Im Laufe meiner Arbeit sind Projekte aus verschiedenen Bereichen entstanden – von Shopware-Entwicklungen über React/Next-Anwendungen bis hin zu Grafik- und Webdesign. Eine Auswahl stelle ich Ihnen hier vor.\n" +
             "\n" +
-            "Sicherlich verstehen Sie das ich hier nicht alle meine Arbeiten öffentlich präsentieren kann. Aufgrund von Dateschutzbestimmungen und eventuelle Rechte verletzungen,\n" +
-            "stelle ich hier nur eine kleine Auswahl zur ansicht dar.\n" +
-            "Auf Anfrage kann ich Ihnen aber gerne weitere Arbeiten Zeigen.",
+            "Aus Datenschutzgründen und um keine Rechte zu verletzen, kann ich nicht alle Arbeiten öffentlich zeigen. Auf Anfrage gebe ich Ihnen aber gern weitere Einblicke.",
         btnOne: {
             url: "/contact",
             text: "Kontakt Aufnehmen",
@@ -121,9 +118,9 @@ export const pageContent = [
         section: [
             {
                 name: "teaser",
-                headline: "Moin und ein herzliches Willkommen",
-                subline: "Sie suchen einen Grafiker, Webdesigner und Frontendentwickler?",
-                textBox: "Dann sind Sie hier genau richtig.<br />Ich habe das Privileg behaupten zu können, mein Hobby zum Beruf gemacht zu haben. Gut, das ist bereits mehr als 15 Jahre her. In dieser Zeit habe ich sehr viele Erfahrung gesammelt. Ich biete Kenntnisse in den Bereichen: Web- und Grafikdesign, Illustration, Logo und Corporate Design sowie auch HTML5, CSS3, Content Managment Systeme wie Wordpress, Contao, Shopware und kenntnisse in JS, JQuery, PHP, MySql, Git und Vagrant.<br />Durch Schulungen, Ausbildungen und autodidaktischem Lernen eignete ich mir mein heutiges Wissen an. Ich kenne die Facetten unseres Berufs und ich bleibe auch bei erhöhtem Arbeitsaufkommen strukturiert und fokussiert. Testen Sie mich ruhig.<br />Blättern Sie meine Seite gerne durch und schauen Sie auch unter meinen Referenzen.",
+                headline: "Moin und herzlich willkommen",
+                subline: "Entwickler mit Designhintergrund – das Beste aus beiden Welten",
+                textBox: "Ich habe das Privileg, mein Hobby zum Beruf gemacht zu haben – seit über 15 Jahren. Heute liegt mein Schwerpunkt auf der Entwicklung von E-Commerce-Lösungen mit Shopware 6 (Plugins, Apps und Storefront-Themes) sowie modernen Web-Apps mit JavaScript, React und Next.js. Dazu PHP/Symfony, REST-APIs, Git und Docker.<br />Mein Ursprung als Mediengestalter für Digital und Print ist dabei kein Ballast, sondern mein Vorteil: Ich verstehe nicht nur den Code, sondern auch Design, UX und die Sicht der Nutzer.<br />Durch Ausbildung, Weiterbildungen und kontinuierliches Lernen halte ich mein Wissen aktuell – und bleibe auch bei hohem Arbeitsaufkommen strukturiert und fokussiert.",
                 imageUrl: "/svg/work_at_home.svg",
                 imageAlt: "Me at home",
                 imagePos: "",
@@ -148,23 +145,23 @@ export const pageContent = [
                 cards: [
                     {
                         id: 1,
-                        name: "Konzeption und Planung",
-                        boxtext: "Projekte müssen ordentlich geplant werden. Das Zeitliche Timing, die Mitarbeiter Kapazitäten wie auch die Budget Planung entscheiden über den reibungslosen Ablauf und den erfolgreichen Abschluss."
+                        name: "Shopware-Entwicklung",
+                        boxtext: "Plugins, Apps und Storefront-Themes für Shopware 6 – von der Anforderung über die Umsetzung bis zur Integration externer Dienste per API. Sauberer Code, der im Shop-Alltag trägt."
                     },
                     {
                         id: 2,
-                        name: "Logo- & Grafikdesign",
-                        boxtext: "Vom Scribble über die Konzeption bis hin zur Umsetung und der fertigen Druckdatei. Ich erstelle Gemeinsam mit meinen Kunden maßgeschneiderte Lösungen für Logo, Werbemittel und Geschäftsausstattungen."
+                        name: "Frontend & Web-Apps",
+                        boxtext: "Moderne Oberflächen und Anwendungen mit JavaScript, React und Next.js. Von der einzelnen Komponente bis zur kompletten Single-Page-Application – performant und wartbar."
                     },
                     {
                         id: 3,
-                        name: "UX/UI Web- & Shopdesign",
-                        boxtext: "Mit einem guten Web- oder Shopdesign erreicht man seine Kunden noch besser und kann seine Effizienz steigern. Bei Beachtung der User Experience verwandelt sich eine Webseite oder ein Shop in ein Erlebnis."
+                        name: "Design & UX",
+                        boxtext: "Als gelernter Mediengestalter denke ich Design und User Experience von Anfang an mit. Das Ergebnis: Lösungen, die nicht nur funktionieren, sondern sich auch gut anfühlen."
                     },
                     {
                         id: 4,
-                        name: "Kommunikation",
-                        boxtext: "Das erste Telefonat, Treffen beim Kick-off Meeting bis hin zum Projektabschluß. Ich begleite ein Projekt vom ersten Augenblick bis zur Fertigstellung und bleibe auch danach gerne als direkter Ansprechpartner parat."
+                        name: "Zusammenarbeit",
+                        boxtext: "Aus Agentur, Teamleitung und Projektmanagement weiß ich: Gute Software entsteht im Team – durch klare Kommunikation, verlässliche Abstimmung und den Blick fürs große Ganze."
                     }
                 ]
             },
@@ -174,7 +171,7 @@ export const pageContent = [
                     {
                         id: 1,
                         name: "Sie sind an einer Zusammenarbeit mit mir interessiert?",
-                        boxtext: "Dann schreiben Sie mich doch einfach an und wir vereinbahren einen Termin, bei dem wir uns besser kennenlernen.",
+                        boxtext: "Dann schreiben Sie mich einfach an – wir vereinbaren einen Termin und lernen uns besser kennen.",
                         linktext: "Schreiben Sie mir",
                         link: "/contact",
                         linktitle: "Kontakt aufnehmen"
@@ -196,9 +193,9 @@ export const pageContent = [
         section: [
             {
                 name: "teaser",
-                headline: "Gelernter Mediengestalter für Digital und Print",
-                subline: "Frontendwebentwickler und Shopware Themedesigner",
-                textBox: "Als gelernter Mediengestalter für Digital und Print zähl ich zu den Tausendsassa unter den Kreativen.<br />Von der einfachen Bildbearbeitung, über Fotografie bis hin zur Kompletten Geschäftsausstattung arbeite ich mit allen möglichen Grafiken und Bildern.<br />Ich erstelle Logos, Flyer, Visitenkarten, Briefpapier und diverse Give away`s aber auch komplette Weblayouts, Online-Banner, Animationen und Social Media look and feels.<br />Nach langjähriger Anstellung in einer E-Commerce Agentur komme ich auch sehr gut mit den verschiedensten Shopware Projekten klar. Als Teamleiter und Projektmanager war mein Aufgabengebiet umfangreicher als nur die Technische Umsetzung.",
+                headline: "Entwickler mit dem Auge eines Mediengestalters",
+                subline: "Shopware-6-Entwicklung, Frontend & moderne Web-Apps",
+                textBox: "Mein Schwerpunkt liegt heute in der Entwicklung: Shopware-6-Plugins, -Apps und -Themes, dazu Frontends und Web-Apps mit JavaScript, React und Next.js.<br />Den Grundstein legte meine Ausbildung zum Mediengestalter für Digital und Print – vom Logo über die komplette Geschäftsausstattung bis zum Weblayout. Diese gestalterische Wurzel hilft mir bis heute, Oberflächen zu bauen, die technisch sauber und zugleich durchdacht sind.<br />In einer E-Commerce-Agentur war ich zudem als Teamleiter und Projektmanager tätig – mein Blick reicht also über die reine technische Umsetzung hinaus.",
                 imageUrl: "/img/about_me.png",
                 imageAlt: "Me at home",
                 imagePos: "",

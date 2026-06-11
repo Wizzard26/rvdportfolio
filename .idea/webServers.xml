@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="5fabff9b-b6cd-4440-b910-45382fbb799b" name="NextRvD" url="http://rene-van-dinter.de">
+        <fileTransfer host="rene-van-dinter.de" port="21">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="c2bf6ab8-ca25-4556-8eba-207dfb662bab" name="NextRvDSSH">
+        <fileTransfer rootFolder="/home/users/rene" accessType="SFTP" host="rene-van-dinter.de" port="22" sshConfigId="57374ccf-5c61-452e-b77b-29bde53b3002" sshConfig="RvDSSHNext">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

@@ -7,7 +7,7 @@ const getLevel = (percent) => {
     if (percent <= 50) {
         return 'Beginner';
     } else if (percent <= 80) {
-        return 'Intermediant';
+        return 'Intermediate';
     } else {
         return 'Expert'
     }
@@ -41,7 +41,7 @@ export default function Skillset({limit}) {
             }
             <div className={`${styles.levels}`}>
                 <div className={`${styles.levelNoob}`}><span></span>Beginner</div>
-                <div className={`${styles.levelIntermediant}`}><span></span>Intermediant</div>
+                <div className={`${styles.levelIntermediate}`}><span></span>Intermediate</div>
                 <div className={`${styles.levelExpert}`}><span></span>Expert</div>
             </div>
         </div>

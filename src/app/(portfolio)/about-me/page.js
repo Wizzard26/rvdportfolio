@@ -35,8 +35,8 @@ export default async function AboutMe() {
                         <div className={'col-12 col-md-6'}>
                             <h2 className={roboto.className}>Das Gestalterische und Digitale Credo</h2>
                             <h3 className={ranga.className}><span className={styles.inQoute}>Lebenslanges lernen</span> Ein nie enden wollender Prozess</h3>
-                            <p>Gerade in der Digitalen und Kreativen Welt ist das Lernen und weiterbilden wichtiger als in kaum einen anderen Beruf. Durch die dauernden änderungen von Standards, Trends und Techniken ist das was gestern noch Hipp war, morgen vieleicht schon wieder Flopp.
-                                Die Werbung sowie auch die Digitale Welt, das World Wide Web, befinden sich stetig im Wandel und der Weiterentwicklung. Neue Erkenntnisse über nutzerverhalten, angesagte Formen und Farben, die Wahrnehmung verschiedenster Themen aber auch die Technische Entwicklung neuer Software, Sicherheitsrichtlinien, schnellere Prozesse oder die Vereinfachung von Codes, fordern sich regelmäßig an die neuen Gegebenheiten anzupassen.</p>
+                            <p>Gerade in der digitalen und kreativen Welt ist das stetige Weiterbilden wichtiger als in kaum einem anderen Beruf. Durch die dauernden Änderungen von Standards, Trends und Techniken ist das, was gestern noch angesagt war, morgen vielleicht schon überholt.
+                                Das World Wide Web befindet sich in stetigem Wandel: neue Erkenntnisse über Nutzerverhalten, neue Frameworks und Tools, Sicherheitsanforderungen, schnellere Prozesse oder schlankerer Code – all das verlangt, sich regelmäßig auf die neuen Gegebenheiten einzustellen.</p>
                             <p>Dies könnte man auch als den <span className={styles.inQoute}>Digitalen Darwinismus</span> bezeichnen.</p>
                         </div>
                     </div>
@@ -47,8 +47,8 @@ export default async function AboutMe() {
                     <h2 className={`${roboto.className} is--centered`}>Aufgabenbereiche und Arbeitsweisen</h2>
                     <div className={'row'}>
                         <div className={'col-12 col-md-6'}>
-                            <h3 className={ranga.className}>Arbeiten als Webdesigner und Frontendentwickler</h3>
-                            <p>Hier trifft Kreativität auf Technik. Nach der Konzeptionsphase werden zunächst Wireframes und Screenlayouts für die verschiedenen Endgeräte erstellt. Dabei wird sowohl die Usability wie auch auf die technischen Möglichkeiten geachtet. Sind nun alle Design Aspekte mit dem Auftraggeber abgestimmt und zu seiner Zufriedenheit, geht es nun in die Technische Umsetzung. Dabei werden dann neben der Installation des geforderten Content Management System und der benötigten Plugins, dann auch die Entwicklung des eigentlichen Themes vorgenommen.. Dies wird nun unter Berücksichtigung der Aktuellen Standards und der Designvorgabe Pixelgenau umgesetzt. Dabei wird eine regelmässige Kommunikation mit dem Auftraggeber gehalten, um so schnell auch auf etwaige Änderungen reagieren zu können.</p>
+                            <h3 className={ranga.className}>Arbeiten als Shopware- und Web-Developer</h3>
+                            <p>Hier trifft Technik auf Gestaltung. Auf Basis der Anforderungen setze ich die Lösung um – sei es ein Shopware-Plugin, ein Storefront-Theme oder eine Komponente mit React/Next.js. Dabei achte ich auf sauberen, wartbaren Code, aktuelle Standards und eine gute User Experience. Enge Abstimmung im Team gehört für mich dazu, um früh auf Änderungen reagieren zu können – damit am Ende etwas entsteht, das technisch wie gestalterisch überzeugt.</p>
                         </div>
                         <div className={'col-12 col-md-6'}>
                             <h3 className={ranga.className}>Arbeiten als Mediengestalter Digital und Print</h3>
@@ -58,9 +58,9 @@ export default async function AboutMe() {
                     <div className="col-12 is--centered">
                         <Button
                             href="/contact"
-                            title="Sie haben fragen?"
+                            title="Sie haben Fragen?"
                             style="secondary-full"
-                            text="Sie haben Fragen ?"
+                            text="Sie haben Fragen?"
                         />
                     </div>
                 </div>

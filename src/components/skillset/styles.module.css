@@ -37,7 +37,7 @@
     background-color: #2E5C85;
 }
 
-.Intermediant .progressBarInner {
+.Intermediate .progressBarInner {
     background-color: #1FA5AD;
 }
 
@@ -46,7 +46,7 @@
 }
 
 .Beginner span,
-.Intermediant span,
+.Intermediate span,
 .Expert span {
     text-shadow: #000 1px 1px 1px;
 }
@@ -78,7 +78,7 @@
 }
 
 .levelNoob span,
-.levelIntermediant span,
+.levelIntermediate span,
 .levelExpert span {
     width: 20px;
     height: 20px;
@@ -89,7 +89,7 @@
     background-color: #2E5C85;
 }
 
-.levelIntermediant span {
+.levelIntermediate span {
     background-color: #1FA5AD;
 }
 
