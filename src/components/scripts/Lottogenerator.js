@@ -17,6 +17,7 @@ export default function Lottogenerator() {
         let nums;
         let numbers = [];
         let euronumbers = [];
+        let timeouts = [];
 
         // Random Number generate with min and max
         const random = (min, max) => {
@@ -67,12 +68,12 @@ export default function Lottogenerator() {
             }
 
             for (let i = 0; i < rounds;i++) {
-                setTimeout (function() {
+                timeouts.push(setTimeout (function() {
                     createBox(count);
                     showNumbers();
                     resetNumbers();
                     count++;
-                }, 400 * i);
+                }, 400 * i));
             }
         }
 
@@ -170,13 +171,21 @@ export default function Lottogenerator() {
         }
 
         // Eventlistener for button klick and enter key
-        generate.addEventListener('click', generateLoops);
-        quInput.addEventListener('keydown', (el) => {
+        const handleEnter = (el) => {
             if (el.key === 'Enter') {
                 el.preventDefault();
                 generateLoops();
             }
-        });
+        };
+        generate.addEventListener('click', generateLoops);
+        quInput.addEventListener('keydown', handleEnter);
+
+        // Cleanup beim Unmount: laufende Timeouts stoppen, Listener entfernen
+        return () => {
+            timeouts.forEach(clearTimeout);
+            generate.removeEventListener('click', generateLoops);
+            quInput.removeEventListener('keydown', handleEnter);
+        };
     },[]);
 
     return (

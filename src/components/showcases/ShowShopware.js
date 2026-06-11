@@ -3,6 +3,7 @@
 import {roboto, ranga} from "@/app/fonts";
 import Image from "next/image";
 import styles from "./styles.module.css";
+import TechTags from "./TechTags";
 
 export default function ShowShopware() {
 
@@ -28,7 +29,7 @@ export default function ShowShopware() {
                             <p>Mit dem Plugin wird der Shop zum echten Kompetenzzentrum rund ums Thema BARF. Kund:innen
                                 erhalten nicht nur Produkte, sondern fundierte Informationen und maßgeschneiderte
                                 Rezepte – inklusive praktischer Einkaufshilfe. Das Plugin wurde von Grund auf selbst
-                                entwickelt und erweitert Shopware 5 um eine eigenständige Rezeptverwaltung</p>
+                                entwickelt und erweitert Shopware 5 um eine eigenständige Rezeptverwaltung.</p>
                             <ul className={`content-list`}>
                                 <li>Rezeptdatenbank für Hunde und Katzen</li>
                                 <li>Detaillierte Zutatenlisten je Rezept</li>
@@ -39,6 +40,7 @@ export default function ShowShopware() {
                                     Zutaten berechnet – individuell für jedes Rezept
                                 </li>
                             </ul>
+                            <TechTags tags={["Shopware 5", "PHP", "Smarty", "MySQL", "JavaScript"]} />
                         </div>
                     </div>
                 </div>
@@ -69,6 +71,7 @@ export default function ShowShopware() {
                             <p>Jedes Element basiert auf einem flexiblen Grid-Fundament und wurde gezielt für die
                                 Redaktionsarbeit optimiert. Die Bedienung in Shopware bleibt intuitiv – Inhalte können
                                 einfach per Drag & Drop gepflegt werden.</p>
+                            <TechTags tags={["Shopware 6", "Twig", "Vue.js", "SCSS"]} />
                         </div>
                     </div>
                 </div>
@@ -111,6 +114,7 @@ export default function ShowShopware() {
                                     optimiert für verschiedene Viewports
                                 </li>
                             </ul>
+                            <TechTags tags={["Shopware 6", "Twig", "SCSS", "JavaScript"]} />
                         </div>
                     </div>
                 </div>
@@ -151,6 +155,7 @@ export default function ShowShopware() {
                                     fallbackfähig für verschiedene Browser
                                 </li>
                             </ul>
+                            <TechTags tags={["Shopware 6", "Twig", "Vue.js", "SCSS"]} />
                         </div>
                     </div>
                 </div>
@@ -192,6 +197,7 @@ export default function ShowShopware() {
                                     und angepasst
                                 </li>
                             </ul>
+                            <TechTags tags={["Shopware 5 & 6", "PHP", "REST-API", "JavaScript"]} />
                         </div>
                     </div>
                 </div>
@@ -208,8 +214,8 @@ export default function ShowShopware() {
                                        alt={`Video Element`} width={500} height={500}/>
                             </div>
                             <h3 className={`${ranga.className}`}>Video Element </h3>
-                            <p>Ein Videoplayer welcher eigene Videos aus der Shopware Mediathek abspielt. Dadurch werden
-                                keine Video Dienste benoetigt</p>
+                            <p>Ein Videoplayer, der eigene Videos aus der Shopware-Mediathek abspielt. Dadurch werden
+                                keine externen Video-Dienste benötigt.</p>
                         </div>
 
                         <div className={`col-6 col-md-3`}>
@@ -241,7 +247,7 @@ export default function ShowShopware() {
                                        alt={`Futterrechner`} width={500} height={500}/>
                             </div>
                             <h3 className={`${ranga.className}`}>Barfen Futterrechner SW 5 & 6</h3>
-                            <p>Ein Komplexer Futterrechner für Einkaufs und Erlebniswelten von Shopware.</p>
+                            <p>Ein komplexer Futterrechner für Einkaufs- und Erlebniswelten von Shopware.</p>
                         </div>
                     </div>
                 </div>

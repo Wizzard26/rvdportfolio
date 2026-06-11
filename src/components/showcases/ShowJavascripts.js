@@ -11,8 +11,9 @@ export default function ShowJavascripts() {
         <>
             <section className="secondary--bg">
                 <div className="content-inner">
-                    <p><strong>INFO: Da die Scripts hier in Plain EcmaScript geschrieben sind, kann es
-                        zu Rerendering Fehlern kommen.</strong></p>
+                    <p><strong>Kleine JavaScript-Lernprojekte:</strong> Diese Beispiele sind bewusst in reinem
+                        JavaScript ohne Framework umgesetzt und zeigen Grundlagen wie DOM-Manipulation, Events und
+                        Konfiguration – entstanden als Fingerübungen und Testaufgaben.</p>
                     <h2 className={`${roboto.className}`}>Einfacher Layer Slider</h2>
                     <div className={`row`}>
                         <div className={`col-12 col-md-6`}>
