@@ -16,7 +16,6 @@ export default function Modalbox() {
 
         // Events definieren
         const handleOpen = (event) => {
-            console.log('Button clicked!');
             toggleModal(event);
         };
 

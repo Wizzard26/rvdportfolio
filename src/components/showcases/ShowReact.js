@@ -3,6 +3,7 @@ import {ranga, roboto} from "@/app/fonts";
 import CallEvent from "@/components/showcases/Callevent/CallEvent";
 import Image from "next/image";
 import WebPage from "@/components/showcases/WebProject/WebPage";
+import TechTags from "@/components/showcases/TechTags";
 
 export default function ShowReact() {
     return (
@@ -25,16 +26,16 @@ export default function ShowReact() {
 
                         <div className={`col-12 col-md-6`}>
                             <h3 className={`${ranga.className}`}>React/Next Capstone Project</h3>
-                            <p>Im Zuge eines React/Next Bootcamps habe ich eine art Social Network App entwickelt,
-                                welche Darts Intusiasten miteinander verbinden soll.</p>
-                            <p>Aufgaben waren erstmals die Planung von Funktionen und Bereiche, die innerhalb der
-                                vorgegebenen Zeit zu realisieren waren.</p>
-                            <p>Nach Vorstellung und besprechen, wurden die Einzelnen Componenten und das Layout
-                                erstellt. Diese wurden dann mit Code Reviews als Merge Requests geprüft und
-                                Implementiert.</p>
-                            <p>Dieses Projekt wurde als Fullstack App entwickelt, mit NextJs und einer MongoDB
-                                Datenbank. Zur Zeit der Planung wurde aufgrund des geringen Zeitfenster auf Basis
-                                Funktionalitäten gesetzt und eine weitere Planung für folgende features vorbehalten.</p>
+                            <p>Im Zuge eines React/Next-Bootcamps habe ich eine Art Social-Network-App entwickelt,
+                                die Darts-Enthusiasten miteinander verbinden soll.</p>
+                            <p>Zunächst galt es, die Funktionen und Bereiche zu planen, die sich innerhalb der
+                                vorgegebenen Zeit umsetzen ließen.</p>
+                            <p>Nach Vorstellung und Besprechung wurden die einzelnen Komponenten und das Layout
+                                erstellt. Diese wurden anschließend per Code-Review als Merge-Requests geprüft und
+                                implementiert.</p>
+                            <p>Das Projekt wurde als Fullstack-App mit Next.js und einer MongoDB entwickelt. Aufgrund
+                                des knappen Zeitfensters lag der Fokus zunächst auf den Basis-Funktionalitäten; weitere
+                                Features blieben einer späteren Planung vorbehalten.</p>
                             <p>Aktuelle Funktionen: </p>
                             <ul className={`content-list`}>
                                 <li>Register & Login</li>
@@ -45,6 +46,7 @@ export default function ShowReact() {
                                 <li>One on One Chat</li>
                                 <li>Gruppen Chat</li>
                             </ul>
+                            <TechTags tags={["Next.js", "React", "MongoDB", "Mongoose", "Auth"]} />
                         </div>
                     </div>
                 </div>
@@ -80,6 +82,7 @@ export default function ShowReact() {
                                 Bestätigungen automatisiert per E-Mail sowohl an den Nutzer als auch an den Betreiber
                                 gesendet – ebenfalls über eine API. Die Anwendung wird laufend weiterentwickelt, um
                                 zusätzliche Funktionen zu integrieren.</p>
+                            <TechTags tags={["Next.js", "React", "MongoDB", "REST-API", "Mail-API"]} />
                         </div>
                     </div>
                 </div>
@@ -113,6 +116,7 @@ export default function ShowReact() {
                             <p>Die Ansicht ist voll responsiv und lässt sich flexibel auf verschiedene Anforderungen und
                                 Nutzergruppen anpassen – sei es als interne Projektübersicht, Eventkalender oder
                                 Booking-System.</p>
+                            <TechTags tags={["Next.js", "React", "JSON"]} />
                         </div>
                     </div>
                 </div>
@@ -142,6 +146,7 @@ export default function ShowReact() {
                                 zielgerichtetes Angebot zu erstellen.</p>
                             <p>Der Konfigurator ist flexibel erweiterbar und lässt sich auf verschiedene Use-Cases
                                 anpassen – z.B. für Websites, Shops, Plattformen oder individuelle Web-Apps.</p>
+                            <TechTags tags={["Next.js", "React", "Mail-API"]} />
                         </div>
                     </div>
                 </div>
@@ -195,6 +200,7 @@ export default function ShowReact() {
                                 Fullstack-Kompetenzen, sondern zeigt auch, wie mit einem durchdachten Aufbau bereits mit
                                 wenig Overhead ein eigenständiges CMS-System realisiert werden kann – ideal für
                                 individuelle Portfolios oder kleinere Kundenprojekte.</p>
+                            <TechTags tags={["Next.js", "React", "MongoDB", "REST-API"]} />
                         </div>
                     </div>
                 </div>

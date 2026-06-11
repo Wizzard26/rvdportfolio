@@ -33,7 +33,9 @@ export default function Slider() {
             slWidth,
             dist,
             navPrev,
-            navNext;
+            navNext,
+            initTimeout,
+            slideStart;
 
 
         const createPointNav = () => {
@@ -144,7 +146,7 @@ export default function Slider() {
 
         const init = () => {
 
-            setTimeout(() => {
+            initTimeout = setTimeout(() => {
                 setSlideWidth();
                 setSlideHeight();
                 setActive(0);
@@ -159,7 +161,7 @@ export default function Slider() {
             navPrev.addEventListener('click', prevImage);
 
             if (config.autoplay) {
-                let slideStart = setInterval (nextImage, config.timing);
+                slideStart = setInterval (nextImage, config.timing);
 
                 if (config.stopByHover) {
                     slideWrapper.addEventListener("mouseover", function () {
@@ -173,6 +175,13 @@ export default function Slider() {
         };
 
         init();
+
+        // Cleanup beim Unmount: Timer stoppen, damit keine Callbacks auf
+        // entferntem DOM laufen (vermeidet Rerender-/Null-Fehler).
+        return () => {
+            clearTimeout(initTimeout);
+            clearInterval(slideStart);
+        };
     }, [])
 
     return (
