@@ -42,8 +42,8 @@ export default function Header() {
                     <HeaderInner className="content-inner">
                         <LogoLink href="/" alt="go to main">
                             <LogoName className={roboto_condensed.className}>René van Dinter</LogoName>
-                            <LogoTitle className={roboto.className}>Mediengestalter Digital und Print</LogoTitle>
-                            <LogoSubTitle className={roboto.className}>Web-Frontend-Developer</LogoSubTitle>
+                            <LogoTitle className={roboto.className}>Shopware- & Web-Developer</LogoTitle>
+                            <LogoSubTitle className={roboto.className}>Mediengestalter Digital und Print</LogoSubTitle>
                         </LogoLink>
                         <MainNavi isOpen={open} isMobile={mobile} onToogle={handleToogle}/>
                         <ContactBtn href="./contact" className={`${mobile ? 'is-mobile' : ''}`}>

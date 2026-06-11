@@ -12,7 +12,7 @@ export const caseWebEntries = [
     {
         "id": 2,
         "title": "SmartHome Store",
-        "description": "Design für Shopware in zwei Basisfarben mit verschiedenen Aktzenten. Aufgeräumtes und Cleanes Layout, welches die wichtigsten Elemente im Focus zeigt.",
+        "description": "Design für Shopware in zwei Basisfarben mit verschiedenen Akzenten. Aufgeräumtes und Cleanes Layout, welches die wichtigsten Elemente im Focus zeigt.",
         "imgPath": "web",
         "category": "eCommerce",
         "image": "smarthome_start.jpg",
@@ -42,7 +42,7 @@ export const caseWebEntries = [
     {
         "id": 5,
         "title": "Cascade Darts",
-        "description": "Dartshop Layout mit immer wieder wechselnden Angeboten und Aktionen. Dieses Layout lebt von einer sich fortwärend änernen Produktpalette.",
+        "description": "Dartshop Layout mit immer wieder wechselnden Angeboten und Aktionen. Dieses Layout lebt von einer sich fortwährend ändernden Produktpalette.",
         "imgPath": "web",
         "category": "eCommerce",
         "image": "darttheme.jpg",

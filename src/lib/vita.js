@@ -3,7 +3,7 @@ export const vitaEntries = [
         "id": 1,
         "title": "Praktikum Grafik- und Webdesigner",
         "company": "Feldmann und Partner",
-        "description": "Erstellen von Webdesigns und Umsetzung auf Joomla. Layouten von Printmedien verschiedender Bereiche.",
+        "description": "Erstellen von Webdesigns und Umsetzung auf Joomla. Layout von Printmedien verschiedener Bereiche.",
         "start": "09/2011",
         "end": "10/2011"
     },
@@ -11,7 +11,7 @@ export const vitaEntries = [
         "id": 2,
         "title": "Praktikum Mediengestalter Digital und Print",
         "company": "Subasic Subasic und Partner",
-        "description": "Kennenlernen des Agenturaltages, Erstellen von Printdesign, Magazine, Fotoretouche und Bildbearbeitung",
+        "description": "Kennenlernen des Agenturalltags, Erstellen von Printdesign, Magazinen, Fotoretusche und Bildbearbeitung.",
         "start": "12/2011",
         "end": "01/2012"
     },
@@ -19,7 +19,7 @@ export const vitaEntries = [
         "id": 3,
         "title": "Freelancer Webdesigner / Frontendentwickler",
         "company": "Stahmann Medien",
-        "description": "Layouten und Umsetzen von Screendesigns auf Contao Erstellen von Webvisitenkarten in HTML und CSS Kundenkommunikation und Beratung.",
+        "description": "Layouten und Umsetzen von Screendesigns auf Contao, Erstellen von Webvisitenkarten in HTML und CSS, Kundenkommunikation und Beratung.",
         "start": "10/2011",
         "end": "08/2014"
     },
@@ -27,7 +27,7 @@ export const vitaEntries = [
         "id": 4,
         "title": "Ausbildung Mediengestalter Digital und Print",
         "company": "IBB-Buxtehude",
-        "description": "Umschulung zum Mediengestalter für Digital und Print, Fachbereich Gestaltung und Technik Digital. Lehrinhalt die Digitale Bearbeitung von Print und Online Medien, Grafik und Fotobearbeitung so wie das erstellen von Webseiten. Grundwissen zu Farbgestaltung, Typografie die verschiedenen Druckformen und Materialien. Ausbildung mit anschließender IHK Prüfung",
+        "description": "Umschulung zum Mediengestalter für Digital und Print, Fachbereich Gestaltung und Technik Digital. Lehrinhalte: digitale Bearbeitung von Print- und Online-Medien, Grafik- und Fotobearbeitung sowie das Erstellen von Webseiten. Grundwissen zu Farbgestaltung, Typografie, den verschiedenen Druckformen und Materialien. Ausbildung mit anschließender IHK-Prüfung.",
         "start": "08/2012",
         "end": "06/2014"
     },
@@ -35,7 +35,7 @@ export const vitaEntries = [
         "id": 5,
         "title": "Praktikum Mediengestalter Digital und Print",
         "company": "Rhinos-Media UG",
-        "description": "Praktikum für Umschulung Webdesign und eCommerce Shopdesigns HTML, CSS, Responsive Webdesign, Smarty Umsetzung auf Shopware und Oxid ",
+        "description": "Praktikum im Rahmen der Umschulung: Webdesign und eCommerce-Shopdesigns mit HTML, CSS, Responsive Webdesign und Smarty. Umsetzung auf Shopware und Oxid.",
         "start": "08/2013",
         "end": "02/2014"
     },
@@ -43,7 +43,7 @@ export const vitaEntries = [
         "id": 6,
         "title": "Webentwickler Frontend",
         "company": "Rhinos-Media UG",
-        "description": "Erstellen von Shoplayouts für Shopware im B2B und B2C bereich. Umsetzung von Shoplayouts auf Basis von Shopware. Eingesetzte Technologien Smarty, HTML5, CSS3, JQuery. Verwendete Software Photoshop, Illustrator CS6 / CC, Notepad ++, PhPStorm, Git, Vagrant.",
+        "description": "Erstellen und Umsetzen von Shoplayouts für Shopware im B2B- und B2C-Bereich. Eingesetzte Technologien: Smarty, HTML5, CSS3, jQuery. Verwendete Software: Photoshop, Illustrator CS6 / CC, Notepad++, PhpStorm, Git, Vagrant.",
         "start": "06/2014",
         "end": "03/2021"
     },
@@ -51,7 +51,7 @@ export const vitaEntries = [
         "id": 7,
         "title": "Teamleitung - PM Webentwicklung Frontend",
         "company": "Rhinos-Media UG",
-        "description": "Kundenkommunikation, Aufwandsschätzungen, ToDo Vergabe (Frontend, DEV), Qualitätsmanagment Projektverantwortungen, Livegänge Planen, Timetracking überprüfen. Azubis beaufsichtigen und Hilfestellung geben, Interne Schulungen für Mitarbeiter. Verwendete Software Trello, Mite, Zoho Projects.",
+        "description": "Kundenkommunikation, Aufwandsschätzungen, ToDo-Vergabe (Frontend, DEV), Qualitätsmanagement, Projektverantwortung, Livegänge planen, Timetracking prüfen. Azubis betreuen und anleiten, interne Schulungen für Mitarbeiter. Verwendete Software: Trello, Mite, Zoho Projects.",
         "start": "05/2019",
         "end": "03/2021"
     },
@@ -75,7 +75,7 @@ export const vitaEntries = [
         "id": 10,
         "title": "Freelancer Webdesigner / Developer",
         "company": "Gambit24 Media Solution",
-        "description": "Freiberuflicher Web und Grafikdesigner, Developer und Projektmanager für Contao, Wordpress und Shopware Projekte. Entwickeln von Layouts, Corporate Designs, Logos wie auch Plugins und Webapplikationen. Projektanalysen, Planung und Kommunikation mit den Stackholdern sowie die Budgetplanung im Überblick behalten.",
+        "description": "Freiberuflicher Web- und Grafikdesigner, Developer und Projektmanager für Contao-, Wordpress- und Shopware-Projekte. Entwicklung von Layouts, Corporate Designs und Logos sowie von Plugins und Webapplikationen. Projektanalysen, Planung und Kommunikation mit den Stakeholdern – inklusive Budgetplanung im Blick.",
         "start": "01/2022",
         "end": "Now"
     },
@@ -83,7 +83,7 @@ export const vitaEntries = [
         "id": 11,
         "title": "eCommerce Projektmanager - Shopwaredesigner",
         "company": "WEBversiert GmbH",
-        "description": "Designerstellung und Programmierung von Shopware Themes. Neu und bestandskunden Support, Projekt und Kundenbetreuung. Konfiguration sowie Recherche und beratende Tätigkeiten. Technische beratung und Unterstützung bei Akquise neuer Projekte und beteiligung an der Internen Planung.",
+        "description": "Designerstellung und Programmierung von Shopware-Themes. Neu- und Bestandskunden-Support, Projekt- und Kundenbetreuung. Konfiguration sowie Recherche und beratende Tätigkeiten. Technische Beratung und Unterstützung bei der Akquise neuer Projekte und Beteiligung an der internen Planung.",
         "start": "11/2021",
         "end": "10/2022"
     },
@@ -91,7 +91,7 @@ export const vitaEntries = [
         "id": 12,
         "title": "Weiterbildung - Web-Developer React.Js / Next.Js",
         "company": "neue fische",
-        "description": "Programmierung von Single-Page-Applications in verwendung von ReactJs und NextJs. Vertiefende Übungen zur funktionalen Programmierung, Verwendung von Hooks, Routing, Statemanagments, Controlled Components. Backend erstellung mit Node, Restfull Api´s, Routing, DB Schemas und Models mit MongoDb und Mongoose, Deployment mit Github und Vercel Hosting.Erstellung eines Digitalen Gesellenstücks",
+        "description": "Programmierung von Single-Page-Applications mit React.js und Next.js. Vertiefende Übungen zur funktionalen Programmierung, Verwendung von Hooks, Routing, State-Management und Controlled Components. Backend-Erstellung mit Node, RESTful APIs, Routing, DB-Schemas und Models mit MongoDB und Mongoose, Deployment mit GitHub und Vercel. Erstellung eines digitalen Gesellenstücks.",
         "start": "02/2023",
         "end": "05/2023"
     },
@@ -99,7 +99,7 @@ export const vitaEntries = [
         "id": 13,
         "title": "Developer - Durchgeblueht.de SW6",
         "company": "Simonsen Freianlagen Freiraumplanungsgesellschaft mbH",
-        "description": "Entwicklung und Wartung der E-Commerce Shopware 6 Plattform. Pluginerstellung sowie Änderungen und verbesserungen vorhandener Plugins. Abstimmung mit der Geschäftsführung sowie Externer Agentur zur Planung neuer Erweiterungen und bestehende Anpassungen.",
+        "description": "Entwicklung und Wartung der E-Commerce-Plattform auf Shopware 6. Pluginerstellung sowie Änderungen und Verbesserungen vorhandener Plugins. Abstimmung mit der Geschäftsführung und einer externen Agentur zur Planung neuer Erweiterungen und bestehender Anpassungen.",
         "start": "09/2023",
         "end": "08/2024"
     },
@@ -115,7 +115,7 @@ export const vitaEntries = [
         "id": 15,
         "title": "Shopware 6 - Developer",
         "company": "TC-Innovations GmbH",
-        "description": "Frontend- und Plugin-Entwicklung im Shopware 6 Umfeld. Konzeption und Umsetzung individueller Storefront-Themes sowie Entwicklung und Wartung eigener Plugins und Apps. Eingesetzte Technologien Twig, SCSS, JavaScript und Bootstrap im Storefront sowie Vue.js in der Shopware Administration. Entwicklung in dockerisierten Umgebungen (vergleichbar mit Dockware) und Versionierung mit Git. Aufbau und Anbindung einer App-Server-Landschaft inklusive Integration von In-App-Purchase-Mechanismen (IAP) und angebundenen Applikationen.",
+        "description": "Frontend- und Plugin-Entwicklung im Shopware 6 Umfeld. Konzeption und Umsetzung individueller Storefront-Themes sowie Entwicklung und Wartung eigener Plugins und Apps. Eingesetzte Technologien Twig, SCSS, JavaScript und Bootstrap im Storefront sowie Vue.js in der Shopware Administration. Entwicklung in dockerisierten Umgebungen – inklusive Aufbau eines eigenen, containerbasierten Entwicklungs-Setups – und Versionierung mit Git. Aufbau und Anbindung einer App-Server-Landschaft inklusive Integration von In-App-Purchase-Mechanismen (IAP) und angebundenen Applikationen.",
         "start": "07/2025",
         "end": "07/2026"
     }
@@ -178,7 +178,7 @@ export const vitaPersonal =  [
             },
             {
                 "id": 2,
-                "entry": "Englisch: Gut in Wort und Schrift"
+                "entry": "Englisch: Sicher in Wort und Schrift (beruflicher Kontext)"
             }
         ]
     },
@@ -238,27 +238,15 @@ export const vitaPersonal =  [
         "entries": [
             {
                 "id": 1,
-                "entry": "Arbeitsplatz: Macbook Pro 16“ 2019"
+                "entry": "Arbeitsplatz: MacBook Pro 16\""
             },
             {
                 "id": 2,
-                "entry": "Arbeitsplatz: Macbook Pro 15“ Retina"
+                "entry": "Betriebssystem: macOS"
             },
             {
                 "id": 3,
-                "entry": "Betriebssystem: macOS Sonoma"
-            },
-            {
-                "id": 4,
-                "entry": "Mobile: IPhone 14 Pro"
-            },
-            {
-                "id": 5,
-                "entry": "Tablet: Ipad Pro 12.9\" 2020"
-            },
-            {
-                "id": 6,
-                "entry": "Kamera: Nikon D5200"
+                "entry": "Grafiktablett: Wacom Cintiq 16"
             }
         ]
     },
@@ -269,19 +257,23 @@ export const vitaPersonal =  [
         "entries": [
             {
                 "id": 1,
-                "entry": "Grafiktablett: Wacom Cintiq 16"
+                "entry": "IDE: PhpStorm"
             },
             {
                 "id": 2,
-                "entry": "Grafiksoftware: Adobe Creative Cloud"
+                "entry": "Versionierung: Git / GitHub"
             },
             {
                 "id": 3,
-                "entry": "Grafiksoftware: Affinity Designer"
+                "entry": "Container: Docker"
             },
             {
                 "id": 4,
-                "entry": "Coding IDE: PhpStorm"
+                "entry": "Design: Adobe Creative Cloud"
+            },
+            {
+                "id": 5,
+                "entry": "Design: Affinity Designer"
             }
         ]
     },
