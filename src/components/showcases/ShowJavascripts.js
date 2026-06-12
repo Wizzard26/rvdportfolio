@@ -5,6 +5,9 @@ import Slider from "@/components/scripts/Slider";
 import Lottogenerator from "@/components/scripts/Lottogenerator";
 import Cartsystem from "@/components/scripts/Cartsystem";
 import Modalbox from "@/components/scripts/Modalbox";
+import Image from "next/image";
+
+const SIZES = "(max-width: 575px) 100vw, (max-width: 767px) 50vw, (max-width: 991px) 33vw, (max-width: 1199px) 25vw, 16vw";
 
 export default function ShowJavascripts() {
     return (
@@ -116,9 +119,9 @@ export default function ShowJavascripts() {
                         <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
                             <div className={`card card-cases`}>
                                 <div className={`card-image card-image-info`}>
-                                    <img src={`/img/blog/code.jpg`}
+                                    <Image src={`/img/blog/code.jpg`}
                                          alt={`Futterbedarfsrechner`} width={900}
-                                         height={900}/>
+                                         height={900} sizes={SIZES}/>
                                 </div>
                                 <div className={`card-content`}>
                                     <h3 className={roboto.className}>Futterrechner</h3>
@@ -131,9 +134,9 @@ export default function ShowJavascripts() {
                         <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
                             <div className={`card card-cases`}>
                                 <div className={`card-image card-image-info`}>
-                                    <img src={`/img/blog/code.jpg`}
+                                    <Image src={`/img/blog/code.jpg`}
                                          alt={`Optimix Futterrechner`} width={900}
-                                         height={900}/>
+                                         height={900} sizes={SIZES}/>
                                 </div>
                                 <div className={`card-content`}>
                                     <h3 className={roboto.className}>Optimix Rechner</h3>
@@ -146,9 +149,9 @@ export default function ShowJavascripts() {
                         <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
                             <div className={`card card-cases`}>
                                 <div className={`card-image card-image-info`}>
-                                    <img src={`/img/blog/code.jpg`}
+                                    <Image src={`/img/blog/code.jpg`}
                                          alt={`Dart Scorer`} width={900}
-                                         height={900}/>
+                                         height={900} sizes={SIZES}/>
                                 </div>
                                 <div className={`card-content`}>
                                     <h3 className={roboto.className}>Darts Scorer</h3>
@@ -160,9 +163,9 @@ export default function ShowJavascripts() {
                         <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
                             <div className={`card card-cases`}>
                                 <div className={`card-image card-image-info`}>
-                                    <img src={`/img/blog/code.jpg`}
+                                    <Image src={`/img/blog/code.jpg`}
                                          alt={`Mega Menue`} width={900}
-                                         height={900}/>
+                                         height={900} sizes={SIZES}/>
                                 </div>
                                 <div className={`card-content`}>
                                     <h3 className={roboto.className}>Mega Menü</h3>
@@ -175,9 +178,9 @@ export default function ShowJavascripts() {
                         <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
                             <div className={`card card-cases`}>
                                 <div className={`card-image card-image-info`}>
-                                    <img src={`/img/blog/code.jpg`}
+                                    <Image src={`/img/blog/code.jpg`}
                                          alt={`Collapese Boxen`} width={900}
-                                         height={900}/>
+                                         height={900} sizes={SIZES}/>
                                 </div>
                                 <div className={`card-content`}>
                                     <h3 className={roboto.className}>Collapse Boxen</h3>
@@ -189,9 +192,9 @@ export default function ShowJavascripts() {
                         <div className={`col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2`}>
                             <div className={`card card-cases`}>
                                 <div className={`card-image card-image-info`}>
-                                    <img src={`/img/blog/code.jpg`}
+                                    <Image src={`/img/blog/code.jpg`}
                                          alt={`Filter System`} width={900}
-                                         height={900}/>
+                                         height={900} sizes={SIZES}/>
                                 </div>
                                 <div className={`card-content`}>
                                     <h3 className={roboto.className}>Inhalts Filter</h3>
