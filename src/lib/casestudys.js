@@ -56,7 +56,7 @@ export const caseWebEntries = [
         "imgPath": "web",
         "category": "eCommerce",
         "image": "bombfroglayout.jpg",
-        "technik": "Wordpress",
+        "technik": "Shopware",
         "status": "Konzept Layout"
     },
     {
