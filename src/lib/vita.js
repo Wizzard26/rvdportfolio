@@ -306,6 +306,11 @@ export const vitaPersonal =  [
                 "id": 5,
                 "entry": "Arbeitszeugnis Durchgeblueht",
                 "link": "/document/simonsen-cert.pdf"
+            },
+            {
+                "id": 6,
+                "entry": "Arbeitszeugnis TC-Innovations",
+                "link": "/document/tc-cert.pdf"
             }
         ]
     },
