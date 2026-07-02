@@ -36,3 +36,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Playwright MCP working artifacts
+.playwright-mcp/
+
+# Working notes & screenshots for the Calculator Builder case study (contain demo-lead PII)
+docs/calculator-case-study/
