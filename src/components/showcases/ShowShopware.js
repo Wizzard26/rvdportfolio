@@ -11,36 +11,55 @@ export default function ShowShopware() {
         <>
             <section className="secondary--bg">
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Shopware 5 Rezept Plugin</h2>
+                    <h2 className={`${roboto.className}`}>Shopware 6 Calculator Builder</h2>
                     <div className={`row `}>
                         <div className={`col-12 col-md-6`}>
-                            <Image className={`${styles.imageAuto}`} src={`/img/casestudy/shopware/Recipelist.jpg`}
-                                   alt={`Rezeptliste`} width={500} height={500}/>
+                            <Image className={`${styles.imageAuto}`}
+                                   src={`/img/casestudy/shopware/calculator-builder.jpg`}
+                                   alt={`Calculator Builder – visueller Rechner-Baukasten in der Shopware Administration`}
+                                   width={500} height={500}/>
                         </div>
 
                         <div className={`col-12 col-md-6`}>
-                            <h3 className={`${ranga.className}`}>Rezeptliste mit Zusatzrechner</h3>
-                            <p>Entwicklung eines individuellen Shopware-5-Plugins zur Bereitstellung einer interaktiven
-                                Rezeptdatenbank für Tierhalter, die ihre Hunde oder Katzen nach dem BARF-Prinzip
-                                ernähren möchten.</p>
-                            <p>Ziel war es, Shop-Besucher:innen nicht nur Produkte anzubieten, sondern ihnen auch
-                                fundiertes Wissen und konkrete Rezepte rund ums BARFen bereitzustellen – direkt im Shop,
-                                mit direkter Verlinkung zu den passenden Produkten.</p>
-                            <p>Mit dem Plugin wird der Shop zum echten Kompetenzzentrum rund ums Thema BARF. Kund:innen
-                                erhalten nicht nur Produkte, sondern fundierte Informationen und maßgeschneiderte
-                                Rezepte – inklusive praktischer Einkaufshilfe. Das Plugin wurde von Grund auf selbst
-                                entwickelt und erweitert Shopware 5 um eine eigenständige Rezeptverwaltung.</p>
+                            <h3 className={`${ranga.className}`}>Interaktive Rechner-Widgets als Baukasten – vom
+                                Rechner bis zum Angebot</h3>
+                            <p>Eigenentwicklung eines Shopware-6-Plugins, mit dem sich interaktive Rechner-Widgets
+                                vollständig im Backend zusammenklicken lassen – ganz ohne Code. Ob Futtermengen-,
+                                Solar-Rentabilitäts- oder Fenstertausch-Angebotsrechner: Jeder Rechner entsteht in einem
+                                visuellen Builder mit Live-Vorschau für Desktop, Tablet und Mobile.</p>
+                            <p>Ziel war es, Shopbetreiber:innen unabhängig von Entwickler:innen zu machen. Statt für
+                                jeden Anwendungsfall ein eigenes Plugin zu bauen, konfigurieren Redakteur:innen
+                                Eingabefelder, Formeln und Ergebnis-Darstellung selbst und binden den fertigen Rechner
+                                per Erlebniswelten-Element an beliebiger Stelle im Shop ein.</p>
+                            <p>So wird aus einem reinen Produktshop ein Beratungswerkzeug: Rechner beantworten echte
+                                Kundenfragen, berechnen live Mengen, Kosten oder Wirtschaftlichkeit und führen direkt in
+                                den Warenkorb – oder bei erklärungsbedürftigen Leistungen in eine qualifizierte
+                                Angebotsanfrage. Erfasste Leads landen in einem eigenen Angebots-Workflow mit
+                                DSGVO-konformer Speicherung.</p>
                             <ul className={`content-list`}>
-                                <li>Rezeptdatenbank für Hunde und Katzen</li>
-                                <li>Detaillierte Zutatenlisten je Rezept</li>
-                                <li>Direkte Verlinkung zu Shop-Produkten, damit alle Zutaten bequem im Warenkorb
-                                    landen
+                                <li>Visueller Builder mit Live-Vorschau und 18 Feldtypen – von Zahl, Dropdown und Slider
+                                    bis Measurement, Image-Choice, Range-Slider und Datum/Zeit
                                 </li>
-                                <li>Zutatenrechner: basierend auf dem Gewicht des Tieres werden die exakten Mengen der
-                                    Zutaten berechnet – individuell für jedes Rezept
+                                <li>Formel-Engine mit validiertem Editor, Funktionen wie round, min/max, if/then, sqrt
+                                    sowie Datums- und Lookup-Funktionen – inklusive integriertem Test-Panel
+                                </li>
+                                <li>Ergebnis-Baukasten aus Überschriften, Einzelwerten, Vergleichstabellen, Diagrammen
+                                    und Disclaimern – frei kombinierbar
+                                </li>
+                                <li>Drei Rechnertypen: allgemein, produktgebunden (liest Daten des Produkts) und Buy-Box,
+                                    bei der das Rechenergebnis zur Bestellmenge wird
+                                </li>
+                                <li>Live-Berechnung mit Debounce, optionaler Wizard-Modus, PDF-Export,
+                                    Produktempfehlungen und Mehrfach-Add-to-Cart
+                                </li>
+                                <li>Lead-Erfassung mit frei konfigurierbaren Kontaktfeldern und Angebots-Workflow –
+                                    Status, Rabatt, kundengebundener Gutscheincode bis hin zur erzeugten Bestellung
+                                </li>
+                                <li>DSGVO-Optionen (Consent, Aufbewahrungsdauer, CSV-Export) und serverseitig gecachte
+                                    Live-Parameter, z.B. für tagesaktuelle Wechselkurse
                                 </li>
                             </ul>
-                            <TechTags tags={["Shopware 5", "PHP", "Smarty", "MySQL", "JavaScript"]} />
+                            <TechTags tags={["Shopware 6", "PHP", "Symfony", "Vue.js", "Twig", "MySQL"]} />
                         </div>
                     </div>
                 </div>
@@ -205,6 +224,43 @@ export default function ShowShopware() {
 
             <section className="">
                 <div className="content-inner">
+                    <h2 className={`${roboto.className}`}>Shopware 5 Rezept Plugin</h2>
+                    <div className={`row row-reverse`}>
+                        <div className={`col-12 col-md-6`}>
+                            <Image className={`${styles.imageAuto}`} src={`/img/casestudy/shopware/Recipelist.jpg`}
+                                   alt={`Rezeptliste`} width={500} height={500}/>
+                        </div>
+
+                        <div className={`col-12 col-md-6`}>
+                            <h3 className={`${ranga.className}`}>Rezeptliste mit Zusatzrechner</h3>
+                            <p>Entwicklung eines individuellen Shopware-5-Plugins zur Bereitstellung einer interaktiven
+                                Rezeptdatenbank für Tierhalter, die ihre Hunde oder Katzen nach dem BARF-Prinzip
+                                ernähren möchten.</p>
+                            <p>Ziel war es, Shop-Besucher:innen nicht nur Produkte anzubieten, sondern ihnen auch
+                                fundiertes Wissen und konkrete Rezepte rund ums BARFen bereitzustellen – direkt im Shop,
+                                mit direkter Verlinkung zu den passenden Produkten.</p>
+                            <p>Mit dem Plugin wird der Shop zum echten Kompetenzzentrum rund ums Thema BARF. Kund:innen
+                                erhalten nicht nur Produkte, sondern fundierte Informationen und maßgeschneiderte
+                                Rezepte – inklusive praktischer Einkaufshilfe. Das Plugin wurde von Grund auf selbst
+                                entwickelt und erweitert Shopware 5 um eine eigenständige Rezeptverwaltung.</p>
+                            <ul className={`content-list`}>
+                                <li>Rezeptdatenbank für Hunde und Katzen</li>
+                                <li>Detaillierte Zutatenlisten je Rezept</li>
+                                <li>Direkte Verlinkung zu Shop-Produkten, damit alle Zutaten bequem im Warenkorb
+                                    landen
+                                </li>
+                                <li>Zutatenrechner: basierend auf dem Gewicht des Tieres werden die exakten Mengen der
+                                    Zutaten berechnet – individuell für jedes Rezept
+                                </li>
+                            </ul>
+                            <TechTags tags={["Shopware 5", "PHP", "Smarty", "MySQL", "JavaScript"]} />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="secondary--bg">
+                <div className="content-inner">
                     <h2 className={`${roboto.className}`}>Weitere Elemente</h2>
                     <div className={`row`}>
                         <div className={`col-6 col-md-3`}>
@@ -255,4 +311,3 @@ export default function ShowShopware() {
         </>
     )
 }
-
