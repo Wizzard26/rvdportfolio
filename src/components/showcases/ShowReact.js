@@ -11,7 +11,7 @@ export default function ShowReact() {
         <>
             <section>
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>DartPlaner – Web- & App-Plattform</h2>
+                    <SectionView as="h2" name={`DartPlaner – Web- & App-Plattform`} className={`${roboto.className}`}>DartPlaner – Web- & App-Plattform</SectionView>
 
                     <div className={`row`}>
                         <div className={`col-12 col-md-6 is--centered`}>
@@ -45,7 +45,7 @@ export default function ShowReact() {
 
             <section className="secondary--bg">
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>DartsConnect Netzwerk App</h2>
+                    <SectionView as="h2" name={`DartsConnect Netzwerk App`} className={`${roboto.className}`}>DartsConnect Netzwerk App</SectionView>
 
                     <div className={`row`}>
                         <div className={`col-12 col-md-6 is--centered`}>
@@ -90,7 +90,7 @@ export default function ShowReact() {
 
             <section>
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Calendly Meeting Clone</h2>
+                    <SectionView as="h2" name={`Calendly Meeting Clone`} className={`${roboto.className}`}>Calendly Meeting Clone</SectionView>
 
                     <div className={`row row-reverse`}>
                         <div className={`col-12 col-md-7 col-lg-7 col-xl-7 is--centered`}>
@@ -125,7 +125,7 @@ export default function ShowReact() {
 
             <section className="secondary--bg">
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Event Kalender Planer</h2>
+                    <SectionView as="h2" name={`Event Kalender Planer`} className={`${roboto.className}`}>Event Kalender Planer</SectionView>
 
                     <div className={`row`}>
                         <div className={`col-12 col-md-6 is--centered`}>
@@ -158,7 +158,7 @@ export default function ShowReact() {
 
             <section>
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Multi-Step Web-Projekt Konfigurator</h2>
+                    <SectionView as="h2" name={`Multi-Step Web-Projekt Konfigurator`} className={`${roboto.className}`}>Multi-Step Web-Projekt Konfigurator</SectionView>
 
                     <div className={`row row-reverse`}>
                         <div className={`col-12 col-md-6 is--centered`}>
@@ -188,7 +188,7 @@ export default function ShowReact() {
 
             <section className="secondary--bg">
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Eigene Fullstack-Business-Plattform</h2>
+                    <SectionView as="h2" name={`Eigene Fullstack-Business-Plattform`} className={`${roboto.className}`}>Eigene Fullstack-Business-Plattform</SectionView>
 
                     <div className={`row`}>
                         <div className={`col-12 col-md-6 is--centered`}>

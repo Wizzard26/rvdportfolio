@@ -26,23 +26,38 @@ function hostFromReferrer(referrer) {
     }
 }
 
+// Referrer als Domain+Pfad OHNE Query-String (gegen versehentliche PII in
+// Query-Parametern), z. B. "www.google.com/search".
+function refUrlNoQuery(referrer) {
+    if (!referrer) return null;
+    try {
+        const u = new URL(referrer);
+        const path = u.pathname && u.pathname !== '/' ? u.pathname : '';
+        return `${u.hostname.replace(/^www\./, '')}${path}`.slice(0, 300);
+    } catch {
+        return null;
+    }
+}
+
 /**
  * Klassifiziert den Referrer.
- * Rückgabe: { source, domain }. `source`:
+ * Rückgabe: { source, domain, url }. `source`:
  * direct (kein Referrer) | internal (eigene Domain) | ai | organic | social | referral.
+ * `url` = Domain+Pfad ohne Query (für den Herkunfts-Detailblick).
  */
 export function classifyReferrer(referrer) {
     const host = hostFromReferrer(referrer);
-    if (!host) return { source: 'direct', domain: null };
+    const url = refUrlNoQuery(referrer);
+    if (!host) return { source: 'direct', domain: null, url: null };
     if (OWN_HOSTS.some((h) => host === h || host.endsWith(`.${h}`))) {
-        return { source: 'internal', domain: host };
+        return { source: 'internal', domain: host, url };
     }
     for (const rule of REF_RULES) {
         if (rule.match.some((frag) => host.includes(frag))) {
-            return { source: rule.source, domain: host };
+            return { source: rule.source, domain: host, url };
         }
     }
-    return { source: 'referral', domain: host };
+    return { source: 'referral', domain: host, url };
 }
 
 // --- Geräte-/Browser-/OS-Ableitung aus dem User-Agent ---------------------
@@ -86,13 +101,15 @@ export function osFromUa(ua = '') {
 
 // --- Anonymer Tages-Besucher-Hash + Land ----------------------------------
 
-// sha256(YYYYMMDD + IP + UA + SALT). Rotiert täglich (day fließt ein), damit
-// Besucher NUR innerhalb eines Tages zählbar, aber nicht tagesübergreifend
-// verknüpfbar und nicht auf die IP rückführbar sind. Die IP verlässt diese
-// Funktion nicht.
-export function visitorHash(ip, ua, day) {
+// sha256(window + IP + UA + SALT). `window` ist der Kalendermonat (YYYY-MM):
+// Der Hash rotiert monatlich, sodass ein Besucher INNERHALB eines Monats
+// wiedererkennbar ist (→ wiederkehrende Besucher, Neu-vs-Wiederkehr), aber
+// monatsübergreifend nicht verknüpfbar und nie auf die IP rückführbar ist.
+// Die IP verlässt diese Funktion nicht. (Bekannte Grenze: am Monatswechsel
+// wird ein Wiederkehrer nicht als solcher erkannt — bewusst akzeptiert.)
+export function visitorHash(ip, ua, windowKey) {
     const salt = process.env.ANALYTICS_SALT || 'dev-fallback-salt-change-me';
-    return createHash('sha256').update(`${day}|${ip || ''}|${ua || ''}|${salt}`).digest('hex').slice(0, 32);
+    return createHash('sha256').update(`${windowKey}|${ip || ''}|${ua || ''}|${salt}`).digest('hex').slice(0, 32);
 }
 
 // Ländercode aus der IP (lokale geoip-lite-Tabelle, kein Fremddienst).

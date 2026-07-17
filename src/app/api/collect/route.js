@@ -21,10 +21,18 @@ export const runtime = 'nodejs';
 // Nicht vorab rendern/cachen — der Endpoint schreibt bei jedem Aufruf.
 export const dynamic = 'force-dynamic';
 
-const ALLOWED_TYPES = new Set(['pageview', 'pageleave', 'cta', 'interaction', 'conversion']);
+const ALLOWED_TYPES = new Set([
+    'pageview', 'pageleave', 'cta', 'interaction', 'conversion',
+    'scroll', 'section_view', 'outbound', 'download', 'vital',
+    'form_start', 'form_abandon',
+]);
 
 function todayUtc(ts) {
     return new Date(ts).toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function monthUtc(ts) {
+    return new Date(ts).toISOString().slice(0, 7); // YYYY-MM (Hash-Fenster)
 }
 
 export async function POST(request) {
@@ -45,23 +53,26 @@ export async function POST(request) {
 
         // Referrer-Klassifikation nur beim Seiteneinstieg sinnvoll; der Client
         // schickt document.referrer bei pageview mit.
-        const { source, domain } = classifyReferrer(body.referrer);
+        const { source, domain, url } = classifyReferrer(body.referrer);
 
         insertEvent({
             ts,
             day,
             session_id: typeof body.sid === 'string' ? body.sid.slice(0, 40) : null,
-            visitor_hash: visitorHash(ip, ua, day),
+            // Hash-Fenster = Kalendermonat → wiederkehrende Besucher innerhalb ~30 Tagen.
+            visitor_hash: visitorHash(ip, ua, monthUtc(ts)),
             type: body.type,
             path: typeof body.path === 'string' ? body.path.slice(0, 300) : null,
             ref_source: source,
             ref_domain: domain,
+            ref_url: url,
             device: deviceFromUa(ua),
             browser: browserFromUa(ua),
             os: osFromUa(ua),
             country: countryFromIp(ip),
             name: typeof body.name === 'string' ? body.name.slice(0, 120) : null,
             duration_ms: Number.isFinite(body.duration) ? Math.max(0, Math.round(body.duration)) : null,
+            value: Number.isFinite(body.value) ? body.value : null,
             meta: body.meta && typeof body.meta === 'object' ? body.meta : null,
         });
 

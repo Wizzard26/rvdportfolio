@@ -25,10 +25,12 @@ export function insertEvent(row) {
         insertStmt = db.prepare(`
             INSERT INTO events
                 (ts, day, session_id, visitor_hash, type, path, ref_source,
-                 ref_domain, device, browser, os, country, name, duration_ms, meta)
+                 ref_domain, ref_url, device, browser, os, country, name,
+                 duration_ms, value, meta)
             VALUES
                 (@ts, @day, @session_id, @visitor_hash, @type, @path, @ref_source,
-                 @ref_domain, @device, @browser, @os, @country, @name, @duration_ms, @meta)
+                 @ref_domain, @ref_url, @device, @browser, @os, @country, @name,
+                 @duration_ms, @value, @meta)
         `);
     }
 
@@ -41,12 +43,14 @@ export function insertEvent(row) {
         path: row.path ?? null,
         ref_source: row.ref_source ?? null,
         ref_domain: row.ref_domain ?? null,
+        ref_url: row.ref_url ?? null,
         device: row.device ?? null,
         browser: row.browser ?? null,
         os: row.os ?? null,
         country: row.country ?? null,
         name: row.name ?? null,
         duration_ms: row.duration_ms ?? null,
+        value: Number.isFinite(row.value) ? row.value : null,
         meta: row.meta ? JSON.stringify(row.meta) : null,
     });
 

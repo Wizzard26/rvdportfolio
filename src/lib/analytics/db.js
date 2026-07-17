@@ -16,6 +16,14 @@ const DEFAULT_PATH = './data/analytics.db';
 
 let db;
 
+// Spalten, die per idempotenter Migration ergänzt werden können (nach dem
+// initialen CREATE dazugekommen). Für die bereits produktive DB sicher:
+// ALTER TABLE ADD COLUMN fügt nullable Spalten hinzu, Altdaten bleiben.
+const ADDED_COLUMNS = {
+    value: 'REAL',   // numerische Messwerte (Scrolltiefe %, Web-Vital-Werte)
+    ref_url: 'TEXT', // Referrer inkl. Pfad (ohne Query) für den Herkunfts-Detailblick
+};
+
 // Legt Tabelle + Indizes an (idempotent). Ein Event = eine Zeile.
 function migrate(database) {
     database.exec(`
@@ -44,6 +52,16 @@ function migrate(database) {
         CREATE INDEX IF NOT EXISTS idx_events_ref_source ON events (ref_source);
         CREATE INDEX IF NOT EXISTS idx_events_session    ON events (session_id);
     `);
+
+    // Fehlende Spalten nachziehen (für bestehende DBs aus der ersten Version).
+    const existing = new Set(database.prepare('PRAGMA table_info(events)').all().map((c) => c.name));
+    for (const [name, type] of Object.entries(ADDED_COLUMNS)) {
+        if (!existing.has(name)) {
+            database.exec(`ALTER TABLE events ADD COLUMN ${name} ${type}`);
+        }
+    }
+    // Häufige Filter im Roh-Explorer & Zeit-Auswertung profitieren davon.
+    database.exec('CREATE INDEX IF NOT EXISTS idx_events_visitor ON events (visitor_hash)');
 }
 
 // Liefert die (lazy initialisierte) Datenbank. Pfad kommt aus
