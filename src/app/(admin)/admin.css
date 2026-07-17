@@ -9,8 +9,31 @@ body {
     background-color: #3b3b3b;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     color: #FFFFFF;
     padding: 10px 20px;
+}
+
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.admin-logout {
+    background: none;
+    border: 1px solid #FFFFFF;
+    border-radius: 4px;
+    color: #FFFFFF;
+    padding: 5px 14px;
+    font: inherit;
+    cursor: pointer;
+    transition: background 200ms ease-in-out, color 200ms ease-in-out;
+}
+
+.admin-logout:hover {
+    background: #FFFFFF;
+    color: #3b3b3b;
 }
 
 .dashboard-main {

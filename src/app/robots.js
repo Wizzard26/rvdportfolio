@@ -11,8 +11,8 @@ import { siteConfig } from '@/lib/seo';
 // dürfen, um dieses Tag überhaupt zu sehen. Ein Disallow würde das noindex
 // verstecken und die Seiten könnten trotzdem im Index landen.
 export default function robots() {
-    // Nicht öffentlich: Admin-Bereich und die API-Route des Kontaktformulars.
-    const disallow = ['/api/', '/dashboard'];
+    // Nicht öffentlich: Admin-Bereich, Login und API-Routen.
+    const disallow = ['/api/', '/dashboard', '/login'];
 
     // KI-Crawler: Training/Suche ausdrücklich erlaubt. `*` erlaubt sie zwar
     // ohnehin, aber `Google-Extended` und `Applebot-Extended` sind reine

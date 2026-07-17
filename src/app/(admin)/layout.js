@@ -2,6 +2,7 @@ import './../globals.css';
 import './admin.css';
 import AdminSidebar from "@/components/adminsidebar/page";
 import Link from "next/link";
+import { logout } from "@/lib/authActions";
 
 export const metadata = {
     title: 'Portfolio Dashboard',
@@ -20,7 +21,13 @@ export default function DashboardLayout({ children }) {
         <>
             <header className="admin-header">
                 <div className="admin-title">Portfolio Administration</div>
-                <Link href="/">Go to Frontend</Link>
+                <div className="admin-header-actions">
+                    <Link href="/">Go to Frontend</Link>
+                    {/* Logout via Server Action: Cookie löschen, zurück zum Login. */}
+                    <form action={logout}>
+                        <button type="submit" className="admin-logout">Logout</button>
+                    </form>
+                </div>
             </header>
             <main className="dashboard-main">
                 <AdminSidebar />

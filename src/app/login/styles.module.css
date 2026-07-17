@@ -1,0 +1,99 @@
+.wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: var(--primary, #3f687e);
+}
+
+.card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--light, #fafafa);
+    border-radius: 10px;
+    padding: 40px 32px;
+    box-shadow: 0 12px 40px rgba(4, 21, 31, 0.25);
+}
+
+.title {
+    margin: 0 0 6px;
+    font-size: 28px;
+    color: var(--primary, #3f687e);
+}
+
+.subtitle {
+    margin: 0 0 24px;
+    font-size: 15px;
+    color: var(--grey, #707070);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: var(--dark, #04151f);
+}
+
+.input {
+    padding: 12px 14px;
+    font-size: 16px;
+    border: 1px solid var(--grey, #707070);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--dark, #04151f);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--primary, #3f687e);
+    box-shadow: 0 0 0 3px rgba(63, 104, 126, 0.2);
+}
+
+.input[aria-invalid='true'] {
+    border-color: var(--secondary, #c63e56);
+}
+
+.error {
+    margin: 12px 0 0;
+    font-size: 14px;
+    color: var(--secondary-dark, #a21f37);
+}
+
+.button {
+    margin-top: 20px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--fontlight, #fafafa);
+    background: var(--primary, #3f687e);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 200ms ease-in-out;
+}
+
+.button:hover:not(:disabled) {
+    background: var(--primary-dark, #375567);
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.back {
+    display: inline-block;
+    margin-top: 24px;
+    font-size: 14px;
+    color: var(--grey, #707070);
+    text-decoration: none;
+}
+
+.back:hover {
+    color: var(--primary, #3f687e);
+}
