@@ -5,6 +5,7 @@ import Slider from "@/components/scripts/Slider";
 import Lottogenerator from "@/components/scripts/Lottogenerator";
 import Cartsystem from "@/components/scripts/Cartsystem";
 import Modalbox from "@/components/scripts/Modalbox";
+import InteractionTracker from "@/components/analytics/InteractionTracker";
 import Image from "next/image";
 
 const SIZES = "(max-width: 575px) 100vw, (max-width: 767px) 50vw, (max-width: 991px) 33vw, (max-width: 1199px) 25vw, 16vw";
@@ -37,7 +38,9 @@ export default function ShowJavascripts() {
                             </ul>
                         </div>
                         <div className={`col-12 col-md-6`}>
-                            <Slider/>
+                            <InteractionTracker name="Layer Slider">
+                                <Slider/>
+                            </InteractionTracker>
                         </div>
                     </div>
                 </div>
@@ -63,7 +66,9 @@ export default function ShowJavascripts() {
                                 wurde, mit weniger Zusatzzahlen.</p>
                         </div>
                         <div className={`col-12 col-md-6`}>
-                            <Lottogenerator/>
+                            <InteractionTracker name="Lotto-Generator">
+                                <Lottogenerator/>
+                            </InteractionTracker>
                         </div>
                     </div>
                 </div>
@@ -83,7 +88,9 @@ export default function ShowJavascripts() {
                                 Seitenwechsel erhalten.</p>
                         </div>
                         <div className={`col-12 col-md-6`}>
-                            <Cartsystem/>
+                            <InteractionTracker name="Warenkorb-System">
+                                <Cartsystem/>
+                            </InteractionTracker>
                         </div>
                     </div>
                 </div>
@@ -106,7 +113,9 @@ export default function ShowJavascripts() {
                                 der Aufgabenstellung vorgesehen waren.</p>
                         </div>
                         <div className={`col-12 col-md-6`}>
-                            <Modalbox/>
+                            <InteractionTracker name="Modalbox">
+                                <Modalbox/>
+                            </InteractionTracker>
                         </div>
                     </div>
                 </div>

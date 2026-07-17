@@ -2,6 +2,7 @@ import './../globals.css';
 import Header from "@/components/header/page";
 import Footer from "@/components/footer/page";
 import JsonLd from "@/components/seo/JsonLd";
+import Tracker from "@/components/analytics/Tracker";
 import { personSchema, webSiteSchema } from "@/lib/seo";
 
 // Kein `metadata`-Export mehr: Titel und Beschreibung kommen aus dem
@@ -18,6 +19,8 @@ export default function PortfolioLayout({ children }) {
               Person — statt als lose Sammlung einzelner Dokumente.
             */}
             <JsonLd data={[personSchema(), webSiteSchema()]} />
+            {/* Cookiefreier First-Party-Tracker — nur auf öffentlichen Seiten. */}
+            <Tracker />
             <Header />
             {children}
             <Footer />

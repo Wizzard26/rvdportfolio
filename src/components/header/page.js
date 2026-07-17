@@ -7,6 +7,7 @@ import { ContactBtn } from "@/components/ContactBtn";
 import StyledComponentsRegistry from "@/lib/registry";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { track } from "@/lib/analytics/track";
 
 export default function Header() {
     const [open, setOpen] = useState(false);
@@ -46,7 +47,8 @@ export default function Header() {
                             <LogoSubTitle className={roboto.className}>Mediengestalter Digital und Print</LogoSubTitle>
                         </LogoLink>
                         <MainNavi isOpen={open} isMobile={mobile} onToogle={handleToogle}/>
-                        <ContactBtn href="/contact" className={`${mobile ? 'is-mobile' : ''}`}>
+                        <ContactBtn href="/contact" className={`${mobile ? 'is-mobile' : ''}`}
+                                    onClick={() => track('cta', { name: 'Header: Contact me' })}>
                             {mobile ? (
                                 <MailIcon src="/svg/e-mail.svg" alt="mail me" width={35} height={35} />
                             ) : (

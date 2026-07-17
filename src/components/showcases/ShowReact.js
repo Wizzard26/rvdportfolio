@@ -4,6 +4,7 @@ import CallEvent from "@/components/showcases/Callevent/CallEvent";
 import Image from "next/image";
 import WebPage from "@/components/showcases/WebProject/WebPage";
 import TechTags from "@/components/showcases/TechTags";
+import InteractionTracker from "@/components/analytics/InteractionTracker";
 
 export default function ShowReact() {
     return (
@@ -93,7 +94,9 @@ export default function ShowReact() {
 
                     <div className={`row row-reverse`}>
                         <div className={`col-12 col-md-7 col-lg-7 col-xl-7 is--centered`}>
-                            <CallEvent/>
+                            <InteractionTracker name="Calendly Clone (Terminbuchung)">
+                                <CallEvent/>
+                            </InteractionTracker>
                         </div>
 
                         <div className={`col-12 col-md-5 col-lg-5 col-xl-5 `}>

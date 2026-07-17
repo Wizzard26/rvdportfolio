@@ -1,22 +1,16 @@
+import Link from "next/link";
+
+// Navigation der Admin-Sidebar. Der Bereich führt aktuell das Analytics-
+// Dashboard; die früheren Platzhalter-Listen (Pages/Blog) sind entfernt.
+// Weitere Bereiche kommen mit dem Fullstack-Ausbau dazu.
 export default function AdminNavi() {
-    return(
+    return (
         <>
             <div className="admin-cat-title">
-                Pages
+                Auswertung
             </div>
             <ul>
-                <li>Home</li>
-                <li>About me</li>
-                <li>Vita</li>
-                <li>Showcase</li>
-                <li>Imprint</li>
-            </ul>
-            <div className="admin-cat-title">
-                Blog
-            </div>
-            <ul>
-                <li>Show Entries</li>
-                <li>Add New Entry</li>
+                <li><Link href="/dashboard">Analytics-Übersicht</Link></li>
             </ul>
         </>
     )

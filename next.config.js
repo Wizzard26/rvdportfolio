@@ -4,6 +4,11 @@ const nextConfig = {
     compiler: {
         styledComponents: true,
     },
+    // Nicht bündeln, sondern zur Laufzeit aus node_modules laden:
+    // - better-sqlite3 ist ein natives Modul (kompilierte .node-Binärdatei)
+    // - geoip-lite lädt seine Länder-Datendateien (.dat) per __dirname
+    // Beim Bündeln würden die Pfade brechen (ENOENT auf die .dat-Datei).
+    serverExternalPackages: ['better-sqlite3', 'geoip-lite'],
     async redirects() {
         return [
             // www → non-www.

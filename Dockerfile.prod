@@ -3,6 +3,9 @@
 
 FROM node:20-alpine AS deps
 WORKDIR /app
+# Build-Toolchain für native Module (better-sqlite3 kompiliert auf Alpine/musl
+# aus dem Quellcode). Nur im deps-Stage nötig — landet nicht im Release-Image.
+RUN apk add --no-cache python3 make g++
 COPY package.json package-lock.json ./
 RUN npm ci --legacy-peer-deps
 
