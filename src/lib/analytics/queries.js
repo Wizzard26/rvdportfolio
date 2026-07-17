@@ -69,7 +69,7 @@ export function getTimeseries(range) {
     `).all(range);
 }
 
-export function getTopPages(range, limit = 12) {
+export function getTopPages(range, limit = 100) {
     return getDb().prepare(`
         SELECT path, COUNT(*) AS views, COUNT(DISTINCT visitor_hash) AS visitors
         FROM events
@@ -79,7 +79,7 @@ export function getTopPages(range, limit = 12) {
 }
 
 // Einstiegsseiten: erste Seite je Sitzung.
-export function getEntryPages(range, limit = 8) {
+export function getEntryPages(range, limit = 60) {
     return getDb().prepare(`
         SELECT path, COUNT(*) AS n FROM (
             SELECT path, ROW_NUMBER() OVER (PARTITION BY session_id ORDER BY ts) AS rn
@@ -90,7 +90,7 @@ export function getEntryPages(range, limit = 8) {
 }
 
 // Ausstiegsseiten: letzte Seite je Sitzung.
-export function getExitPages(range, limit = 8) {
+export function getExitPages(range, limit = 60) {
     return getDb().prepare(`
         SELECT path, COUNT(*) AS n FROM (
             SELECT path, ROW_NUMBER() OVER (PARTITION BY session_id ORDER BY ts DESC) AS rn
@@ -110,7 +110,7 @@ export function getReferrerSources(range) {
 }
 
 // Top-Referrer-Domains (ohne die eigene Domain).
-export function getReferrerDomains(range, limit = 10) {
+export function getReferrerDomains(range, limit = 100) {
     return getDb().prepare(`
         SELECT ref_domain AS domain, ref_source AS source, COUNT(*) AS n
         FROM events
@@ -131,10 +131,10 @@ function distribution(range, column, limit = 12) {
 export const getDevices = (range) => distribution(range, 'device');
 export const getBrowsers = (range) => distribution(range, 'browser');
 export const getOperatingSystems = (range) => distribution(range, 'os');
-export const getCountries = (range, limit = 10) => distribution(range, 'country', limit);
+export const getCountries = (range, limit = 60) => distribution(range, 'country', limit);
 
 // CTA-Klicks nach Label (welcher Button, wie oft, auf welcher Seite).
-export function getCtaPerformance(range, limit = 15) {
+export function getCtaPerformance(range, limit = 100) {
     return getDb().prepare(`
         SELECT name, path, COUNT(*) AS clicks
         FROM events WHERE ${RANGE} AND type = 'cta' AND name IS NOT NULL
@@ -143,7 +143,7 @@ export function getCtaPerformance(range, limit = 15) {
 }
 
 // Interaktionen mit den Referenzen (welche getestet, wie oft).
-export function getInteractions(range, limit = 15) {
+export function getInteractions(range, limit = 100) {
     return getDb().prepare(`
         SELECT name, COUNT(*) AS n, COUNT(DISTINCT session_id) AS sessions
         FROM events WHERE ${RANGE} AND type = 'interaction' AND name IS NOT NULL
@@ -194,7 +194,7 @@ export function getScrollDepth(range) {
 }
 
 // Meistgesehene Abschnitte/Projekte (section_view).
-export function getSectionViews(range, limit = 15) {
+export function getSectionViews(range, limit = 100) {
     return getDb().prepare(`
         SELECT name, COUNT(*) AS n, COUNT(DISTINCT session_id) AS sessions
         FROM events WHERE ${RANGE} AND type = 'section_view' AND name IS NOT NULL
@@ -239,7 +239,7 @@ export function getEngagementByPage(range, limit = 12) {
 // ─── Journey & Funnel ────────────────────────────────────────────────────
 
 // Häufigste Seitenpfade je Sitzung (Sequenz der Pageviews).
-export function getJourneyPaths(range, limit = 12) {
+export function getJourneyPaths(range, limit = 100) {
     return getDb().prepare(`
         SELECT seq AS label, COUNT(*) AS n FROM (
             SELECT session_id, group_concat(path, '  →  ') AS seq FROM (
@@ -289,7 +289,7 @@ export function getFormAbandon(range) {
 
 // ─── Herkunft-Detail ─────────────────────────────────────────────────────
 
-export function getReferrerUrls(range, limit = 15) {
+export function getReferrerUrls(range, limit = 100) {
     return getDb().prepare(`
         SELECT ref_url AS label, ref_source AS source, COUNT(*) AS n
         FROM events WHERE ${RANGE} AND type = 'pageview' AND ref_url IS NOT NULL AND ref_source != 'internal'
@@ -298,7 +298,7 @@ export function getReferrerUrls(range, limit = 15) {
 }
 
 // Quelle × Einstiegsseite (welche Herkunft landet wo).
-export function getSourceByEntry(range, limit = 15) {
+export function getSourceByEntry(range, limit = 100) {
     return getDb().prepare(`
         SELECT ref_source AS source, path, COUNT(*) AS n FROM (
             SELECT ref_source, path, ROW_NUMBER() OVER (PARTITION BY session_id ORDER BY ts) AS rn
@@ -310,7 +310,7 @@ export function getSourceByEntry(range, limit = 15) {
 
 // ─── Ziele: Outbound & Downloads ─────────────────────────────────────────
 
-export function getOutbound(range, limit = 15) {
+export function getOutbound(range, limit = 100) {
     return getDb().prepare(`
         SELECT name AS label, COUNT(*) AS n FROM events
         WHERE ${RANGE} AND type = 'outbound' AND name IS NOT NULL
@@ -318,7 +318,7 @@ export function getOutbound(range, limit = 15) {
     `).all({ ...range, limit });
 }
 
-export function getDownloads(range, limit = 15) {
+export function getDownloads(range, limit = 100) {
     return getDb().prepare(`
         SELECT name AS label, COUNT(*) AS n FROM events
         WHERE ${RANGE} AND type = 'download' AND name IS NOT NULL

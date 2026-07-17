@@ -25,12 +25,15 @@ body {
 
 /* ── Sidebar ──────────────────────────────────────────────────────────── */
 .adm-sidebar {
-    position: sticky;
+    /* Durchgängig sichtbar (fest am Viewport), unabhängig vom Scrollen des
+       Inhalts. overflow-y sorgt dafür, dass die Sidebar bei mehr Navigations-
+       punkten in sich selbst scrollbar bleibt, statt abgeschnitten zu werden. */
+    position: fixed;
     top: 0;
-    align-self: flex-start;
+    left: 0;
     width: var(--adm-sidebar-w);
-    flex: 0 0 var(--adm-sidebar-w);
     height: 100vh;
+    overflow-y: auto;
     background: linear-gradient(180deg, var(--adm-accent-dark) 0%, #2b4657 100%);
     color: #eaf1f4;
     display: flex;
@@ -83,7 +86,8 @@ body {
 }
 
 /* ── Main + Topbar ────────────────────────────────────────────────────── */
-.adm-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+/* Platz für die fest positionierte Sidebar freihalten. */
+.adm-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; margin-left: var(--adm-sidebar-w); }
 
 .adm-topbar {
     height: 56px;
@@ -200,8 +204,17 @@ body {
 .an-filter-btn { padding: 5px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; color: var(--adm-ink-soft); background: #eef3f5; }
 .an-filter-btn.is-active { background: var(--adm-accent); color: #fff; }
 .an-pager { display: flex; gap: 10px; align-items: center; margin-top: 14px; font-size: 14px; color: var(--adm-ink-soft); }
-.an-pager a { color: var(--adm-accent); text-decoration: none; padding: 4px 10px; border: 1px solid var(--adm-border); border-radius: 6px; }
-.an-pager a.is-disabled { color: var(--adm-ink-muted); pointer-events: none; opacity: 0.5; }
+.an-pager a,
+.an-pager button { color: var(--adm-accent); text-decoration: none; padding: 4px 10px; border: 1px solid var(--adm-border); border-radius: 6px; background: none; font: inherit; cursor: pointer; }
+.an-pager a:hover:not(.is-disabled),
+.an-pager button:not(:disabled):hover { background: #eef3f5; }
+.an-pager a.is-disabled,
+.an-pager button:disabled { color: var(--adm-ink-muted); pointer-events: none; opacity: 0.5; }
+
+/* Auswahl "Einträge pro Seite" */
+.an-pagesize { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--adm-ink-muted); }
+.an-pagesize select { font: inherit; font-size: 13px; color: var(--adm-ink-soft); padding: 3px 6px; border: 1px solid var(--adm-border); border-radius: 6px; background: #fff; cursor: pointer; }
+.an-pager .an-pagesize { margin-left: auto; }
 
 /* Web-Vital-Bewertung */
 .an-vital-rating { display: inline-flex; gap: 4px; align-items: center; font-size: 12px; }
@@ -219,9 +232,11 @@ body {
 @media (max-width: 860px) {
     .adm-sidebar {
         position: static; height: auto; width: 100%; flex-basis: auto;
+        overflow-y: visible;
         flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px;
         padding: 12px 14px;
     }
+    .adm-main { margin-left: 0; }
     .adm-brand { border: 0; margin: 0; padding: 0 12px 0 0; }
     .adm-brand-sub { display: none; }
     .adm-nav-title { display: none; }

@@ -6,7 +6,9 @@ import AnHead from '@/components/analytics/AnHead';
 
 export const dynamic = 'force-dynamic';
 
-const PAGE_SIZE = 100;
+// Wählbare Anzahl Einträge pro Seite.
+const PAGE_SIZES = [25, 50, 100, 200];
+const DEFAULT_SIZE = 50;
 
 function timeLabel(ts) {
     // Kompakt, UTC (wie die Speicherung).
@@ -16,18 +18,20 @@ function timeLabel(ts) {
 export default async function Events({ searchParams }) {
     const { days, range, params } = await resolveRange(searchParams);
     const type = typeof params.type === 'string' ? params.type : '';
+    const size = PAGE_SIZES.includes(Number(params.size)) ? Number(params.size) : DEFAULT_SIZE;
     const page = Math.max(1, Number(params.page) || 1);
-    const offset = (page - 1) * PAGE_SIZE;
+    const offset = (page - 1) * size;
 
-    const { rows, total } = getRawEvents(range, { type: type || undefined, limit: PAGE_SIZE, offset });
+    const { rows, total } = getRawEvents(range, { type: type || undefined, limit: size, offset });
     const typeCounts = getEventTypeCounts(range);
-    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const pages = Math.max(1, Math.ceil(total / size));
 
-    // Filter-/Pager-Links behalten den Zeitraum bei.
-    const linkFor = (t, p) => {
+    // Links behalten Zeitraum, Typ, Seitengröße bei (nur `page`/geänderter Wert variiert).
+    const linkFor = ({ t = type, p = page, s = size } = {}) => {
         const q = new URLSearchParams();
         q.set('range', String(days));
         if (t) q.set('type', t);
+        if (s !== DEFAULT_SIZE) q.set('size', String(s));
         if (p && p > 1) q.set('page', String(p));
         return `/dashboard/events?${q.toString()}`;
     };
@@ -38,9 +42,9 @@ export default async function Events({ searchParams }) {
 
             <section className="an-card">
                 <div className="an-filters">
-                    <Link href={linkFor('', 1)} className={`an-filter-btn${!type ? ' is-active' : ''}`}>Alle</Link>
+                    <Link href={linkFor({ t: '', p: 1 })} className={`an-filter-btn${!type ? ' is-active' : ''}`}>Alle</Link>
                     {typeCounts.map((t) => (
-                        <Link key={t.label} href={linkFor(t.label, 1)} className={`an-filter-btn${type === t.label ? ' is-active' : ''}`}>
+                        <Link key={t.label} href={linkFor({ t: t.label, p: 1 })} className={`an-filter-btn${type === t.label ? ' is-active' : ''}`}>
                             {t.label} ({formatNumber(t.n)})
                         </Link>
                     ))}
@@ -70,13 +74,24 @@ export default async function Events({ searchParams }) {
                     </div>
                 ) : <p className="an-empty">Keine Ereignisse im Zeitraum</p>}
 
-                {pages > 1 && (
-                    <div className="an-pager">
-                        <Link href={linkFor(type, page - 1)} className={`${page <= 1 ? 'is-disabled' : ''}`}>← Zurück</Link>
-                        <span>Seite {page} / {pages}</span>
-                        <Link href={linkFor(type, page + 1)} className={`${page >= pages ? 'is-disabled' : ''}`}>Weiter →</Link>
-                    </div>
-                )}
+                <div className="an-pager">
+                    <Link href={linkFor({ p: page - 1 })} className={`${page <= 1 ? 'is-disabled' : ''}`}>← Zurück</Link>
+                    <span>Seite {page} / {pages}</span>
+                    <Link href={linkFor({ p: page + 1 })} className={`${page >= pages ? 'is-disabled' : ''}`}>Weiter →</Link>
+                    <span className="an-pagesize">
+                        pro Seite:
+                        {PAGE_SIZES.map((s) => (
+                            <Link
+                                key={s}
+                                href={linkFor({ s, p: 1 })}
+                                className={`an-filter-btn${size === s ? ' is-active' : ''}`}
+                                style={{ padding: '2px 8px' }}
+                            >
+                                {s}
+                            </Link>
+                        ))}
+                    </span>
+                </div>
             </section>
         </div>
     );
