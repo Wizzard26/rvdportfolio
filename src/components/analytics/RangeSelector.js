@@ -9,13 +9,13 @@ const OPTIONS = [
     { days: 90, label: '90 Tage' },
 ];
 
-export default function RangeSelector({ active }) {
+export default function RangeSelector({ active, basePath = '/dashboard' }) {
     return (
         <div className="an-range">
             {OPTIONS.map((opt) => (
                 <Link
                     key={opt.days}
-                    href={`/dashboard?range=${opt.days}`}
+                    href={`${basePath}?range=${opt.days}`}
                     className={`an-range-btn${active === opt.days ? ' is-active' : ''}`}
                 >
                     {opt.label}

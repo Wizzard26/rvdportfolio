@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from "react";
+import {useState, useEffect, useRef} from "react";
 import styles from "./styles.module.css";
 import {roboto} from "@/app/fonts";
 import { track } from "@/lib/analytics/track";
@@ -19,6 +19,37 @@ export default function ContactForm() {
     const [sendCopy, setSendCopy] = useState(false);
     const [isSend, setIsSend] =  useState(false);
     const [isError, setIsError] = useState(false);
+
+    // Formular-Analytics (ohne Feldinhalte): Start beim ersten Focus,
+    // Abbruch beim Verlassen, wenn begonnen aber nicht abgesendet.
+    const formStarted = useRef(false);
+    const formSubmitted = useRef(false);
+    const lastField = useRef(null);
+
+    const handleFieldFocus = (e) => {
+        const field = e.target?.name || e.target?.id;
+        if (field) lastField.current = field;
+        if (!formStarted.current) {
+            formStarted.current = true;
+            track('form_start', { name: 'Kontaktformular' });
+        }
+    };
+
+    useEffect(() => {
+        const onLeave = () => {
+            if (formStarted.current && !formSubmitted.current) {
+                track('form_abandon', { name: lastField.current || 'unbekannt' }, true);
+                formSubmitted.current = true; // nur einmal melden
+            }
+        };
+        const onVisibility = () => { if (document.visibilityState === 'hidden') onLeave(); };
+        document.addEventListener('visibilitychange', onVisibility);
+        window.addEventListener('pagehide', onLeave);
+        return () => {
+            document.removeEventListener('visibilitychange', onVisibility);
+            window.removeEventListener('pagehide', onLeave);
+        };
+    }, []);
 
     const sendMail = async (e) => {
         e.preventDefault();
@@ -54,6 +85,7 @@ export default function ContactForm() {
             if (response.ok) {
                 // Echte Conversion (nur bei erfolgreichem Versand, nicht im
                 // Spam-Honeypot-Pfad).
+                formSubmitted.current = true; // verhindert form_abandon danach
                 track('conversion', { name: 'Kontaktformular' });
                 setGender('mr');
                 setTitle('');
@@ -108,7 +140,7 @@ export default function ContactForm() {
             {!isSend &&
                 <>
                     <h2 className={roboto.className}>Schreiben Sie mir eine Nachricht</h2>
-                    <form onSubmit={sendMail} aria-labelledby={'contact-form'} className={styles.form}>
+                    <form onSubmit={sendMail} onFocus={handleFieldFocus} aria-labelledby={'contact-form'} className={styles.form}>
                         <div className={`${styles.leftContainer} col-12 col-md-6`}>
                             <h3>Ansprechpartner:</h3>
                             <label htmlFor={'gender'}>Anrede:</label>

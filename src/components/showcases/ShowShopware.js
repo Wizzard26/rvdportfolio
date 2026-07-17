@@ -4,6 +4,7 @@ import {roboto, ranga} from "@/app/fonts";
 import Image from "next/image";
 import styles from "./styles.module.css";
 import TechTags from "./TechTags";
+import SectionView from "@/components/analytics/SectionView";
 
 export default function ShowShopware() {
 
@@ -11,7 +12,7 @@ export default function ShowShopware() {
         <>
             <section className="secondary--bg">
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Shopware 6 Calculator Builder</h2>
+                    <SectionView as="h2" name={`Shopware 6 Calculator Builder`} className={`${roboto.className}`}>Shopware 6 Calculator Builder</SectionView>
                     <div className={`row `}>
                         <div className={`col-12 col-md-6`}>
                             <Image className={`${styles.imageAuto}`}
@@ -67,7 +68,7 @@ export default function ShowShopware() {
 
             <section className="">
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Shopware 6 Erlebniswelt Elemente</h2>
+                    <SectionView as="h2" name={`Shopware 6 Erlebniswelt Elemente`} className={`${roboto.className}`}>Shopware 6 Erlebniswelt Elemente</SectionView>
                     <div className={`row row-reverse`}>
                         <div className={`col-12 col-md-6`}>
                             <Image className={`${styles.imageAuto}`} src={`/img/casestudy/shopware/gridswapbox.jpg`}
@@ -98,7 +99,7 @@ export default function ShowShopware() {
 
             <section className="secondary--bg">
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Slider Element Text & Bild</h2>
+                    <SectionView as="h2" name={`Slider Element Text & Bild`} className={`${roboto.className}`}>Slider Element Text & Bild</SectionView>
                     <div className={`row `}>
                         <div className={`col-12 col-md-6`}>
                             <Image className={`${styles.imageAuto}`} src={`/img/casestudy/shopware/textimageslider.jpg`}
@@ -141,7 +142,7 @@ export default function ShowShopware() {
 
             <section className="">
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Shopware 6 Video-Text Banner</h2>
+                    <SectionView as="h2" name={`Shopware 6 Video-Text Banner`} className={`${roboto.className}`}>Shopware 6 Video-Text Banner</SectionView>
                     <div className={`row row-reverse`}>
                         <div className={`col-12 col-md-6`}>
                             <Image className={`${styles.imageAuto}`} src={`/img/casestudy/shopware/videotextbanner.jpg`}
@@ -182,7 +183,7 @@ export default function ShowShopware() {
 
             <section className="secondary--bg">
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Shopware 5 & 6 Chatbot</h2>
+                    <SectionView as="h2" name={`Shopware 5 & 6 Chatbot`} className={`${roboto.className}`}>Shopware 5 & 6 Chatbot</SectionView>
                     <div className={`row `}>
                         <div className={`col-12 col-md-6`}>
                             <Image className={`${styles.imageAuto}`} src={`/img/casestudy/shopware/chatbot4you.jpg`}
@@ -224,7 +225,7 @@ export default function ShowShopware() {
 
             <section className="">
                 <div className="content-inner">
-                    <h2 className={`${roboto.className}`}>Shopware 5 Rezept Plugin</h2>
+                    <SectionView as="h2" name={`Shopware 5 Rezept Plugin`} className={`${roboto.className}`}>Shopware 5 Rezept Plugin</SectionView>
                     <div className={`row row-reverse`}>
                         <div className={`col-12 col-md-6`}>
                             <Image className={`${styles.imageAuto}`} src={`/img/casestudy/shopware/Recipelist.jpg`}

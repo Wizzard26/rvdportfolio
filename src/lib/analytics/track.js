@@ -24,8 +24,9 @@ export function getSessionId() {
 
 /**
  * Sendet ein Event an /api/collect.
- * @param {string} type   pageview | pageleave | cta | interaction | conversion
- * @param {object} [opts] { name, path, referrer, duration, meta }
+ * @param {string} type   pageview | pageleave | cta | interaction | conversion |
+ *                        scroll | section_view | outbound | download | vital | form_*
+ * @param {object} [opts] { name, path, referrer, duration, value, meta }
  * @param {boolean} [beacon] true = navigator.sendBeacon (überlebt Seiten-Unload)
  */
 export function track(type, opts = {}, beacon = false) {
@@ -38,6 +39,7 @@ export function track(type, opts = {}, beacon = false) {
         referrer: opts.referrer,
         name: opts.name,
         duration: opts.duration,
+        value: opts.value, // numerischer Messwert (Scrolltiefe %, Web-Vital-Wert)
         meta: opts.meta,
     });
 
