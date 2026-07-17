@@ -12,6 +12,9 @@
 /.next/
 /out/
 
+# analytics SQLite database (local dev + server volume; never committed)
+/data/
+
 # production
 /build
 

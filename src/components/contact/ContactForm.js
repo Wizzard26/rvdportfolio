@@ -3,6 +3,7 @@
 import {useState} from "react";
 import styles from "./styles.module.css";
 import {roboto} from "@/app/fonts";
+import { track } from "@/lib/analytics/track";
 
 export default function ContactForm() {
 
@@ -51,6 +52,9 @@ export default function ContactForm() {
             }
 
             if (response.ok) {
+                // Echte Conversion (nur bei erfolgreichem Versand, nicht im
+                // Spam-Honeypot-Pfad).
+                track('conversion', { name: 'Kontaktformular' });
                 setGender('mr');
                 setTitle('');
                 setFirstName('');

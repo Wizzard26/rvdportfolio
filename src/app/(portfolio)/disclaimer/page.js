@@ -7,14 +7,15 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
     title: 'Datenschutzerklärung',
     description:
-        'Datenschutzerklärung für rene-van-dinter.de: keine Cookies, kein Tracking, keine Analyse-Dienste. Daten nur für Hosting und Kontaktanfragen.',
+        'Datenschutzerklärung für rene-van-dinter.de: keine Cookies, keine Drittanbieter-Dienste. Nur eine eigene, cookiefreie und anonyme Reichweitenmessung sowie Kontaktanfragen.',
     path: '/disclaimer',
 });
 
 // Hinweis: bewusst schlanke, an die tatsächliche Verarbeitung angepasste
-// Datenschutzerklärung (private Portfolio-Seite: nur Hosting + Kontaktformular,
-// keine Cookies, kein Tracking, keine Analyse/Marketing). Interim-Fassung –
-// finale rechtliche Prüfung/Neugenerierung (z.B. datenschutz-generator.de) folgt.
+// Datenschutzerklärung (private Portfolio-Seite: Hosting, Kontaktformular und
+// eine eigene, cookiefreie/anonyme First-Party-Reichweitenmessung ohne
+// Drittanbieter). Finale rechtliche Prüfung/Neugenerierung (z.B.
+// datenschutz-generator.de) folgt.
 export default function Disclaimer() {
     const pageName = 'Disclaimer';
 
@@ -33,8 +34,8 @@ export default function Disclaimer() {
                 <section>
                     <div className="content-inner">
                         <h2 className={`${roboto_condensed.className}`}>Einleitung</h2>
-                        <p>Diese private Portfolio-Website verarbeitet personenbezogene Daten nur in dem Umfang, der für ihren Betrieb und für die Beantwortung von Kontaktanfragen erforderlich ist. Es werden <strong>keine Cookies gesetzt</strong>, <strong>kein Tracking</strong> und <strong>keine Analyse- oder Marketing-Dienste</strong> eingesetzt.</p>
-                        <p>Stand: Juni 2026</p>
+                        <p>Diese private Portfolio-Website verarbeitet personenbezogene Daten nur in dem Umfang, der für ihren Betrieb, für eine anonyme Reichweitenmessung und für die Beantwortung von Kontaktanfragen erforderlich ist. Es werden <strong>keine Cookies gesetzt</strong>, <strong>keine Dienste von Drittanbietern</strong> (etwa Google Analytics) eingesetzt und <strong>keine Werbe- oder Marketing-Dienste</strong> verwendet. Die Reichweitenmessung erfolgt ausschließlich mit einem eigenen, cookiefreien und anonymen Verfahren (siehe Abschnitt „Reichweitenmessung“).</p>
+                        <p>Stand: Juli 2026</p>
                     </div>
                 </section>
 
@@ -71,8 +72,16 @@ export default function Disclaimer() {
 
                 <section>
                     <div className="content-inner">
-                        <h3 className={`${roboto_condensed.className}`}>Keine Cookies, kein Tracking</h3>
-                        <p>Diese Website setzt keine Cookies und verwendet keine Webanalyse-, Tracking- oder Marketing-Dienste. Es werden keine Nutzerprofile erstellt und keine Daten zu Werbezwecken verarbeitet.</p>
+                        <h3 className={`${roboto_condensed.className}`}>Reichweitenmessung (eigene, cookiefreie Analyse)</h3>
+                        <p>Um zu verstehen, wie diese Website genutzt wird, und sie verbessern zu können, kommt eine <strong>selbst betriebene, cookiefreie und anonyme</strong> Reichweitenmessung zum Einsatz. Es werden <strong>keine Cookies</strong> gesetzt, <strong>keine dauerhafte Kennung</strong> vergeben und <strong>keine Dienste von Drittanbietern</strong> (etwa Google Analytics) genutzt – alle Daten bleiben auf dem Server dieser Website.</p>
+                        <p>Es werden <strong>weder Ihre IP-Adresse noch Ihr vollständiger Browser-Kennsatz gespeichert</strong>. Aus der IP-Adresse werden serverseitig ausschließlich ein grober Ländercode sowie ein täglich wechselnder, nicht umkehrbarer Prüfwert (Hash) zur Zählung wiederkehrender Aufrufe innerhalb eines Tages abgeleitet; die IP-Adresse selbst wird dabei sofort verworfen und nicht abgespeichert. Eine Wiedererkennung über einzelne Tage hinweg oder ein Rückschluss auf Ihre Person ist damit nicht möglich.</p>
+                        <ul className={styles.listUl}>
+                            <li><strong>Gemessen werden:</strong> aufgerufene Seiten, Verweildauer, Ein- und Ausstiegsseiten, die Herkunftsart des Aufrufs (direkt, Suchmaschine, KI-Assistent, soziales Netzwerk oder Verweis) samt Herkunfts-Domain, Endgerätetyp, Browser- und Betriebssystem-Familie, grober Ländercode sowie Klicks auf Schaltflächen und die Nutzung interaktiver Beispiele.</li>
+                            <li><strong>Nicht verarbeitet werden:</strong> Cookies, dauerhafte Kennungen, IP-Adressen (Speicherung), Namen oder sonstige personenbezogene Profile.</li>
+                            <li><strong>Zweck:</strong> anonyme statistische Auswertung zur Verbesserung von Inhalten und Bedienbarkeit.</li>
+                            <li><strong>Rechtsgrundlage:</strong> Berechtigte Interessen (Art. 6 Abs. 1 S. 1 lit. f DSGVO). Da keine Cookies gesetzt und keine personenbezogenen Daten gespeichert werden, ist hierfür keine Einwilligung erforderlich.</li>
+                            <li><strong>Speicherdauer:</strong> die anonymen Ereignisdaten werden nach spätestens 12 Monaten gelöscht.</li>
+                        </ul>
                     </div>
                 </section>
 

@@ -1,7 +1,12 @@
 # Runs on the server in /home/users/rene/www/next.rene-van-dinter.de.
 # Deployed by user `deployer` (member of group `rene`); pulls the prebuilt image
 # from GHCR, never builds. Lives next to a `.env.production` (mode 640, rene:rene)
-# holding the mail secrets.
+# holding the mail secrets + AUTH_SECRET/ADMIN_PASSWORD + ANALYTICS_SALT.
+#
+# WICHTIG: Der Deploy-Workflow kopiert diese Datei NICHT auf den Server — dort
+# liegt eine eigene Kopie. Das `volumes:`-Mapping unten muss daher einmalig
+# auch in der Server-Kopie ergänzt und das Verzeichnis ./data angelegt werden,
+# sonst gehen die Analytics-Daten bei jedem Deploy verloren.
 services:
   prod:
     image: ghcr.io/wizzard26/rvdportfolio:latest
@@ -13,3 +18,7 @@ services:
       - .env.production
     environment:
       - NODE_ENV=production
+    volumes:
+      # Persistiert die SQLite-Analytics-Datenbank über Deploys hinweg.
+      # ANALYTICS_DB_PATH (in .env.production) muss auf /app/data/analytics.db zeigen.
+      - ./data:/app/data
