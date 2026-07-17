@@ -1,6 +1,14 @@
 import HeroContent from "@/components/herocontent/page";
 import {ranga, roboto, roboto_condensed} from "@/app/fonts";
 import Link from "next/link";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+    title: 'Impressum',
+    description:
+        'Impressum und Anbieterkennzeichnung gemäß § 5 DDG für rene-van-dinter.de – René van Dinter, Shopware- & Web-Developer aus Stade.',
+    path: '/imprint',
+});
 
 export default function Imprint() {
     const pageName = "Imprint";

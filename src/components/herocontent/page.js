@@ -4,10 +4,17 @@ import { heroContent } from "@/lib/data";
 import styles from './styles.module.css';
 import Button from "@/components/button/Button";
 
-export default function HeroContent({ pageName, imgPos, txtPos}) {
+// `asMainHeading` macht die Hero-Headline zur <h1> der Seite (Subline rückt
+// entsprechend auf <h2>). Nur setzen, wenn die Seite sonst keine <h1> hat —
+// sonst entstehen zwei. Default ist das bisherige Verhalten (h2/h3), weil auf
+// den meisten Seiten der Teaser oder der Content bereits die <h1> stellt.
+export default function HeroContent({ pageName, imgPos, txtPos, asMainHeading = false}) {
     const activePage = pageName;
     const hero = heroContent.find((page) => page.sitename === activePage);
     const boxBg = hero?.textBoxBg ? styles.heroTextboxInnerWithBg : styles.heroTextboxInner;
+
+    const Headline = asMainHeading ? 'h1' : 'h2';
+    const Subline = asMainHeading ? 'h2' : 'h3';
 
     const textPosition = txtPos === "left" ? styles.heroTextboxLeft : styles.heroTextbox;
 
@@ -37,8 +44,8 @@ export default function HeroContent({ pageName, imgPos, txtPos}) {
                     {hero?.headline && (
                         <article className={`${textPosition}`}>
                             <div className={`${boxBg}`}>
-                                <h2 className={`${roboto.className} ${styles.heroHeadline}`}>{hero?.headline}</h2>
-                                <h3 className={`${ranga.className} ${styles.heroHeadSubline}`}>{hero?.headSubline}</h3>
+                                <Headline className={`${roboto.className} ${styles.heroHeadline}`}>{hero?.headline}</Headline>
+                                <Subline className={`${ranga.className} ${styles.heroHeadSubline}`}>{hero?.headSubline}</Subline>
                                 <p className={`${styles.heroListHeadline}`}>{hero?.listHeadline}</p>
 
                                 {hero?.list && (

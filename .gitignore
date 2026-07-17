@@ -27,8 +27,11 @@ yarn-error.log*
 # local env files
 .env*.local
 
-# server-side production secrets (never committed; lives only on the server)
+# server-side production secrets (never committed; lives only on the server).
+# Also the example/template: this is a PUBLIC repo, so no env file belongs here
+# at all — the required variables are documented in docs/Handover.md (local).
 .env.production
+.env.production.example
 
 # vercel
 .vercel

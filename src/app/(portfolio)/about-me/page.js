@@ -6,6 +6,29 @@ import styles from "./styles.module.css";
 import Button from "@/components/button/Button";
 import Skillset from "@/components/skillset/Skillset";
 import BlockqoutesClient from "@/components/blockqoutes/BlockqoutesClient";
+import JsonLd from "@/components/seo/JsonLd";
+import { breadcrumbSchema, pageMetadata, siteConfig } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+    title: 'Entwickler mit Designhintergrund',
+    description:
+        'Über 15 Jahre Erfahrung aus Agentur und E-Commerce: Shopware-6- und Web-Development mit React und Next.js – mit dem Blick eines gelernten Mediengestalters.',
+    path: '/about-me',
+});
+
+// ProfilePage statt WebPage: sagt Suchmaschinen und LLMs, dass diese Seite das
+// Profil einer Person beschreibt — und verweist über `mainEntity` auf das
+// Person-Schema aus dem Layout.
+const profileSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    '@id': `${siteConfig.url}/about-me/#profilepage`,
+    url: `${siteConfig.url}/about-me`,
+    name: 'Über mich – René van Dinter',
+    inLanguage: siteConfig.lang,
+    isPartOf: { '@id': `${siteConfig.url}/#website` },
+    mainEntity: { '@id': `${siteConfig.url}/#person` },
+};
 
 export default async function AboutMe() {
     const pageName = "AboutMe";
@@ -14,6 +37,7 @@ export default async function AboutMe() {
 
     return (
         <>
+            <JsonLd data={[profileSchema, breadcrumbSchema([{ name: 'Über mich', path: '/about-me' }])]} />
             <HeroContent
                 className={`hero-container`}
                 pageName={pageName}
