@@ -5,6 +5,7 @@ import Image from "next/image";
 import WebPage from "@/components/showcases/WebProject/WebPage";
 import TechTags from "@/components/showcases/TechTags";
 import InteractionTracker from "@/components/analytics/InteractionTracker";
+import SectionView from "@/components/analytics/SectionView";
 
 export default function ShowReact() {
     return (
