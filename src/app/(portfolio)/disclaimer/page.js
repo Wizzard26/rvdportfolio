@@ -2,6 +2,14 @@ import ContactData from "@/components/contact/ContactData";
 import {ranga, roboto, roboto_condensed} from "@/app/fonts";
 import styles from "./styles.module.css";
 import HeroContent from "@/components/herocontent/page";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+    title: 'Datenschutzerklärung',
+    description:
+        'Datenschutzerklärung für rene-van-dinter.de: keine Cookies, kein Tracking, keine Analyse-Dienste. Daten nur für Hosting und Kontaktanfragen.',
+    path: '/disclaimer',
+});
 
 // Hinweis: bewusst schlanke, an die tatsächliche Verarbeitung angepasste
 // Datenschutzerklärung (private Portfolio-Seite: nur Hosting + Kontaktformular,

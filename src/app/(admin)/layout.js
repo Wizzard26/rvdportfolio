@@ -6,6 +6,13 @@ import Link from "next/link";
 export const metadata = {
     title: 'Portfolio Dashboard',
     description: 'My little Dashboard',
+    // Interner Bereich: gehört in keinen Suchindex. Zusätzlich in robots.txt
+    // gesperrt — das Meta-Tag greift auch dann, wenn jemand direkt verlinkt.
+    robots: {
+        index: false,
+        follow: false,
+        googleBot: { index: false, follow: false },
+    },
 }
 
 export default function DashboardLayout({ children }) {

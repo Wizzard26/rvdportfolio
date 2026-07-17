@@ -1,83 +1,33 @@
-'use client';
-
-import Link from "next/link";
-import styles from "./styles.module.css";
-import {ranga, roboto} from "@/app/fonts";
-import {useSearchParams} from "next/navigation";
-import {Suspense, useEffect, useState} from "react";
-import BlogList from "@/components/blog/BlogList";
-import BlogCategories from "@/components/blog/BlogCategories";
+import BlogClient from "@/components/blog/BlogClient";
+import { pageMetadata } from "@/lib/seo";
 
 // TODO add Hero and teaser section
 // TODO add more blog entries
-// TODO add Blog routing for single page entries
 // TODO add pagination maximum entries on one site
 // TODO add styling for blog page
 // TODO set all relevated links, from main page and to single page
-
 // TODO feature add filter by category and more
 
-
-
-function BlogContent() {
-    const searchParams = useSearchParams();
-    const cat = searchParams.get('cat');
-
-    const [isCategory, setIsCategory] = useState(false);
-    const [activeCategory, setActiveCategory] = useState(null);
-
-    useEffect(() => {
-        cat ? setIsCategory(true) : setIsCategory(false);
-        setActiveCategory(cat ? cat.toLowerCase() : null);
-    },[cat])
-
-    return(
-        <>
-            <main className="main-content">
-                <section>
-                    <div className="content-inner">
-                        <h1 className={roboto.className}>Neuigkeiten und Allgemeine Blog Themen</h1>
-                        <div className="blog-main row">
-                            <div className={`${styles.blogSidebar} blog-sidebar col-12 col-lg-3 order-md-2 d-none d-lg-block`} >
-                                <BlogCategories
-                                    activeCategory={activeCategory}
-                                />
-                            </div>
-                            <div className="blog-main-entrys col-12 col-lg-9 order-md-1">
-                                {isCategory &&
-                                    <div className={styles.blogFilterActions}>
-                                        <Link href={`/blog`} className={styles.blogResetFilter}>Alle Beiträge Anzeigen</Link>
-                                    </div>
-                                }
-                                <BlogList
-                                    cat={cat}
-                                    author={true}
-                                    tags={true}
-                                    button={false}
-                                    limit={0}
-                                    perPage={6}
-                                    pagination={true}
-                                    articleCols={'col-12 col-md-6 col-xl-4'}
-                                />
-                                {isCategory &&
-                                    <div className={styles.blogFilterActions}>
-                                        <Link href={`/blog`} className={styles.blogResetFilter}>Alle Beiträge Anzeigen</Link>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-
-                    </div>
-                </section>
-            </main>
-        </>
-    )
-}
+// `noindex`: Die Beiträge in `lib/blog.js` sind Platzhalter (u. a. Autor
+// "Admin", Themen ohne Bezug zur Positionierung). Dünner Inhalt, der nicht zum
+// Profil passt, schadet der Bewertung der gesamten Domain — deshalb bleibt der
+// Blog aus dem Index, bis echte Beiträge stehen. Er ist außerdem nicht in der
+// sitemap.xml gelistet.
+//
+// Bewusst NICHT über robots.txt gesperrt: Ein Crawler muss die Seite abrufen
+// dürfen, um das noindex überhaupt zu lesen. `follow: true` lässt ihn den
+// internen Links weiter folgen.
+//
+// Zum Aktivieren später: `noindex` hier und in `blog/[slug]/page.js` entfernen,
+// beide Routen in `app/sitemap.js` ergänzen und den Nav-Eintrag in
+// `lib/pages.js` wieder einblenden (`hideTop: false`).
+export const metadata = pageMetadata({
+    title: 'Blog',
+    description: 'Neuigkeiten und Beiträge von René van Dinter.',
+    path: '/blog',
+    noindex: true,
+});
 
 export default function Blog() {
-    return (
-        <Suspense fallback={<main className="main-content"><section><div className="content-inner">Beiträge werden geladen …</div></section></main>}>
-            <BlogContent />
-        </Suspense>
-    )
+    return <BlogClient />
 }

@@ -6,6 +6,15 @@ import Button from "@/components/button/Button";
 import {Fragment} from "react";
 import { MotionDiv } from "@/components/MotionDiv/MotionDiv";
 import { TbFileTypePdf } from "react-icons/tb";
+import JsonLd from "@/components/seo/JsonLd";
+import { breadcrumbSchema, pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+    title: 'Vita & beruflicher Werdegang',
+    description:
+        'Der Werdegang von René van Dinter: Stationen vom Mediengestalter über Frontend und Teamleitung bis zur Shopware-6-Entwicklung. Zeugnisse und Zertifikate.',
+    path: '/vita',
+});
 
 function getWorkStations() {
     const vitaStation = vitaEntries;
@@ -26,6 +35,7 @@ export default function Vita() {
 
     return(
         <>
+            <JsonLd data={breadcrumbSchema([{ name: 'Vita', path: '/vita' }])} />
             <HeroContent
                 className={`hero-container`}
                 pageName={pageName}

@@ -7,6 +7,18 @@ import Button from "@/components/button/Button";
 import BlogList from "@/components/blog/BlogList";
 import ServiceBox from "@/components/service/ServiceBox";
 import ContactBox from "@/components/contact/ContactBox";
+import { pageMetadata, siteConfig } from "@/lib/seo";
+
+// `absolute`, damit an den Titel der Startseite nicht noch einmal der Name
+// gehängt wird ("… | René van Dinter").
+export const metadata = {
+    ...pageMetadata({
+        title: 'René van Dinter – Shopware- & Web-Developer aus Stade',
+        description: siteConfig.description,
+        path: '/',
+    }),
+    title: { absolute: 'René van Dinter – Shopware- & Web-Developer aus Stade' },
+};
 
 const getData = (pageComp, sectionData) => {
     const pageData = pageComp.section.find((section) => section.name === `${sectionData}`);
@@ -26,13 +38,22 @@ export default function Home() {
     return (
         <>
             <main className="main-content">
+                {/*
+                  Die Hero-Headline ("Shopware-6- & Web-Developer mit
+                  Designhintergrund") ist die aussagekräftigste Überschrift der
+                  Seite und damit die <h1>. Der Teaser rückt deshalb auf <h2> —
+                  seine Headline ("Moin und herzlich willkommen") ist als
+                  Hauptüberschrift ohne Suchwert.
+                */}
                 <HeroContent
                     className="hero-container"
                     pageName={pageName}
+                    asMainHeading={true}
                 />
                 <Teaser
                     className="main--teaser"
                     pageName={pageName}
+                    headingLevel={2}
                 />
                 <section>
                     <div className="content-inner">
