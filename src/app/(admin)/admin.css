@@ -288,6 +288,44 @@ body {
 .an-form-error { margin: 0; padding: 10px 12px; border-radius: 6px; background: #fdecec; color: #a21f37; font-size: 14px; }
 .an-form-actions { display: flex; gap: 12px; align-items: center; margin-top: 4px; }
 
+/* ── Tabs (Vita-Verwaltung) ───────────────────────────────────────────── */
+.an-tabs { display: inline-flex; gap: 4px; background: #eef3f5; padding: 4px; border-radius: 8px; margin-bottom: 20px; }
+.an-tab { padding: 7px 16px; border-radius: 6px; font-size: 14px; color: var(--adm-ink-soft); text-decoration: none; }
+.an-tab:hover { background: #e0e8ec; }
+.an-tab.is-active { background: var(--adm-accent); color: #fff; }
+
+/* ── Persönliche Daten: Bereiche & Einträge ───────────────────────────── */
+.an-newarea { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--adm-border); }
+.an-newarea-input { flex: 1 1 260px; font: inherit; font-size: 14px; padding: 8px 12px; border: 1px solid var(--adm-border); border-radius: 6px; }
+
+.an-area { border: 1px solid var(--adm-border); border-radius: 10px; padding: 14px; margin-bottom: 14px; background: #fbfcfd; }
+.an-area-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.an-area-title { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 600; color: var(--adm-ink); display: flex; align-items: center; gap: 8px; }
+.an-muted { color: var(--adm-ink-muted); font-weight: 400; font-style: italic; }
+.an-areaedit { display: flex; flex: 1 1 auto; flex-wrap: wrap; align-items: center; gap: 10px; }
+
+.an-drag-sm { padding: 5px; }
+
+.an-entrylist { list-style: none; margin: 0 0 4px; padding: 0; }
+.an-entry { display: flex; align-items: center; gap: 10px; padding: 7px 4px; border-bottom: 1px dashed var(--adm-border); }
+.an-entry:last-child { border-bottom: none; }
+.an-entry-text { flex: 1 1 auto; min-width: 0; font-size: 14px; color: var(--adm-ink); display: flex; align-items: center; gap: 8px; }
+.an-entry-pdf { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: var(--adm-accent); background: #eef3f5; padding: 1px 7px; border-radius: 10px; }
+.an-entry-edit { flex: 1 1 auto; }
+
+.an-addentry { margin-top: 8px; }
+.an-addentry > summary { cursor: pointer; font-size: 13px; color: var(--adm-accent); display: inline-flex; align-items: center; gap: 4px; list-style: none; }
+.an-addentry > summary::-webkit-details-marker { display: none; }
+.an-addentry[open] > summary { margin-bottom: 10px; }
+
+.an-entryform, .an-newarea, .an-areaedit { }
+.an-entryform { display: flex; flex-direction: column; gap: 12px; background: #fff; border: 1px solid var(--adm-border); border-radius: 8px; padding: 12px; }
+.an-pdf-field { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.an-field select, .an-field input[type="file"] {
+    font: inherit; font-size: 14px; color: var(--adm-ink); padding: 8px 10px;
+    border: 1px solid var(--adm-border); border-radius: 6px; background: #fff;
+}
+
 /* ── Responsiv ────────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
     .an-tiles { grid-template-columns: repeat(2, 1fr); }

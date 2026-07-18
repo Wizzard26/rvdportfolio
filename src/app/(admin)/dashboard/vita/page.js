@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { FiPlus } from 'react-icons/fi';
 import { getStations } from '@/lib/content/vitaStore';
 import VitaStationList from '@/components/analytics/VitaStationList';
+import VitaAdminTabs from '@/components/analytics/VitaAdminTabs';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,8 @@ export default async function VitaAdmin() {
                     <FiPlus aria-hidden="true" /> Neue Station
                 </Link>
             </div>
+
+            <VitaAdminTabs active="stations" />
 
             <section className="an-card">
                 <VitaStationList stations={stations} />
