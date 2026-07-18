@@ -27,11 +27,9 @@ function hydrate(row) {
     };
 }
 
-// Seed aus der statischen showcaseProjects.js — nur wenn leer.
-export function seedShowcaseIfEmpty() {
-    const db = getContentDb();
-    if (db.prepare('SELECT COUNT(*) AS n FROM showcase_projects').get().n > 0) return;
-
+// Fügt die übergebenen Seed-Projekte ein; sort_order zählt je Kategorie am
+// aktuellen Maximum weiter (neu Angehängtes landet hinten).
+function insertSeedProjects(db, projects) {
     const insert = db.prepare(`
         INSERT INTO showcase_projects
             (category, variant, name, headline, intro, features, tech, media_type, media,
@@ -40,12 +38,14 @@ export function seedShowcaseIfEmpty() {
             (@category, @variant, @name, @headline, @intro, @features, @tech, @media_type, @media,
              @schema_type, @application_category, @sort_order, @updated_at)
     `);
+    const maxStmt = db.prepare('SELECT COALESCE(MAX(sort_order), -1) AS m FROM showcase_projects WHERE category = ?');
     const now = Date.now();
-    const perCat = {};
-    const seed = db.transaction((projects) => {
-        for (const p of projects) {
+    const counters = {};
+    const run = db.transaction((rows) => {
+        for (const p of rows) {
             const cat = p.category || 'shopware';
-            perCat[cat] = (perCat[cat] ?? -1) + 1;
+            if (counters[cat] === undefined) counters[cat] = maxStmt.get(cat).m;
+            counters[cat] += 1;
             insert.run({
                 category: cat,
                 variant: p.variant || 'full',
@@ -58,26 +58,49 @@ export function seedShowcaseIfEmpty() {
                 media: p.media || '',
                 schema_type: p.schema_type || p.type || '',
                 application_category: p.application_category || p.applicationCategory || '',
-                sort_order: perCat[cat],
+                sort_order: counters[cat],
                 updated_at: now,
             });
         }
     });
-    seed(showcaseProjects);
+    run(projects);
+}
+
+// Seed aus der statischen showcaseProjects.js — nur wenn die Tabelle leer ist.
+export function seedShowcaseIfEmpty() {
+    const db = getContentDb();
+    if (db.prepare('SELECT COUNT(*) AS n FROM showcase_projects').get().n > 0) return;
+    insertSeedProjects(db, showcaseProjects);
+}
+
+// Ergänzt eine Kategorie, wenn sie noch gar nicht existiert — für Kategorien,
+// die NACH dem ersten Seed dazukamen (z. B. codejs), damit sie auch in einer
+// bereits befüllten (Server-)DB nachgezogen werden. Idempotent.
+export function seedCategoryIfMissing(category) {
+    const db = getContentDb();
+    const n = db.prepare('SELECT COUNT(*) AS n FROM showcase_projects WHERE category = ?').get(category).n;
+    if (n > 0) return;
+    const rows = showcaseProjects.filter((p) => p.category === category);
+    if (rows.length) insertSeedProjects(db, rows);
+}
+
+function ensureSeeded() {
+    seedShowcaseIfEmpty();
+    seedCategoryIfMissing('codejs');
 }
 
 // Alle Projekte (für Admin + JSON-LD), nach Kategorie & sort_order.
 // `publicOnly` blendet Entwürfe (is_active=0) aus — für die öffentliche Seite.
 export function getProjects({ publicOnly = false } = {}) {
     const db = getContentDb();
-    seedShowcaseIfEmpty();
+    ensureSeeded();
     const where = publicOnly ? 'WHERE is_active = 1' : '';
     return db.prepare(`SELECT * FROM showcase_projects ${where} ORDER BY category, sort_order, id`).all().map(hydrate);
 }
 
 export function getProjectsByCategory(category) {
     const db = getContentDb();
-    seedShowcaseIfEmpty();
+    ensureSeeded();
     return db.prepare('SELECT * FROM showcase_projects WHERE category = ? ORDER BY sort_order, id').all(category).map(hydrate);
 }
 
@@ -99,6 +122,9 @@ function fields(data) {
         media: data.media || '',
         schema_type: data.schema_type || '',
         application_category: data.application_category || '',
+        sandbox_html: data.sandbox_html || '',
+        sandbox_css: data.sandbox_css || '',
+        sandbox_js: data.sandbox_js || '',
         is_active: data.is_active ? 1 : 0,
         updated_at: Date.now(),
     };
@@ -111,10 +137,12 @@ export function createProject(data) {
     return db.prepare(`
         INSERT INTO showcase_projects
             (category, variant, name, headline, intro, features, tech, media_type, media,
-             schema_type, application_category, is_active, sort_order, updated_at)
+             schema_type, application_category, sandbox_html, sandbox_css, sandbox_js,
+             is_active, sort_order, updated_at)
         VALUES
             (@category, @variant, @name, @headline, @intro, @features, @tech, @media_type, @media,
-             @schema_type, @application_category, @is_active, @sort_order, @updated_at)
+             @schema_type, @application_category, @sandbox_html, @sandbox_css, @sandbox_js,
+             @is_active, @sort_order, @updated_at)
     `).run({ ...f, sort_order: max + 1 }).lastInsertRowid;
 }
 
@@ -124,6 +152,7 @@ export function updateProject(id, data) {
             category=@category, variant=@variant, name=@name, headline=@headline, intro=@intro,
             features=@features, tech=@tech, media_type=@media_type, media=@media,
             schema_type=@schema_type, application_category=@application_category,
+            sandbox_html=@sandbox_html, sandbox_css=@sandbox_css, sandbox_js=@sandbox_js,
             is_active=@is_active, updated_at=@updated_at
         WHERE id=@id
     `).run({ ...fields(data), id });

@@ -9,8 +9,9 @@ import { saveUploadedImage } from '@/lib/content/media';
 
 // Server Actions für die Showcase-Projekte.
 
-const COMPONENTS = new Set(['CallEvent', 'WebPage']); // Whitelist interaktiver Slots
-const CATEGORIES = new Set(['shopware', 'react']);
+// Whitelist fest im Code hinterlegter interaktiver Komponenten.
+const COMPONENTS = new Set(['CallEvent', 'WebPage', 'Slider', 'Lottogenerator', 'Cartsystem', 'Modalbox']);
+const CATEGORIES = new Set(['shopware', 'react', 'codejs']);
 const VARIANTS = new Set(['full', 'compact']);
 
 function revalidate() {
@@ -50,6 +51,9 @@ function parseCommon(formData) {
         schema_type: (formData.get('schema_type') || '').toString(),
         application_category: (formData.get('application_category') || '').toString().trim(),
         media_type: (formData.get('media_type') || 'none').toString(),
+        sandbox_html: (formData.get('sandbox_html') || '').toString(),
+        sandbox_css: (formData.get('sandbox_css') || '').toString(),
+        sandbox_js: (formData.get('sandbox_js') || '').toString(),
         is_active: formData.get('is_active') ? 1 : 0,
     };
 }

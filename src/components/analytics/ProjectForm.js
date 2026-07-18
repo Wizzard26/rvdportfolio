@@ -24,6 +24,7 @@ export default function ProjectForm({ action, project, images }) {
                     <select name="category" defaultValue={v.category || 'shopware'}>
                         <option value="shopware">Shopware</option>
                         <option value="react">NextJs / React</option>
+                        <option value="codejs">JavaScript</option>
                     </select>
                 </label>
                 <label className="an-field">
@@ -67,6 +68,7 @@ export default function ProjectForm({ action, project, images }) {
                     <option value="image">Bild</option>
                     <option value="video">Video (Pfad)</option>
                     <option value="component">Interaktive Komponente</option>
+                    <option value="sandbox">Sandbox (HTML/CSS/JS)</option>
                     <option value="none">Kein Medium</option>
                 </select>
             </label>
@@ -102,9 +104,34 @@ export default function ProjectForm({ action, project, images }) {
                     <select name="component" defaultValue={v.media_type === 'component' ? (v.media || 'CallEvent') : 'CallEvent'}>
                         <option value="CallEvent">Calendly-Clone (CallEvent)</option>
                         <option value="WebPage">Projekt-Konfigurator (WebPage)</option>
+                        <option value="Slider">Layer-Slider (Slider)</option>
+                        <option value="Lottogenerator">Lotto-Generator (Lottogenerator)</option>
+                        <option value="Cartsystem">Warenkorb (Cartsystem)</option>
+                        <option value="Modalbox">Modalbox (Modalbox)</option>
                     </select>
                     <span className="an-card-note">Interaktive Demos sind fest im Code hinterlegt (Whitelist).</span>
                 </label>
+            )}
+
+            {mediaType === 'sandbox' && (
+                <div className="an-pdf-field">
+                    <label className="an-field">
+                        <span>Sandbox · HTML</span>
+                        <textarea name="sandbox_html" rows={6} defaultValue={v.sandbox_html || ''}
+                                  spellCheck={false} placeholder="<button id='btn'>Klick mich</button>" />
+                    </label>
+                    <label className="an-field">
+                        <span>Sandbox · CSS</span>
+                        <textarea name="sandbox_css" rows={6} defaultValue={v.sandbox_css || ''}
+                                  spellCheck={false} placeholder="#btn { padding: 10px 16px; }" />
+                    </label>
+                    <label className="an-field">
+                        <span>Sandbox · JavaScript</span>
+                        <textarea name="sandbox_js" rows={8} defaultValue={v.sandbox_js || ''}
+                                  spellCheck={false} placeholder="document.getElementById('btn').onclick = () => alert('Hallo');" />
+                    </label>
+                    <span className="an-card-note">Läuft isoliert in einem sandboxed iframe (kein Zugriff auf die Hauptseite). Höhe passt sich automatisch an.</span>
+                </div>
             )}
 
             {/* Strukturierte Daten (JSON-LD) */}

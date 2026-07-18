@@ -81,6 +81,9 @@ function migrate(database) {
             media                TEXT    NOT NULL DEFAULT '',
             schema_type          TEXT    NOT NULL DEFAULT '',
             application_category TEXT    NOT NULL DEFAULT '',
+            sandbox_html         TEXT    NOT NULL DEFAULT '',
+            sandbox_css          TEXT    NOT NULL DEFAULT '',
+            sandbox_js           TEXT    NOT NULL DEFAULT '',
             is_active            INTEGER NOT NULL DEFAULT 1,
             sort_order           INTEGER NOT NULL DEFAULT 0,
             updated_at           INTEGER NOT NULL DEFAULT 0
@@ -105,6 +108,10 @@ function migrate(database) {
     ensureColumn(database, 'vita_stations', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
     ensureColumn(database, 'showcase_projects', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
     ensureColumn(database, 'gallery_items', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
+    // Sandbox-Felder für den JavaScript-Tab (Phase B) nachrüsten.
+    ensureColumn(database, 'showcase_projects', 'sandbox_html', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'showcase_projects', 'sandbox_css', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'showcase_projects', 'sandbox_js', "TEXT NOT NULL DEFAULT ''");
 }
 
 export function getContentDb() {

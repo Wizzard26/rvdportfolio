@@ -36,6 +36,7 @@ export default function ShowCase() {
     const projects = getProjects({ publicOnly: true });
     const shopwareProjects = projects.filter((p) => p.category === 'shopware');
     const reactProjects = projects.filter((p) => p.category === 'react');
+    const codejsProjects = projects.filter((p) => p.category === 'codejs');
     const galleryItems = getGalleryItems({ publicOnly: true });
 
     return(
@@ -54,6 +55,7 @@ export default function ShowCase() {
             <ShowcaseClient
                 shopwareProjects={shopwareProjects}
                 reactProjects={reactProjects}
+                codejsProjects={codejsProjects}
                 galleryItems={galleryItems}
             />
         </>

@@ -4,9 +4,11 @@
 // content.db (siehe vitaStore-Muster). Danach ist die DB die Quelle der Wahrheit;
 // Änderungen laufen über den Admin (/dashboard/showcase), nicht mehr hier.
 //
-// Inhalte 1:1 aus den bisherigen Komponenten (ShowShopware.js / ShowReact.js)
-// übernommen. `media_type`: image | video | component (Whitelist: CallEvent,
-// WebPage) | none. `variant`: full (große Sektion) | compact (Grid-Karte).
+// Inhalte 1:1 aus den bisherigen Komponenten (ShowShopware.js / ShowReact.js /
+// ShowJavascripts.js) übernommen. `category`: shopware | react | codejs.
+// `media_type`: image | video | component (Whitelist: CallEvent, WebPage, Slider,
+// Lottogenerator, Cartsystem, Modalbox) | sandbox (HTML/CSS/JS im iframe) | none.
+// `variant`: full (große Sektion) | compact (Grid-/Slider-Karte).
 // `intro`/`features`/`tech` sind Arrays; im Store zu Textfeldern zusammengeführt.
 
 export const showcaseProjects = [
@@ -397,5 +399,169 @@ export const showcaseProjects = [
         "media": "/img/blog/code.jpg",
         "schema_type": "WebApplication",
         "application_category": "BusinessApplication"
+    },
+    {
+        "category": "codejs",
+        "variant": "full",
+        "name": "Einfacher Layer Slider",
+        "headline": "JavaScript Kurs Übungsaufgabe",
+        "intro": [
+            "Kleine JavaScript-Lernprojekte: Diese Beispiele sind bewusst in reinem JavaScript ohne Framework umgesetzt und zeigen Grundlagen wie DOM-Manipulation, Events und Konfiguration – entstanden als Fingerübungen und Testaufgaben.",
+            "Als Übungsaufgabe habe ich einen Slider mit einer Textebene und Link erstellt. Dabei wurden auch verschiedene Möglichkeiten der Konfiguration mit eingebaut.",
+            "Als Konfigurierbare Optionen wurde folgendes in einer Config Variablen angelegt:"
+        ],
+        "features": [
+            "Autoplay: true / false",
+            "Stop on Hover: true / false",
+            "Timing: Zeit in ms",
+            "Arrows: true / false",
+            "Punkte: true / false",
+            "Fullscreen: true / false"
+        ],
+        "tech": [],
+        "media_type": "component",
+        "media": "Slider",
+        "schema_type": "",
+        "application_category": ""
+    },
+    {
+        "category": "codejs",
+        "variant": "full",
+        "name": "Lotto Tipp-Generator v1",
+        "headline": "Automatisierte Tipps für den nächsten Lottoschein",
+        "intro": [
+            "Immer wieder Ratlos, welche Zahlen Sie auf dem Lottoschein ankreuzen sollen? Jetzt können Sie einfach den von mir erstellten Generator nutzen und sich bis zu 30 Felder vorgeben lassen.",
+            "Egal ob 6 aus 49 oder der EuroJackpot, beide Spielsysteme können Sie einfach auswählen und mit etwas Glück werden Ihre Zahlen auch gezogen.",
+            "Zu berücksichtigen ist, das dieses Script noch zu dem Alten Jackpot System erstellt wurde, mit weniger Zusatzzahlen."
+        ],
+        "features": [],
+        "tech": [],
+        "media_type": "component",
+        "media": "Lottogenerator",
+        "schema_type": "",
+        "application_category": ""
+    },
+    {
+        "category": "codejs",
+        "variant": "full",
+        "name": "Javascript Warenkorb v1",
+        "headline": "kleines Warenkorb System ohne Datenbank",
+        "intro": [
+            "Warenkorb mit Berechnung. Die Daten werden nicht in der Datenbank gespeichert. Produktdaten werden aus einer JSON Datei geladen und verarbeitet.",
+            "Anstatt über eine Cookie Session, werden die Daten im Local Storage zwischen gespeichert, so bleibt der Warenkorb bestand auch nach eienem Reload oder Seitenwechsel erhalten."
+        ],
+        "features": [],
+        "tech": [],
+        "media_type": "component",
+        "media": "Cartsystem",
+        "schema_type": "",
+        "application_category": ""
+    },
+    {
+        "category": "codejs",
+        "variant": "full",
+        "name": "Modalbox TestScript",
+        "headline": "Modalbox schnell erstellt als Testaufgabe",
+        "intro": [
+            "Bei einem Gespräch wurde diese Modalbox erstellt um meine Rangeheweise an eine Aufgabenstellung zu testen. Verständniss für die Aufgabenstellung, welche Rückfragen ergeben sich und wie plane ich die Aufgabe zu lösen.",
+            "Danach folgte dann die Umsetzung im LiveCoding, dabei erstellte ich auf der Grünen Wiese, erst die Html und CSS Struktur mit dem Demo Content. Danach im Javascript die Events und Funktionen.",
+            "Letztendlich folgte dann das Debugging und weitere Umsetzungen, welche nicht direkt in der Aufgabenstellung vorgesehen waren."
+        ],
+        "features": [],
+        "tech": [],
+        "media_type": "component",
+        "media": "Modalbox",
+        "schema_type": "",
+        "application_category": ""
+    },
+    {
+        "category": "codejs",
+        "variant": "compact",
+        "name": "Futterrechner",
+        "headline": "",
+        "intro": [
+            "Futterbedarfsrechner für Hunde und Katzen, anhand Tiergewicht und Inhaltsstoffe"
+        ],
+        "features": [],
+        "tech": [],
+        "media_type": "image",
+        "media": "/img/blog/code.jpg",
+        "schema_type": "",
+        "application_category": ""
+    },
+    {
+        "category": "codejs",
+        "variant": "compact",
+        "name": "Optimix Rechner",
+        "headline": "",
+        "intro": [
+            "Rechner für Optimix Tierfutter, welches die Nährstoffe anhand des gewichts berechnet."
+        ],
+        "features": [],
+        "tech": [],
+        "media_type": "image",
+        "media": "/img/blog/code.jpg",
+        "schema_type": "",
+        "application_category": ""
+    },
+    {
+        "category": "codejs",
+        "variant": "compact",
+        "name": "Darts Scorer",
+        "headline": "",
+        "intro": [
+            "Scoring System für Dartspieler. Finishwege und Punkte berechnen."
+        ],
+        "features": [],
+        "tech": [],
+        "media_type": "image",
+        "media": "/img/blog/code.jpg",
+        "schema_type": "",
+        "application_category": ""
+    },
+    {
+        "category": "codejs",
+        "variant": "compact",
+        "name": "Mega Menü",
+        "headline": "",
+        "intro": [
+            "Einfaches Mega Menü mit Hover Effekte und mehrere Untermenüs, als Übungsprojekt."
+        ],
+        "features": [],
+        "tech": [],
+        "media_type": "image",
+        "media": "/img/blog/code.jpg",
+        "schema_type": "",
+        "application_category": ""
+    },
+    {
+        "category": "codejs",
+        "variant": "compact",
+        "name": "Collapse Boxen",
+        "headline": "",
+        "intro": [
+            "Info Collapse boxen für verschieden Anwendungsbereiche als Übungsprojekt."
+        ],
+        "features": [],
+        "tech": [],
+        "media_type": "image",
+        "media": "/img/blog/code.jpg",
+        "schema_type": "",
+        "application_category": ""
+    },
+    {
+        "category": "codejs",
+        "variant": "compact",
+        "name": "Inhalts Filter",
+        "headline": "",
+        "intro": [
+            "Inhalte nach vorgebene Attribute filter und ausgeben lassen als Probeprojekt."
+        ],
+        "features": [],
+        "tech": [],
+        "media_type": "image",
+        "media": "/img/blog/code.jpg",
+        "schema_type": "",
+        "application_category": ""
     }
 ];

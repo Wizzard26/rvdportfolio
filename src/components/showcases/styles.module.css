@@ -53,6 +53,16 @@
 .pagerBtn:disabled { opacity: .4; cursor: default; }
 .pagerActive { background: var(--primary); color: #fff; }
 
+/* Sandbox-Frame (admin-gepflegte HTML/CSS/JS-Demos) */
+.sandboxFrame {
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid rgba(4, 21, 31, 0.14);
+    border-radius: 10px;
+    background: #fff;
+    display: block;
+}
+
 /* Infinity-Slider für die kompakten „Weitere Elemente" (ab >4 Karten).
    Natives Touch-Scrollen (Momentum) + nahtloser Loop; Scrollbar ausgeblendet,
    damit der Rücksprung unsichtbar bleibt. Sichtbare Karten: 4 / 3 / 2 / 1. */
