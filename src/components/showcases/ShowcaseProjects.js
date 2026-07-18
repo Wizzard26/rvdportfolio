@@ -9,9 +9,14 @@ import SectionView from "@/components/analytics/SectionView";
 import InteractionTracker from "@/components/analytics/InteractionTracker";
 import CallEvent from "@/components/showcases/Callevent/CallEvent";
 import WebPage from "@/components/showcases/WebProject/WebPage";
+import Slider from "@/components/scripts/Slider";
+import Lottogenerator from "@/components/scripts/Lottogenerator";
+import Cartsystem from "@/components/scripts/Cartsystem";
+import Modalbox from "@/components/scripts/Modalbox";
+import Sandbox from "@/components/showcases/Sandbox";
 
 // Whitelist interaktiver Komponenten-Slots (feste App-Komponenten).
-const COMPONENTS = { CallEvent, WebPage };
+const COMPONENTS = { CallEvent, WebPage, Slider, Lottogenerator, Cartsystem, Modalbox };
 
 // Uploads (/media/...) an next/image vorbei (dynamische Route, unbekannte Maße).
 function isUpload(src) {
@@ -41,6 +46,13 @@ function Media({ project }) {
         return (
             <Image className={styles.imageAuto} src={media} alt={name}
                    width={500} height={500} unoptimized={isUpload(media)} />
+        );
+    }
+    if (media_type === 'sandbox') {
+        return (
+            <InteractionTracker name={`Demo getestet: ${name}`}>
+                <Sandbox html={project.sandbox_html} css={project.sandbox_css} js={project.sandbox_js} title={name} />
+            </InteractionTracker>
         );
     }
     return null;

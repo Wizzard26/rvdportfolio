@@ -93,6 +93,7 @@ export default function ShowcaseProjectList({ projects }) {
     const split = (list) => ({
         shopware: list.filter((p) => p.category === 'shopware'),
         react: list.filter((p) => p.category === 'react'),
+        codejs: list.filter((p) => p.category === 'codejs'),
     });
     const [lists, setLists] = useState(() => split(projects));
     useEffect(() => { setLists(split(projects)); }, [projects]);
@@ -106,12 +107,13 @@ export default function ShowcaseProjectList({ projects }) {
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
     );
 
-    const categoryOf = (id) => (lists.shopware.some((p) => p.id === id) ? 'shopware' : 'react');
+    const categoryOf = (id) =>
+        ['shopware', 'react', 'codejs'].find((c) => lists[c].some((p) => p.id === id));
 
     const onDragEnd = ({ active, over }) => {
         if (!over || active.id === over.id) return;
         const cat = categoryOf(active.id);
-        if (categoryOf(over.id) !== cat) return; // nicht über Kategoriegrenze sortieren
+        if (!cat || categoryOf(over.id) !== cat) return; // nicht über Kategoriegrenze sortieren
         const arr = lists[cat];
         const oldIndex = arr.findIndex((p) => p.id === active.id);
         const newIndex = arr.findIndex((p) => p.id === over.id);
@@ -126,6 +128,7 @@ export default function ShowcaseProjectList({ projects }) {
             <>
                 <CategoryGroup label="Shopware" items={lists.shopware} mounted={false} />
                 <CategoryGroup label="NextJs / React" items={lists.react} mounted={false} />
+                <CategoryGroup label="JavaScript" items={lists.codejs} mounted={false} />
             </>
         );
     }
@@ -134,6 +137,7 @@ export default function ShowcaseProjectList({ projects }) {
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             <CategoryGroup label="Shopware" items={lists.shopware} mounted />
             <CategoryGroup label="NextJs / React" items={lists.react} mounted />
+            <CategoryGroup label="JavaScript" items={lists.codejs} mounted />
         </DndContext>
     );
 }

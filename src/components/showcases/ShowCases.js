@@ -9,7 +9,7 @@ import ShowReact from "@/components/showcases/ShowReact";
 import ShowShopware from "@/components/showcases/ShowShopware";
 
 
-export default function ShowCases({cases, shopwareProjects = [], reactProjects = [], galleryItems = []}) {
+export default function ShowCases({cases, shopwareProjects = [], reactProjects = [], codejsProjects = [], galleryItems = []}) {
     const byGallery = (g) => galleryItems.filter((it) => it.gallery === g);
 
     return (
@@ -61,7 +61,7 @@ export default function ShowCases({cases, shopwareProjects = [], reactProjects =
 
             {cases === 'codejs' &&
                 <>
-                    <ShowJavascripts />
+                    <ShowJavascripts projects={codejsProjects} />
                 </>
             }
 
