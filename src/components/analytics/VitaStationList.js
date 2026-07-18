@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
     DndContext, closestCenter, PointerSensor, KeyboardSensor,
@@ -12,7 +12,8 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { FiEdit2, FiTrash2, FiMove } from 'react-icons/fi';
-import { deleteStationAction, reorderStationsAction } from '@/lib/content/vitaActions';
+import { deleteStationAction, reorderStationsAction, toggleStationAction } from '@/lib/content/vitaActions';
+import StatusToggle from '@/components/analytics/StatusToggle';
 
 // Eine sortierbare Zeile (Station). Der Ziehgriff (FiMove) ist bewusst separat,
 // damit Bearbeiten/Löschen nicht versehentlich einen Drag auslösen.
@@ -45,6 +46,7 @@ function SortableRow({ station }) {
             </div>
 
             <div className="an-station-actions">
+                <StatusToggle action={toggleStationAction} id={station.id} active={!!station.is_active} />
                 <Link href={`/dashboard/vita/${station.id}`} className="an-icon-btn" title="Bearbeiten"><FiEdit2 /></Link>
                 <form action={deleteStationAction} className="an-inline-form">
                     <input type="hidden" name="id" value={station.id} />
@@ -57,6 +59,8 @@ function SortableRow({ station }) {
 
 export default function VitaStationList({ stations }) {
     const [items, setItems] = useState(stations);
+    // Nach Server-Actions (Toggle/Löschen/Anlegen) fließen neue Props herein.
+    useEffect(() => { setItems(stations); }, [stations]);
     const [, startTransition] = useTransition();
 
     const sensors = useSensors(
