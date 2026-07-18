@@ -1,7 +1,8 @@
 import HeroContent from "@/components/herocontent/page";
 import ShowcaseClient from "@/components/showcases/ShowcaseClient";
 import JsonLd from "@/components/seo/JsonLd";
-import { breadcrumbSchema, pageMetadata, siteConfig } from "@/lib/seo";
+import { breadcrumbSchema, pageMetadata, showcaseSchema, siteConfig } from "@/lib/seo";
+import { showcaseProjects } from "@/lib/showcaseProjects";
 
 export const metadata = pageMetadata({
     title: 'Showcase – Referenzen & Case Studys',
@@ -32,7 +33,11 @@ export default function ShowCase() {
 
     return(
         <>
-            <JsonLd data={[collectionSchema, breadcrumbSchema([{ name: 'Showcase', path: '/showcase' }])]} />
+            <JsonLd data={[
+                collectionSchema,
+                showcaseSchema(showcaseProjects),
+                breadcrumbSchema([{ name: 'Showcase', path: '/showcase' }]),
+            ]} />
             <HeroContent
                 className={`hero-container`}
                 pageName={pageName}
