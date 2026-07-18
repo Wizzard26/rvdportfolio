@@ -7,7 +7,7 @@ import {Fragment} from "react";
 import { MotionDiv } from "@/components/MotionDiv/MotionDiv";
 import { TbFileTypePdf } from "react-icons/tb";
 import JsonLd from "@/components/seo/JsonLd";
-import { breadcrumbSchema, pageMetadata } from "@/lib/seo";
+import { breadcrumbSchema, careerSchema, pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
     title: 'Vita & beruflicher Werdegang',
@@ -35,7 +35,10 @@ export default function Vita() {
 
     return(
         <>
-            <JsonLd data={breadcrumbSchema([{ name: 'Vita', path: '/vita' }])} />
+            <JsonLd data={[
+                careerSchema(vitaEntries),
+                breadcrumbSchema([{ name: 'Vita', path: '/vita' }]),
+            ]} />
             <HeroContent
                 className={`hero-container`}
                 pageName={pageName}

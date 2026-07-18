@@ -179,12 +179,87 @@ export function personSchema() {
             credentialCategory: 'certificate',
             recognizedBy: { '@type': 'Organization', name: item.issuer },
         })),
-        hasOccupation: {
-            '@type': 'Occupation',
-            name: 'Shopware- & Web-Developer',
-            occupationalCategory: '15-1254.00', // O*NET: Web Developers
-            skills: knowsAbout.join(', '),
+        // Mehrere Berufsrollen (statt einer) — bildet Renés Profil differenzierter
+        // ab. O*NET-Codes: 15-1254.00 Web Developers, 27-1024.00 Graphic Designers.
+        hasOccupation: [
+            {
+                '@type': 'Occupation',
+                name: 'Shopware-Entwickler',
+                occupationalCategory: '15-1254.00',
+                skills: 'Shopware 6, Plugin-Entwicklung, Storefront-Themes, PHP, Symfony, Twig',
+            },
+            {
+                '@type': 'Occupation',
+                name: 'Web-Developer (React & Next.js)',
+                occupationalCategory: '15-1254.00',
+                skills: 'JavaScript, React, Next.js, Node.js, REST-APIs, HTML, CSS',
+            },
+            {
+                '@type': 'Occupation',
+                name: 'Mediengestalter Digital und Print',
+                occupationalCategory: '27-1024.00',
+                skills: 'UI/UX-Design, Grafikdesign, Printdesign, Adobe Creative Cloud',
+            },
+        ],
+        // Aktuelle freiberufliche Tätigkeit (Quelle: vita.js, laufende Station).
+        worksFor: {
+            '@type': 'Organization',
+            name: 'Gambit24 Media Solution',
         },
+    };
+}
+
+/**
+ * Werdegang-Schema für /vita — eine ItemList der beruflichen Stationen.
+ * Gibt Suchmaschinen und LLMs die vollständige, geordnete Laufbahn maschinen-
+ * lesbar an die Hand (neueste zuerst). Quelle: vita.js (keine erfundenen Daten).
+ */
+export function careerSchema(entries) {
+    const stations = [...entries].reverse(); // neueste zuerst
+
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        '@id': `${siteConfig.url}/vita/#werdegang`,
+        name: 'Beruflicher Werdegang von René van Dinter',
+        itemListOrder: 'https://schema.org/ItemListOrderDescending',
+        numberOfItems: stations.length,
+        itemListElement: stations.map((s, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: `${s.title} – ${s.company} (${s.start} – ${s.end === 'Now' ? 'heute' : s.end})`,
+        })),
+    };
+}
+
+/**
+ * Showcase-Schema für /showcase — eine ItemList der Projekte, jedes als
+ * eigenständiges Werk (SoftwareApplication / WebApplication) mit Bezug zur
+ * Person. Damit können einzelne Projekte in Suche und KI-Antworten auftauchen,
+ * nicht nur die Sammelseite. Quelle: showcaseProjects.js.
+ */
+export function showcaseSchema(projects) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        '@id': `${siteConfig.url}/showcase/#projekte`,
+        name: 'Projekte & Referenzen von René van Dinter',
+        numberOfItems: projects.length,
+        itemListElement: projects.map((p, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            item: {
+                '@type': p.type,
+                name: p.name,
+                description: p.description,
+                ...(p.applicationCategory && { applicationCategory: p.applicationCategory }),
+                keywords: p.tech.join(', '),
+                inLanguage: siteConfig.lang,
+                author: { '@id': `${siteConfig.url}/#person` },
+                creator: { '@id': `${siteConfig.url}/#person` },
+                ...(p.image && { image: `${siteConfig.url}${p.image}` }),
+            },
+        })),
     };
 }
 
