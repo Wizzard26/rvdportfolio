@@ -37,6 +37,12 @@ export const metadata = {
             'max-video-preview': -1,
         },
     },
+    // Google Search Console: bestätigt den Besitz der Domain. Rendert
+    // <meta name="google-site-verification" …> in den <head> jeder Seite.
+    // Öffentlicher Verifizierungs-Token, kein Geheimnis.
+    verification: {
+        google: 'fWHoElUglCfTjoDZbYvTWT3EA_7wnlKRc_o642LWxKE',
+    },
 }
 
 export default function RootLayout({ children }) {
