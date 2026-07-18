@@ -326,6 +326,12 @@ body {
     border: 1px solid var(--adm-border); border-radius: 6px; background: #fff;
 }
 
+/* ── Showcase-Verwaltung ──────────────────────────────────────────────── */
+.an-catgroup { margin-bottom: 22px; }
+.an-catgroup-title { font-size: 15px; color: var(--adm-accent); margin: 0 0 8px; }
+.an-media-badge { display: inline-flex; align-items: center; color: var(--adm-ink-muted); }
+.an-projectform { max-width: 760px; }
+
 /* ── Responsiv ────────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
     .an-tiles { grid-template-columns: repeat(2, 1fr); }

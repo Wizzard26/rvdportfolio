@@ -2,7 +2,9 @@ import HeroContent from "@/components/herocontent/page";
 import ShowcaseClient from "@/components/showcases/ShowcaseClient";
 import JsonLd from "@/components/seo/JsonLd";
 import { breadcrumbSchema, pageMetadata, showcaseSchema, siteConfig } from "@/lib/seo";
-import { showcaseProjects } from "@/lib/showcaseProjects";
+import { getProjects } from "@/lib/content/showcaseStore";
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = pageMetadata({
     title: 'Showcase – Referenzen & Case Studys',
@@ -30,12 +32,15 @@ const collectionSchema = {
 
 export default function ShowCase() {
     const pageName = "Showcase";
+    const projects = getProjects();
+    const shopwareProjects = projects.filter((p) => p.category === 'shopware');
+    const reactProjects = projects.filter((p) => p.category === 'react');
 
     return(
         <>
             <JsonLd data={[
                 collectionSchema,
-                showcaseSchema(showcaseProjects),
+                showcaseSchema(projects),
                 breadcrumbSchema([{ name: 'Showcase', path: '/showcase' }]),
             ]} />
             <HeroContent
@@ -44,7 +49,10 @@ export default function ShowCase() {
                 imgPos="top"
                 txtPos="right"
             />
-            <ShowcaseClient />
+            <ShowcaseClient
+                shopwareProjects={shopwareProjects}
+                reactProjects={reactProjects}
+            />
         </>
     )
 }

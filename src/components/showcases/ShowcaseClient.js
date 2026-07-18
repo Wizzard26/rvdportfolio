@@ -14,7 +14,7 @@ import { useState } from "react";
 // Einleitungstext und Switch liegen in einer gemeinsamen Zeile und teilen sich
 // den `cases`-State mit der Galerie darunter; deshalb verläuft die Grenze zum
 // Client hier und nicht enger.
-export default function ShowcaseClient() {
+export default function ShowcaseClient({ shopwareProjects = [], reactProjects = [] }) {
     const [cases, setCases] = useState('shopware');
 
     return (
@@ -39,6 +39,8 @@ export default function ShowcaseClient() {
             </section>
             <ShowCases
                 cases={cases}
+                shopwareProjects={shopwareProjects}
+                reactProjects={reactProjects}
             />
         </main>
     )

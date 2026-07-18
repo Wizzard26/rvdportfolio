@@ -57,6 +57,24 @@ function migrate(database) {
             updated_at INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_entry_area ON vita_area_entries (area_id, sort_order);
+
+        CREATE TABLE IF NOT EXISTS showcase_projects (
+            id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+            category             TEXT    NOT NULL DEFAULT 'shopware',
+            variant              TEXT    NOT NULL DEFAULT 'full',
+            name                 TEXT    NOT NULL DEFAULT '',
+            headline             TEXT    NOT NULL DEFAULT '',
+            intro                TEXT    NOT NULL DEFAULT '',
+            features             TEXT    NOT NULL DEFAULT '',
+            tech                 TEXT    NOT NULL DEFAULT '',
+            media_type           TEXT    NOT NULL DEFAULT 'none',
+            media                TEXT    NOT NULL DEFAULT '',
+            schema_type          TEXT    NOT NULL DEFAULT '',
+            application_category TEXT    NOT NULL DEFAULT '',
+            sort_order           INTEGER NOT NULL DEFAULT 0,
+            updated_at           INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_project_cat ON showcase_projects (category, sort_order);
     `);
 }
 

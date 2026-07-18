@@ -10,7 +10,7 @@ import ShowReact from "@/components/showcases/ShowReact";
 import ShowShopware from "@/components/showcases/ShowShopware";
 
 
-export default function ShowCases({cases}) {
+export default function ShowCases({cases, shopwareProjects = [], reactProjects = []}) {
 
     return (
         <>
@@ -69,13 +69,13 @@ export default function ShowCases({cases}) {
 
             {cases === 'react' &&
                 <>
-                    <ShowReact />
+                    <ShowReact projects={reactProjects} />
                 </>
             }
 
             {cases === 'shopware' &&
                 <>
-                    <ShowShopware />
+                    <ShowShopware projects={shopwareProjects} />
                 </>
             }
         </>

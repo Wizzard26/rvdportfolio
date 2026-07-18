@@ -238,27 +238,34 @@ export function careerSchema(stations) {
  * nicht nur die Sammelseite. Quelle: showcaseProjects.js.
  */
 export function showcaseSchema(projects) {
+    // Nur Projekte mit gepflegtem schema_type als eigenständiges Werk auszeichnen.
+    const items = projects.filter((p) => p.schema_type);
     return {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
         '@id': `${siteConfig.url}/showcase/#projekte`,
         name: 'Projekte & Referenzen von René van Dinter',
-        numberOfItems: projects.length,
-        itemListElement: projects.map((p, index) => ({
-            '@type': 'ListItem',
-            position: index + 1,
-            item: {
-                '@type': p.type,
-                name: p.name,
-                description: p.description,
-                ...(p.applicationCategory && { applicationCategory: p.applicationCategory }),
-                keywords: p.tech.join(', '),
-                inLanguage: siteConfig.lang,
-                author: { '@id': `${siteConfig.url}/#person` },
-                creator: { '@id': `${siteConfig.url}/#person` },
-                ...(p.image && { image: `${siteConfig.url}${p.image}` }),
-            },
-        })),
+        numberOfItems: items.length,
+        itemListElement: items.map((p, index) => {
+            const description = p.headline || (p.introList && p.introList[0]) || '';
+            const tech = (p.techList || []).join(', ');
+            const isLocalImage = p.media_type === 'image' && p.media && p.media.startsWith('/');
+            return {
+                '@type': 'ListItem',
+                position: index + 1,
+                item: {
+                    '@type': p.schema_type,
+                    name: p.name,
+                    ...(description && { description }),
+                    ...(p.application_category && { applicationCategory: p.application_category }),
+                    ...(tech && { keywords: tech }),
+                    inLanguage: siteConfig.lang,
+                    author: { '@id': `${siteConfig.url}/#person` },
+                    creator: { '@id': `${siteConfig.url}/#person` },
+                    ...(isLocalImage && { image: `${siteConfig.url}${p.media}` }),
+                },
+            };
+        }),
     };
 }
 
