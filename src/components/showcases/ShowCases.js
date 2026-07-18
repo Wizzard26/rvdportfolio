@@ -1,7 +1,6 @@
 'use client';
 
 import ShowBox from "@/components/showcases/ShowBox";
-import {caseWebEntries} from "@/lib/casestudys";
 import ShowLogos from "@/components/showcases/ShowLogos";
 import ShowPrints from "@/components/showcases/ShowPrints";
 import {ranga, roboto} from "@/app/fonts";
@@ -10,7 +9,8 @@ import ShowReact from "@/components/showcases/ShowReact";
 import ShowShopware from "@/components/showcases/ShowShopware";
 
 
-export default function ShowCases({cases, shopwareProjects = [], reactProjects = []}) {
+export default function ShowCases({cases, shopwareProjects = [], reactProjects = [], galleryItems = []}) {
+    const byGallery = (g) => galleryItems.filter((it) => it.gallery === g);
 
     return (
         <>
@@ -28,9 +28,8 @@ export default function ShowCases({cases, shopwareProjects = [], reactProjects =
                         <div className="content-inner">
                             <ShowBox
                                 headline={'E-Commerce Layouts'}
-                                data={caseWebEntries}
+                                data={byGallery('ecommerce')}
                                 boxClass={'web'}
-                                category={'eCommerce'}
                             />
                         </div>
 
@@ -39,9 +38,8 @@ export default function ShowCases({cases, shopwareProjects = [], reactProjects =
                         <div className="content-inner">
                             <ShowBox
                                 headline={'Web Layouts'}
-                                data={caseWebEntries}
+                                data={byGallery('website')}
                                 boxClass={'web'}
-                                category={'website'}
                             />
 
                         </div>
@@ -49,13 +47,13 @@ export default function ShowCases({cases, shopwareProjects = [], reactProjects =
 
                     <section className="secondary--bg">
                         <div className="content-inner">
-                            <ShowLogos />
+                            <ShowLogos items={byGallery('logo')} />
                         </div>
                     </section>
 
                     <section>
                         <div className="content-inner">
-                            <ShowPrints/>
+                            <ShowPrints items={byGallery('print')} />
                         </div>
                     </section>
                 </>

@@ -331,6 +331,7 @@ body {
 .an-catgroup-title { font-size: 15px; color: var(--adm-accent); margin: 0 0 8px; }
 .an-media-badge { display: inline-flex; align-items: center; color: var(--adm-ink-muted); }
 .an-projectform { max-width: 760px; }
+.an-thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; flex: 0 0 auto; background: var(--adm-surface-2, rgba(0,0,0,0.06)); }
 
 /* ── Responsiv ────────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {

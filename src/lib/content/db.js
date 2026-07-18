@@ -75,6 +75,18 @@ function migrate(database) {
             updated_at           INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_project_cat ON showcase_projects (category, sort_order);
+
+        CREATE TABLE IF NOT EXISTS gallery_items (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            gallery     TEXT    NOT NULL DEFAULT 'ecommerce',
+            title       TEXT    NOT NULL DEFAULT '',
+            description TEXT    NOT NULL DEFAULT '',
+            technik     TEXT    NOT NULL DEFAULT '',
+            image       TEXT    NOT NULL DEFAULT '',
+            sort_order  INTEGER NOT NULL DEFAULT 0,
+            updated_at  INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_gallery_sort ON gallery_items (gallery, sort_order);
     `);
 }
 

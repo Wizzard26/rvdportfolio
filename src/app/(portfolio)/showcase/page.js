@@ -3,6 +3,7 @@ import ShowcaseClient from "@/components/showcases/ShowcaseClient";
 import JsonLd from "@/components/seo/JsonLd";
 import { breadcrumbSchema, pageMetadata, showcaseSchema, siteConfig } from "@/lib/seo";
 import { getProjects } from "@/lib/content/showcaseStore";
+import { getGalleryItems } from "@/lib/content/galleryStore";
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,7 @@ export default function ShowCase() {
     const projects = getProjects();
     const shopwareProjects = projects.filter((p) => p.category === 'shopware');
     const reactProjects = projects.filter((p) => p.category === 'react');
+    const galleryItems = getGalleryItems();
 
     return(
         <>
@@ -52,6 +54,7 @@ export default function ShowCase() {
             <ShowcaseClient
                 shopwareProjects={shopwareProjects}
                 reactProjects={reactProjects}
+                galleryItems={galleryItems}
             />
         </>
     )
