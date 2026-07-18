@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { roboto, ranga } from "@/app/fonts";
 import styles from "./styles.module.css";
@@ -90,25 +90,71 @@ function CompactCard({ project }) {
     );
 }
 
-// Horizontaler Slider für die kompakten Karten (ab >4 Elementen). Scroll-Snap +
-// Pfeile, auf Touch wischbar — ohne zusätzliche Abhängigkeit.
+// Horizontaler Infinity-Slider für die kompakten Karten (ab >4 Elementen).
+// Natives Touch-Scrollen (Momentum) + nahtloser Loop: der Track enthält die
+// Karten dreifach; beim Verlassen der mittleren Kopie wird die Scrollposition um
+// eine Kopienbreite zurückgesetzt (unsichtbar, da identischer Inhalt & keine
+// Scrollbar). Pfeile scrollen eine Karte weiter. Keine externe Abhängigkeit.
 function CompactSlider({ projects }) {
     const trackRef = useRef(null);
-    const scrollByPage = (dir) => {
+    const n = projects.length;
+    const slides = [...projects, ...projects, ...projects];
+
+    useEffect(() => {
         const el = trackRef.current;
-        if (el) el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: 'smooth' });
+        if (!el || n === 0) return;
+
+        let stride = 0; // Breite einer Kopie (n Karten inkl. Gaps)
+        const measure = () => {
+            const first = el.children[0];
+            if (!first) return;
+            const gap = parseFloat(getComputedStyle(el).columnGap || '0') || 0;
+            stride = (first.offsetWidth + gap) * n;
+            el.scrollLeft = stride; // in der mittleren Kopie starten
+        };
+        // nach dem Layout messen
+        const raf = requestAnimationFrame(measure);
+
+        let ticking = false;
+        const onScroll = () => {
+            if (ticking || !stride) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                ticking = false;
+                // innerhalb der mittleren Kopie halten (±½ Kopie Puffer)
+                if (el.scrollLeft < stride * 0.5) el.scrollLeft += stride;
+                else if (el.scrollLeft >= stride * 1.5) el.scrollLeft -= stride;
+            });
+        };
+        el.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', measure);
+        return () => {
+            cancelAnimationFrame(raf);
+            el.removeEventListener('scroll', onScroll);
+            window.removeEventListener('resize', measure);
+        };
+    }, [n]);
+
+    const step = (dir) => {
+        const el = trackRef.current;
+        if (!el) return;
+        const first = el.children[0];
+        const gap = parseFloat(getComputedStyle(el).columnGap || '0') || 0;
+        const itemW = first ? first.offsetWidth + gap : el.clientWidth;
+        el.scrollBy({ left: dir * itemW, behavior: 'smooth' });
     };
+
     return (
         <div className={styles.slider}>
-            <button type="button" className={styles.sliderNav} onClick={() => scrollByPage(-1)} aria-label="Zurück">‹</button>
+            <button type="button" className={styles.sliderNav} onClick={() => step(-1)} aria-label="Zurück">‹</button>
             <div className={styles.sliderTrack} ref={trackRef}>
-                {projects.map((p) => (
-                    <div key={p.id} className={styles.sliderItem}>
+                {slides.map((p, i) => (
+                    <div key={`${p.id}-${i}`} className={styles.sliderItem}>
                         <CompactCard project={p} />
                     </div>
                 ))}
             </div>
-            <button type="button" className={styles.sliderNav} onClick={() => scrollByPage(1)} aria-label="Weiter">›</button>
+            <button type="button" className={styles.sliderNav} onClick={() => step(1)} aria-label="Weiter">›</button>
         </div>
     );
 }

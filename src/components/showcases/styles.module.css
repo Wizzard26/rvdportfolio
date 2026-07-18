@@ -53,21 +53,25 @@
 .pagerBtn:disabled { opacity: .4; cursor: default; }
 .pagerActive { background: var(--primary); color: #fff; }
 
-/* Slider für die kompakten „Weitere Elemente" (ab >4 Karten) */
+/* Infinity-Slider für die kompakten „Weitere Elemente" (ab >4 Karten).
+   Natives Touch-Scrollen (Momentum) + nahtloser Loop; Scrollbar ausgeblendet,
+   damit der Rücksprung unsichtbar bleibt. Sichtbare Karten: 4 / 3 / 2 / 1. */
 .slider { display: flex; align-items: center; gap: 10px; }
 .sliderTrack {
     display: flex;
     gap: 24px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
     flex: 1 1 auto;
     padding: 4px 2px 14px;
-    scrollbar-width: thin;
+    scrollbar-width: none;            /* Firefox */
+    -ms-overflow-style: none;         /* alte Edge */
+    -webkit-overflow-scrolling: touch;
 }
+.sliderTrack::-webkit-scrollbar { display: none; } /* WebKit */
 .sliderItem {
     flex: 0 0 auto;
-    width: calc(25% - 18px); /* 4 sichtbar (gap 24px) */
+    width: calc(25% - 18px);         /* Desktop: 4 (gap 24px) */
     scroll-snap-align: start;
 }
 .sliderNav {
@@ -84,9 +88,10 @@
     transition: background .12s ease, color .12s ease;
 }
 .sliderNav:hover { background: var(--primary); color: #fff; }
-@media (max-width: 991px) { .sliderItem { width: calc(33.333% - 16px); } }
-@media (max-width: 767px) {
-    .sliderItem { width: calc(50% - 12px); }
-    .sliderNav { width: 34px; height: 34px; font-size: 18px; }
+@media (max-width: 1199px) { .sliderItem { width: calc(33.333% - 16px); } } /* Tablet quer: 3 */
+@media (max-width: 991px)  { .sliderItem { width: calc(50% - 12px); } }     /* Tablet hoch: 2 */
+@media (max-width: 767px)  {
+    .sliderItem { width: 100%; }        /* Mobil: 1 Karte, reines Touch-Swipen */
+    .sliderNav { display: none; }       /* Pfeile weg — auf Touch wird gewischt */
+    .slider { gap: 0; }
 }
-@media (max-width: 575px) { .sliderItem { width: 80%; } }
