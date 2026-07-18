@@ -212,11 +212,10 @@ export function personSchema() {
 /**
  * Werdegang-Schema für /vita — eine ItemList der beruflichen Stationen.
  * Gibt Suchmaschinen und LLMs die vollständige, geordnete Laufbahn maschinen-
- * lesbar an die Hand (neueste zuerst). Quelle: vita.js (keine erfundenen Daten).
+ * lesbar an die Hand. `stations` kommt bereits neueste-zuerst aus der DB
+ * (getStations()); `is_current` markiert die laufende Station.
  */
-export function careerSchema(entries) {
-    const stations = [...entries].reverse(); // neueste zuerst
-
+export function careerSchema(stations) {
     return {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
@@ -227,7 +226,7 @@ export function careerSchema(entries) {
         itemListElement: stations.map((s, index) => ({
             '@type': 'ListItem',
             position: index + 1,
-            name: `${s.title} – ${s.company} (${s.start} – ${s.end === 'Now' ? 'heute' : s.end})`,
+            name: `${s.title} – ${s.company} (${s.start} – ${s.is_current ? 'heute' : s.end})`,
         })),
     };
 }
