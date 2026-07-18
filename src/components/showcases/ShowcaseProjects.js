@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { roboto, ranga } from "@/app/fonts";
 import styles from "./styles.module.css";
@@ -73,40 +74,121 @@ function FullProject({ project, index }) {
     );
 }
 
-// Kompakte Karten („Weitere Elemente") als Grid.
-function CompactGrid({ projects }) {
+// Eine kompakte Karte („Weitere Elemente").
+function CompactCard({ project }) {
+    return (
+        <>
+            <div className={`${styles.imageRatio}`}>
+                {project.media && (
+                    <Image className={`${styles.imageAuto}`} src={project.media} alt={project.name}
+                           width={500} height={500} unoptimized={isUpload(project.media)} />
+                )}
+            </div>
+            <h3 className={`${ranga.className}`}>{project.name}</h3>
+            {project.introList.map((t, i) => <p key={i}>{t}</p>)}
+        </>
+    );
+}
+
+// Horizontaler Slider für die kompakten Karten (ab >4 Elementen). Scroll-Snap +
+// Pfeile, auf Touch wischbar — ohne zusätzliche Abhängigkeit.
+function CompactSlider({ projects }) {
+    const trackRef = useRef(null);
+    const scrollByPage = (dir) => {
+        const el = trackRef.current;
+        if (el) el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: 'smooth' });
+    };
+    return (
+        <div className={styles.slider}>
+            <button type="button" className={styles.sliderNav} onClick={() => scrollByPage(-1)} aria-label="Zurück">‹</button>
+            <div className={styles.sliderTrack} ref={trackRef}>
+                {projects.map((p) => (
+                    <div key={p.id} className={styles.sliderItem}>
+                        <CompactCard project={p} />
+                    </div>
+                ))}
+            </div>
+            <button type="button" className={styles.sliderNav} onClick={() => scrollByPage(1)} aria-label="Weiter">›</button>
+        </div>
+    );
+}
+
+// „Weitere Elemente": bis 4 als Grid, ab >4 als Slider.
+const COMPACT_GRID_MAX = 4;
+function CompactSection({ projects }) {
     if (projects.length === 0) return null;
     return (
         <section className="secondary--bg">
             <div className="content-inner">
                 <h2 className={`${roboto.className} is--centered`}>Weitere Elemente</h2>
-                <div className={`row`}>
-                    {projects.map((p) => (
-                        <div key={p.id} className={`col-6 col-md-3`}>
-                            <div className={`${styles.imageRatio}`}>
-                                {p.media && (
-                                    <Image className={`${styles.imageAuto}`} src={p.media} alt={p.name}
-                                           width={500} height={500} unoptimized={isUpload(p.media)} />
-                                )}
+                {projects.length > COMPACT_GRID_MAX ? (
+                    <CompactSlider projects={projects} />
+                ) : (
+                    <div className={`row`}>
+                        {projects.map((p) => (
+                            <div key={p.id} className={`col-6 col-md-3`}>
+                                <CompactCard project={p} />
                             </div>
-                            <h3 className={`${ranga.className}`}>{p.name}</h3>
-                            {p.introList.map((t, i) => <p key={i}>{t}</p>)}
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </section>
     );
 }
 
+// Seitenzahl-Navigation (Portfolio-Stil). Zeigt Pfeile + Seitenzahlen.
+function Pager({ page, totalPages, onChange }) {
+    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+    return (
+        <div className={styles.pager}>
+            <button type="button" className={styles.pagerBtn} onClick={() => onChange(page - 1)}
+                    disabled={page === 1} aria-label="Vorherige Seite">‹</button>
+            {pages.map((p) => (
+                <button key={p} type="button"
+                        className={`${styles.pagerBtn}${p === page ? ` ${styles.pagerActive}` : ''}`}
+                        onClick={() => onChange(p)} aria-current={p === page ? 'page' : undefined}>
+                    {p}
+                </button>
+            ))}
+            <button type="button" className={styles.pagerBtn} onClick={() => onChange(page + 1)}
+                    disabled={page === totalPages} aria-label="Nächste Seite">›</button>
+        </div>
+    );
+}
+
 // Rendert alle Projekte einer Kategorie datengetrieben (aus der Content-DB).
+// Große Projekte werden ab >6 paginiert; die kompakten Karten am Ende.
+const PAGE_SIZE = 6;
 export default function ShowcaseProjects({ projects = [] }) {
     const full = projects.filter((p) => p.variant === 'full');
     const compact = projects.filter((p) => p.variant === 'compact');
+
+    const [page, setPage] = useState(1);
+    const topRef = useRef(null);
+
+    const totalPages = Math.max(1, Math.ceil(full.length / PAGE_SIZE));
+    const current = Math.min(page, totalPages);
+    const pageItems = full.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+
+    const changePage = (p) => {
+        setPage(p);
+        // an den Anfang der Projektliste scrollen (Zickzack beginnt oben neu).
+        if (topRef.current) topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
     return (
         <>
-            {full.map((p, i) => <FullProject key={p.id} project={p} index={i} />)}
-            <CompactGrid projects={compact} />
+            <div ref={topRef} />
+            {pageItems.map((p, i) => <FullProject key={p.id} project={p} index={i} />)}
+            {totalPages > 1 && (
+                <section>
+                    <div className="content-inner">
+                        <Pager page={current} totalPages={totalPages} onChange={changePage} />
+                    </div>
+                </section>
+            )}
+            <CompactSection projects={compact} />
         </>
     );
 }
