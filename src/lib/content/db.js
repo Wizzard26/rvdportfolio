@@ -38,6 +38,25 @@ function migrate(database) {
             updated_at  INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_vita_sort ON vita_stations (sort_order);
+
+        CREATE TABLE IF NOT EXISTS vita_areas (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            title         TEXT    NOT NULL DEFAULT '',
+            show_headline INTEGER NOT NULL DEFAULT 1,
+            sort_order    INTEGER NOT NULL DEFAULT 0,
+            updated_at    INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_area_sort ON vita_areas (sort_order);
+
+        CREATE TABLE IF NOT EXISTS vita_area_entries (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            area_id    INTEGER NOT NULL,
+            text       TEXT    NOT NULL DEFAULT '',
+            link       TEXT,
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            updated_at INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_entry_area ON vita_area_entries (area_id, sort_order);
     `);
 }
 

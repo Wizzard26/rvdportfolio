@@ -1,6 +1,6 @@
 import HeroContent from "@/components/herocontent/page";
-import { vitaPersonal } from "@/lib/vita";
 import { getStations } from "@/lib/content/vitaStore";
+import { getAreasWithEntries } from "@/lib/content/vitaPersonalStore";
 import styles from "./styles.module.css";
 import {ranga, roboto_condensed} from "@/app/fonts";
 import Button from "@/components/button/Button";
@@ -30,6 +30,7 @@ const variants = {
 export default async function Vita() {
     const pageName = "Vita";
     const data = getStations(); // bereits neueste zuerst
+    const personal = getAreasWithEntries(); // Sidebar-Bereiche aus der DB
     const yearNow = new Date().getFullYear();
     const monthNow = new Date().getMonth();
 
@@ -82,17 +83,17 @@ export default async function Vita() {
                         </div>
                         <div className={`${styles.vitaSidebar} secondary--bg col-12 col-lg-4 col-xl-3`}>
                             <h2>Persönliche Daten:</h2>
-                            {vitaPersonal.map(personal => (
-                                <Fragment key={personal.id}>
-                                    {personal.showheadline &&
-                                        <h3 className={`${ranga.className}`}>{personal.area}</h3>
+                            {personal.map(area => (
+                                <Fragment key={area.id}>
+                                    {area.show_headline && area.title &&
+                                        <h3 className={`${ranga.className}`}>{area.title}</h3>
                                     }
                                     <p>
-                                        {personal.entries.map(entries => (
-                                            <Fragment key={entries.id}>
-                                                {entries.link
-                                                    ? <><a href={entries.link} title={entries.entry} download={entries.entry}><TbFileTypePdf /> {entries.entry}</a><br/></>
-                                                    : <>{entries.entry}<br/></>
+                                        {area.entries.map(entry => (
+                                            <Fragment key={entry.id}>
+                                                {entry.link
+                                                    ? <><a href={entry.link} title={entry.text} download={entry.text}><TbFileTypePdf /> {entry.text}</a><br/></>
+                                                    : <>{entry.text}<br/></>
                                                 }
                                             </Fragment>
                                         ))}
