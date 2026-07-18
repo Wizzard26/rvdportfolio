@@ -24,6 +24,15 @@ function resolvePath() {
     return './data/content.db';
 }
 
+// Fügt eine Spalte nur hinzu, wenn sie noch fehlt (idempotent). Für bereits
+// bestehende Tabellen auf dem Server, die per früherem Deploy ohne die Spalte
+// angelegt wurden. DEFAULT 1 sorgt dafür, dass vorhandene Zeilen sichtbar
+// bleiben (nur neu Angelegtes startet als Entwurf).
+function ensureColumn(database, table, column, definition) {
+    const exists = database.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === column);
+    if (!exists) database.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+}
+
 function migrate(database) {
     database.exec(`
         CREATE TABLE IF NOT EXISTS vita_stations (
@@ -34,6 +43,7 @@ function migrate(database) {
             start       TEXT    NOT NULL,
             end         TEXT    NOT NULL DEFAULT '',
             is_current  INTEGER NOT NULL DEFAULT 0,
+            is_active   INTEGER NOT NULL DEFAULT 1,
             sort_order  INTEGER NOT NULL DEFAULT 0,
             updated_at  INTEGER NOT NULL DEFAULT 0
         );
@@ -71,6 +81,7 @@ function migrate(database) {
             media                TEXT    NOT NULL DEFAULT '',
             schema_type          TEXT    NOT NULL DEFAULT '',
             application_category TEXT    NOT NULL DEFAULT '',
+            is_active            INTEGER NOT NULL DEFAULT 1,
             sort_order           INTEGER NOT NULL DEFAULT 0,
             updated_at           INTEGER NOT NULL DEFAULT 0
         );
@@ -83,11 +94,17 @@ function migrate(database) {
             description TEXT    NOT NULL DEFAULT '',
             technik     TEXT    NOT NULL DEFAULT '',
             image       TEXT    NOT NULL DEFAULT '',
+            is_active   INTEGER NOT NULL DEFAULT 1,
             sort_order  INTEGER NOT NULL DEFAULT 0,
             updated_at  INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_gallery_sort ON gallery_items (gallery, sort_order);
     `);
+
+    // Nachrüsten für bereits bestehende Tabellen (z. B. Vita auf dem Server).
+    ensureColumn(database, 'vita_stations', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
+    ensureColumn(database, 'showcase_projects', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
+    ensureColumn(database, 'gallery_items', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
 }
 
 export function getContentDb() {

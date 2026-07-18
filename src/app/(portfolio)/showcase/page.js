@@ -33,10 +33,10 @@ const collectionSchema = {
 
 export default function ShowCase() {
     const pageName = "Showcase";
-    const projects = getProjects();
+    const projects = getProjects({ publicOnly: true });
     const shopwareProjects = projects.filter((p) => p.category === 'shopware');
     const reactProjects = projects.filter((p) => p.category === 'react');
-    const galleryItems = getGalleryItems();
+    const galleryItems = getGalleryItems({ publicOnly: true });
 
     return(
         <>

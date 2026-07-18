@@ -37,10 +37,12 @@ export function seedIfEmpty() {
 }
 
 // Alle Stationen, neueste zuerst (wie die bisherige Anzeige).
-export function getStations() {
+// `publicOnly` blendet Entwürfe (is_active=0) aus — für die öffentliche Seite.
+export function getStations({ publicOnly = false } = {}) {
     const db = getContentDb();
     seedIfEmpty();
-    return db.prepare('SELECT * FROM vita_stations ORDER BY sort_order DESC, id DESC').all();
+    const where = publicOnly ? 'WHERE is_active = 1' : '';
+    return db.prepare(`SELECT * FROM vita_stations ${where} ORDER BY sort_order DESC, id DESC`).all();
 }
 
 export function getStation(id) {
@@ -53,8 +55,8 @@ export function createStation(data) {
     const max = db.prepare('SELECT COALESCE(MAX(sort_order), 0) AS m FROM vita_stations').get().m;
     const info = db.prepare(`
         INSERT INTO vita_stations
-            (title, company, description, start, end, is_current, sort_order, updated_at)
-        VALUES (@title, @company, @description, @start, @end, @is_current, @sort_order, @updated_at)
+            (title, company, description, start, end, is_current, is_active, sort_order, updated_at)
+        VALUES (@title, @company, @description, @start, @end, @is_current, @is_active, @sort_order, @updated_at)
     `).run({
         title: data.title,
         company: data.company,
@@ -62,6 +64,7 @@ export function createStation(data) {
         start: data.start,
         end: data.is_current ? '' : (data.end || ''),
         is_current: data.is_current ? 1 : 0,
+        is_active: data.is_active ? 1 : 0, // neu = Entwurf, sofern nicht aktiv gesetzt
         sort_order: max + 1,
         updated_at: Date.now(),
     });
@@ -72,7 +75,7 @@ export function updateStation(id, data) {
     getContentDb().prepare(`
         UPDATE vita_stations
         SET title = @title, company = @company, description = @description,
-            start = @start, end = @end, is_current = @is_current, updated_at = @updated_at
+            start = @start, end = @end, is_current = @is_current, is_active = @is_active, updated_at = @updated_at
         WHERE id = @id
     `).run({
         id,
@@ -82,8 +85,14 @@ export function updateStation(id, data) {
         start: data.start,
         end: data.is_current ? '' : (data.end || ''),
         is_current: data.is_current ? 1 : 0,
+        is_active: data.is_active ? 1 : 0,
         updated_at: Date.now(),
     });
+}
+
+export function setStationActive(id, active) {
+    getContentDb().prepare('UPDATE vita_stations SET is_active = ?, updated_at = ? WHERE id = ?')
+        .run(active ? 1 : 0, Date.now(), id);
 }
 
 export function deleteStation(id) {

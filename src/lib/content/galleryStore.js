@@ -40,10 +40,12 @@ export function seedGalleriesIfEmpty() {
     seed(galleryItems);
 }
 
-export function getGalleryItems() {
+// `publicOnly` blendet Entwürfe (is_active=0) aus — für die öffentliche Seite.
+export function getGalleryItems({ publicOnly = false } = {}) {
     const db = getContentDb();
     seedGalleriesIfEmpty();
-    return db.prepare('SELECT * FROM gallery_items ORDER BY gallery, sort_order, id').all();
+    const where = publicOnly ? 'WHERE is_active = 1' : '';
+    return db.prepare(`SELECT * FROM gallery_items ${where} ORDER BY gallery, sort_order, id`).all();
 }
 
 export function getGalleryItemsByGallery(gallery) {
@@ -63,6 +65,7 @@ function fields(data) {
         description: data.description || '',
         technik: data.technik || '',
         image: data.image || '',
+        is_active: data.is_active ? 1 : 0,
         updated_at: Date.now(),
     };
 }
@@ -72,8 +75,8 @@ export function createGalleryItem(data) {
     const f = fields(data);
     const max = db.prepare('SELECT COALESCE(MAX(sort_order), -1) AS m FROM gallery_items WHERE gallery = ?').get(f.gallery).m;
     return db.prepare(`
-        INSERT INTO gallery_items (gallery, title, description, technik, image, sort_order, updated_at)
-        VALUES (@gallery, @title, @description, @technik, @image, @sort_order, @updated_at)
+        INSERT INTO gallery_items (gallery, title, description, technik, image, is_active, sort_order, updated_at)
+        VALUES (@gallery, @title, @description, @technik, @image, @is_active, @sort_order, @updated_at)
     `).run({ ...f, sort_order: max + 1 }).lastInsertRowid;
 }
 
@@ -81,9 +84,14 @@ export function updateGalleryItem(id, data) {
     getContentDb().prepare(`
         UPDATE gallery_items SET
             gallery=@gallery, title=@title, description=@description, technik=@technik,
-            image=@image, updated_at=@updated_at
+            image=@image, is_active=@is_active, updated_at=@updated_at
         WHERE id=@id
     `).run({ ...fields(data), id });
+}
+
+export function setGalleryItemActive(id, active) {
+    getContentDb().prepare('UPDATE gallery_items SET is_active = ?, updated_at = ? WHERE id = ?')
+        .run(active ? 1 : 0, Date.now(), id);
 }
 
 export function deleteGalleryItem(id) {

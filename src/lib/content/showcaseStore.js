@@ -67,10 +67,12 @@ export function seedShowcaseIfEmpty() {
 }
 
 // Alle Projekte (für Admin + JSON-LD), nach Kategorie & sort_order.
-export function getProjects() {
+// `publicOnly` blendet Entwürfe (is_active=0) aus — für die öffentliche Seite.
+export function getProjects({ publicOnly = false } = {}) {
     const db = getContentDb();
     seedShowcaseIfEmpty();
-    return db.prepare('SELECT * FROM showcase_projects ORDER BY category, sort_order, id').all().map(hydrate);
+    const where = publicOnly ? 'WHERE is_active = 1' : '';
+    return db.prepare(`SELECT * FROM showcase_projects ${where} ORDER BY category, sort_order, id`).all().map(hydrate);
 }
 
 export function getProjectsByCategory(category) {
@@ -97,6 +99,7 @@ function fields(data) {
         media: data.media || '',
         schema_type: data.schema_type || '',
         application_category: data.application_category || '',
+        is_active: data.is_active ? 1 : 0,
         updated_at: Date.now(),
     };
 }
@@ -108,10 +111,10 @@ export function createProject(data) {
     return db.prepare(`
         INSERT INTO showcase_projects
             (category, variant, name, headline, intro, features, tech, media_type, media,
-             schema_type, application_category, sort_order, updated_at)
+             schema_type, application_category, is_active, sort_order, updated_at)
         VALUES
             (@category, @variant, @name, @headline, @intro, @features, @tech, @media_type, @media,
-             @schema_type, @application_category, @sort_order, @updated_at)
+             @schema_type, @application_category, @is_active, @sort_order, @updated_at)
     `).run({ ...f, sort_order: max + 1 }).lastInsertRowid;
 }
 
@@ -120,9 +123,15 @@ export function updateProject(id, data) {
         UPDATE showcase_projects SET
             category=@category, variant=@variant, name=@name, headline=@headline, intro=@intro,
             features=@features, tech=@tech, media_type=@media_type, media=@media,
-            schema_type=@schema_type, application_category=@application_category, updated_at=@updated_at
+            schema_type=@schema_type, application_category=@application_category,
+            is_active=@is_active, updated_at=@updated_at
         WHERE id=@id
     `).run({ ...fields(data), id });
+}
+
+export function setProjectActive(id, active) {
+    getContentDb().prepare('UPDATE showcase_projects SET is_active = ?, updated_at = ? WHERE id = ?')
+        .run(active ? 1 : 0, Date.now(), id);
 }
 
 export function deleteProject(id) {

@@ -29,7 +29,7 @@ const variants = {
 
 export default async function Vita() {
     const pageName = "Vita";
-    const data = getStations(); // bereits neueste zuerst
+    const data = getStations({ publicOnly: true }); // bereits neueste zuerst, nur aktive
     const personal = getAreasWithEntries(); // Sidebar-Bereiche aus der DB
     const yearNow = new Date().getFullYear();
     const monthNow = new Date().getMonth();

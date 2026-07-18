@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
-    createStation, updateStation, deleteStation, reorderStations,
+    createStation, updateStation, deleteStation, reorderStations, setStationActive,
 } from '@/lib/content/vitaStore';
 
 // Server Actions für die Vita-Verwaltung im Admin. Nach jeder Änderung wird die
@@ -18,6 +18,7 @@ function parseStation(formData) {
     const start = (formData.get('start') || '').toString().trim();
     const end = (formData.get('end') || '').toString().trim();
     const is_current = formData.get('is_current') ? 1 : 0;
+    const is_active = formData.get('is_active') ? 1 : 0;
 
     const errors = [];
     if (!title) errors.push('Titel fehlt');
@@ -25,7 +26,7 @@ function parseStation(formData) {
     if (!start) errors.push('Beginn fehlt');
     if (!is_current && !end) errors.push('Ende fehlt (oder „läuft noch" ankreuzen)');
 
-    return { data: { title, company, description, start, end, is_current }, errors };
+    return { data: { title, company, description, start, end, is_current, is_active }, errors };
 }
 
 function revalidateVita() {
@@ -54,6 +55,12 @@ export async function updateStationAction(prevState, formData) {
 // hidden field im Formular.
 export async function deleteStationAction(formData) {
     deleteStation(Number(formData.get('id')));
+    revalidateVita();
+}
+
+// Aktiv/Entwurf umschalten (Ein-Klick aus der Liste).
+export async function toggleStationAction(formData) {
+    setStationActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidateVita();
 }
 

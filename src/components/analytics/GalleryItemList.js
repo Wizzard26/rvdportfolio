@@ -10,8 +10,9 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { FiMove, FiEdit2, FiTrash2 } from 'react-icons/fi';
-import { reorderGalleryItemsAction, deleteGalleryItemAction } from '@/lib/content/galleryActions';
+import { reorderGalleryItemsAction, deleteGalleryItemAction, toggleGalleryItemAction } from '@/lib/content/galleryActions';
 import { GALLERIES, GALLERY_LABELS } from '@/lib/galleryItems';
+import StatusToggle from '@/components/analytics/StatusToggle';
 
 function Row({ item }) {
     return (
@@ -24,6 +25,7 @@ function Row({ item }) {
                 {!item.description && item.technik && <div className="an-station-sub">{item.technik}</div>}
             </div>
             <div className="an-station-actions">
+                <StatusToggle action={toggleGalleryItemAction} id={item.id} active={!!item.is_active} />
                 <Link href={`/dashboard/showcase/galerien/${item.id}`} className="an-icon-btn" title="Bearbeiten"><FiEdit2 /></Link>
                 <form action={deleteGalleryItemAction} className="an-inline-form">
                     <input type="hidden" name="id" value={item.id} />

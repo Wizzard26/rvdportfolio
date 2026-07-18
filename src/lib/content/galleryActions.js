@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
-    createGalleryItem, updateGalleryItem, deleteGalleryItem, reorderGalleryItems, GALLERIES,
+    createGalleryItem, updateGalleryItem, deleteGalleryItem, reorderGalleryItems, setGalleryItemActive, GALLERIES,
 } from '@/lib/content/galleryStore';
 import { saveUploadedImage } from '@/lib/content/media';
 
@@ -30,6 +30,7 @@ function parseCommon(formData) {
         title: (formData.get('title') || '').toString().trim(),
         description: (formData.get('description') || '').toString(),
         technik: (formData.get('technik') || '').toString().trim(),
+        is_active: formData.get('is_active') ? 1 : 0,
     };
 }
 
@@ -59,6 +60,12 @@ export async function updateGalleryItemAction(prevState, formData) {
 
 export async function deleteGalleryItemAction(formData) {
     deleteGalleryItem(Number(formData.get('id')));
+    revalidate();
+}
+
+// Aktiv/Entwurf umschalten (Ein-Klick aus der Liste).
+export async function toggleGalleryItemAction(formData) {
+    setGalleryItemActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidate();
 }
 

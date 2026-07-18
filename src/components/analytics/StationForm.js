@@ -47,6 +47,11 @@ export default function StationForm({ action, station }) {
                 <textarea name="description" rows={6} defaultValue={v.description || ''} />
             </label>
 
+            <label className="an-check">
+                <input type="checkbox" name="is_active" defaultChecked={!!v.is_active} />
+                <span>Aktiv – öffentlich sichtbar (ohne Haken: Entwurf)</span>
+            </label>
+
             <div className="an-form-actions">
                 <button type="submit" className="an-btn-primary" disabled={pending}>
                     {pending ? 'Speichern …' : 'Speichern'}

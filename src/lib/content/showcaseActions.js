@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
-    createProject, updateProject, deleteProject, reorderProjects,
+    createProject, updateProject, deleteProject, reorderProjects, setProjectActive,
 } from '@/lib/content/showcaseStore';
 import { saveUploadedImage } from '@/lib/content/media';
 
@@ -50,6 +50,7 @@ function parseCommon(formData) {
         schema_type: (formData.get('schema_type') || '').toString(),
         application_category: (formData.get('application_category') || '').toString().trim(),
         media_type: (formData.get('media_type') || 'none').toString(),
+        is_active: formData.get('is_active') ? 1 : 0,
     };
 }
 
@@ -80,6 +81,12 @@ export async function updateProjectAction(prevState, formData) {
 
 export async function deleteProjectAction(formData) {
     deleteProject(Number(formData.get('id')));
+    revalidate();
+}
+
+// Aktiv/Entwurf umschalten (Ein-Klick aus der Liste).
+export async function toggleProjectAction(formData) {
+    setProjectActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidate();
 }
 

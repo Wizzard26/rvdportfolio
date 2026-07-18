@@ -10,7 +10,8 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { FiMove, FiEdit2, FiTrash2, FiImage, FiVideo, FiBox } from 'react-icons/fi';
-import { reorderProjectsAction, deleteProjectAction } from '@/lib/content/showcaseActions';
+import { reorderProjectsAction, deleteProjectAction, toggleProjectAction } from '@/lib/content/showcaseActions';
+import StatusToggle from '@/components/analytics/StatusToggle';
 
 const MEDIA_ICON = { image: FiImage, video: FiVideo, component: FiBox };
 
@@ -29,6 +30,7 @@ function ProjectRow({ project }) {
                 <div className="an-station-sub">{project.headline || project.techList.join(', ')}</div>
             </div>
             <div className="an-station-actions">
+                <StatusToggle action={toggleProjectAction} id={project.id} active={!!project.is_active} />
                 <Link href={`/dashboard/showcase/${project.id}`} className="an-icon-btn" title="Bearbeiten"><FiEdit2 /></Link>
                 <form action={deleteProjectAction} className="an-inline-form">
                     <input type="hidden" name="id" value={project.id} />
