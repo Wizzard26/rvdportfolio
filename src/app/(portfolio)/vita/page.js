@@ -85,7 +85,7 @@ export default async function Vita() {
                             <h2>Persönliche Daten:</h2>
                             {personal.map(area => (
                                 <Fragment key={area.id}>
-                                    {area.show_headline && area.title &&
+                                    {Boolean(area.show_headline) && area.title &&
                                         <h3 className={`${ranga.className}`}>{area.title}</h3>
                                     }
                                     <p>
