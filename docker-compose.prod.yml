@@ -19,6 +19,9 @@ services:
     environment:
       - NODE_ENV=production
     volumes:
-      # Persistiert die SQLite-Analytics-Datenbank über Deploys hinweg.
-      # ANALYTICS_DB_PATH (in .env.production) muss auf /app/data/analytics.db zeigen.
+      # Persistiert die SQLite-Datenbanken über Deploys hinweg:
+      # - analytics.db (ANALYTICS_DB_PATH=/app/data/analytics.db)
+      # - content.db  (redaktionelle Inhalte wie die Vita; Pfad wird automatisch
+      #   aus dem Analytics-Verzeichnis abgeleitet → /app/data/content.db, kein
+      #   zusätzlicher Env-Eintrag nötig).
       - ./data:/app/data

@@ -1,5 +1,6 @@
 import HeroContent from "@/components/herocontent/page";
-import { vitaEntries, vitaPersonal } from "@/lib/vita";
+import { vitaPersonal } from "@/lib/vita";
+import { getStations } from "@/lib/content/vitaStore";
 import styles from "./styles.module.css";
 import {ranga, roboto_condensed} from "@/app/fonts";
 import Button from "@/components/button/Button";
@@ -16,27 +17,26 @@ export const metadata = pageMetadata({
     path: '/vita',
 });
 
-function getWorkStations() {
-    const vitaStation = vitaEntries;
-    const entries = [...vitaStation].reverse();
-    return entries;
-}
+// Die Stationen kommen jetzt aus der Content-DB (im Admin pflegbar). Deshalb pro
+// Request rendern — die Server-DB (Volume) existiert erst zur Laufzeit, ein
+// Build-Prerender würde sie nicht sehen.
+export const dynamic = 'force-dynamic';
 
 const variants = {
     hidden: { opacity:0 },
     visible: { opacity: 1 },
 };
 
-export default function Vita() {
+export default async function Vita() {
     const pageName = "Vita";
-    const data = getWorkStations();
+    const data = getStations(); // bereits neueste zuerst
     const yearNow = new Date().getFullYear();
     const monthNow = new Date().getMonth();
 
     return(
         <>
             <JsonLd data={[
-                careerSchema(vitaEntries),
+                careerSchema(data),
                 breadcrumbSchema([{ name: 'Vita', path: '/vita' }]),
             ]} />
             <HeroContent
@@ -67,8 +67,8 @@ export default function Vita() {
                                     <div className={`${styles.vitaHeadline}`}>
                                         <h2 className={`${roboto_condensed.className} ${styles.vitaTitle} col-12 col-xl-9`}>{vita.title}</h2>
                                         <div className={`${styles.vitaStateDate} ${roboto_condensed.className} col-12 col-xl-3`}>
-                                            {vita.start} - {vita.end == 'Now'
-                                            ? monthNow + '/' + yearNow
+                                            {vita.start} - {vita.is_current
+                                            ? (monthNow + 1) + '/' + yearNow
                                             : vita.end
                                         }
                                         </div>
