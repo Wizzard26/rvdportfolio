@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { TbFileTypePdf } from "react-icons/tb";
-import { FiDownload } from "react-icons/fi";
+import { FiDownload, FiLock } from "react-icons/fi";
 import { roboto_condensed } from "@/app/fonts";
-import { getShareByToken } from "@/lib/content/sharesStore";
+import { getShareByToken, shareCookieName } from "@/lib/content/sharesStore";
+import { unlockShareAction } from "@/lib/content/sharesActions";
 import styles from "./styles.module.css";
 
 export const dynamic = 'force-dynamic';
@@ -13,32 +15,54 @@ export const metadata = {
     robots: { index: false, follow: false },
 };
 
-export default async function SharePage({ params }) {
-    const { token } = await params;
-    const share = getShareByToken(token);
-    if (!share) notFound();
-
+// PLZ-Gate: fragt den Zugriffscode ab, bevor die Dokumente erscheinen.
+function GateView({ token, title, error }) {
     return (
         <main className="main-content">
             <section>
                 <div className="content-inner">
-                    <h1 className={roboto_condensed.className}>{share.title || 'Freigegebene Dokumente'}</h1>
-                    {share.message && <p className={styles.message}>{share.message}</p>}
+                    <div className={styles.gate}>
+                        <FiLock aria-hidden="true" className={styles.gateIcon} />
+                        <h1 className={roboto_condensed.className}>Geschützter Bereich</h1>
+                        <p>{title ? `„${title}“ ist ` : 'Dieser Bereich ist '}durch einen Zugriffscode geschützt.
+                            Bitte geben Sie den Code ein, den Sie erhalten haben.</p>
+                        {error && <p className={styles.gateError}>Der Code ist nicht korrekt. Bitte versuchen Sie es erneut.</p>}
+                        <form action={unlockShareAction} className={styles.gateForm}>
+                            <input type="hidden" name="token" value={token} />
+                            <input name="code" inputMode="numeric" autoComplete="off" placeholder="Zugriffscode"
+                                   aria-label="Zugriffscode" required autoFocus />
+                            <button type="submit" className={styles.gateBtn}>Freischalten</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    );
+}
+
+function ShareView({ share }) {
+    return (
+        <main className="main-content">
+            <section>
+                <div className="content-inner">
+                    <header className={styles.teaser}>
+                        <h1 className={roboto_condensed.className}>{share.title || 'Freigegebene Dokumente'}</h1>
+                        {share.company && <p className={styles.forWhom}>Zusammengestellt für {share.company}</p>}
+                        {share.message && <p className={styles.message}>{share.message}</p>}
+                    </header>
 
                     {share.documents.length === 0 ? (
                         <p>Für diese Freigabe sind derzeit keine Dokumente hinterlegt.</p>
                     ) : (
-                        <ul className={styles.docList}>
+                        <div className={styles.tiles}>
                             {share.documents.map((d) => (
-                                <li key={d.id}>
-                                    <a href={d.file} download className={styles.docLink}>
-                                        <TbFileTypePdf aria-hidden="true" className={styles.pdfIcon} />
-                                        <span className={styles.docTitle}>{d.title}</span>
-                                        <FiDownload aria-hidden="true" className={styles.dlIcon} />
-                                    </a>
-                                </li>
+                                <a key={d.id} href={d.file} download className={styles.tile}>
+                                    <TbFileTypePdf aria-hidden="true" className={styles.tilePdf} />
+                                    <span className={styles.tileTitle}>{d.title}</span>
+                                    <span className={styles.tileDownload}><FiDownload aria-hidden="true" /> PDF herunterladen</span>
+                                </a>
                             ))}
-                        </ul>
+                        </div>
                     )}
 
                     <p className={styles.note}>Diese Dokumente wurden privat über einen persönlichen Link mit Ihnen geteilt.</p>
@@ -46,4 +70,20 @@ export default async function SharePage({ params }) {
             </section>
         </main>
     );
+}
+
+export default async function SharePage({ params, searchParams }) {
+    const { token } = await params;
+    const sp = await searchParams;
+    const share = getShareByToken(token);
+    if (!share) notFound();
+
+    if (share.access_code) {
+        const unlocked = (await cookies()).get(shareCookieName(share.id))?.value === '1';
+        if (!unlocked) {
+            return <GateView token={token} title={share.title} error={sp?.gate === '1'} />;
+        }
+    }
+
+    return <ShareView share={share} />;
 }

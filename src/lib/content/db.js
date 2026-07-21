@@ -121,12 +121,20 @@ function migrate(database) {
         );
 
         CREATE TABLE IF NOT EXISTS shares (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            token      TEXT    NOT NULL UNIQUE,
-            title      TEXT    NOT NULL DEFAULT '',
-            message    TEXT    NOT NULL DEFAULT '',
-            is_active  INTEGER NOT NULL DEFAULT 1,
-            updated_at INTEGER NOT NULL DEFAULT 0
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            token       TEXT    NOT NULL UNIQUE,
+            title       TEXT    NOT NULL DEFAULT '',
+            message     TEXT    NOT NULL DEFAULT '',
+            purpose     TEXT    NOT NULL DEFAULT 'bewerbung',
+            company     TEXT    NOT NULL DEFAULT '',
+            street      TEXT    NOT NULL DEFAULT '',
+            zip         TEXT    NOT NULL DEFAULT '',
+            city        TEXT    NOT NULL DEFAULT '',
+            contact     TEXT    NOT NULL DEFAULT '',
+            position    TEXT    NOT NULL DEFAULT '',
+            access_code TEXT    NOT NULL DEFAULT '',
+            is_active   INTEGER NOT NULL DEFAULT 1,
+            updated_at  INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_shares_token ON shares (token);
 
@@ -147,6 +155,15 @@ function migrate(database) {
     ensureColumn(database, 'showcase_projects', 'sandbox_html', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'showcase_projects', 'sandbox_css', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'showcase_projects', 'sandbox_js', "TEXT NOT NULL DEFAULT ''");
+    // Firmendaten/Personalisierung für Freigaben nachrüsten.
+    ensureColumn(database, 'shares', 'purpose', "TEXT NOT NULL DEFAULT 'bewerbung'");
+    ensureColumn(database, 'shares', 'company', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'street', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'zip', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'city', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'contact', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'position', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'access_code', "TEXT NOT NULL DEFAULT ''");
 }
 
 export function getContentDb() {

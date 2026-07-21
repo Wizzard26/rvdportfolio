@@ -9,6 +9,16 @@ function newToken() {
     return randomBytes(18).toString('base64url');
 }
 
+// Zugriffscode (PLZ) tolerant vergleichen: Leerzeichen weg, klein.
+export function normalizeCode(code) {
+    return (code || '').toString().replace(/\s+/g, '').toLowerCase();
+}
+
+// Cookie-Name für die entsperrte Freigabe.
+export function shareCookieName(id) {
+    return `sf_${id}`;
+}
+
 function setItems(db, shareId, documentIds) {
     const del = db.prepare('DELETE FROM share_items WHERE share_id = ?');
     const ins = db.prepare('INSERT INTO share_items (share_id, document_id, sort_order) VALUES (?, ?, ?)');
@@ -20,19 +30,32 @@ function setItems(db, shareId, documentIds) {
     })();
 }
 
+const PURPOSES = ['bewerbung', 'initiativ', 'sonstiges'];
+
+function fields(data) {
+    return {
+        title: (data.title || '').trim(),
+        message: (data.message || '').trim(),
+        purpose: PURPOSES.includes(data.purpose) ? data.purpose : 'bewerbung',
+        company: (data.company || '').trim(),
+        street: (data.street || '').trim(),
+        zip: (data.zip || '').trim(),
+        city: (data.city || '').trim(),
+        contact: (data.contact || '').trim(),
+        position: (data.position || '').trim(),
+        access_code: (data.access_code || '').trim(),
+        is_active: data.is_active ? 1 : 0,
+        now: Date.now(),
+    };
+}
+
 export function createShare(data) {
     const db = getContentDb();
     const token = newToken();
     const id = db.prepare(`
-        INSERT INTO shares (token, title, message, is_active, updated_at)
-        VALUES (@token, @title, @message, @is_active, @now)
-    `).run({
-        token,
-        title: (data.title || '').trim(),
-        message: (data.message || '').trim(),
-        is_active: data.is_active ? 1 : 0,
-        now: Date.now(),
-    }).lastInsertRowid;
+        INSERT INTO shares (token, title, message, purpose, company, street, zip, city, contact, position, access_code, is_active, updated_at)
+        VALUES (@token, @title, @message, @purpose, @company, @street, @zip, @city, @contact, @position, @access_code, @is_active, @now)
+    `).run({ token, ...fields(data) }).lastInsertRowid;
     setItems(db, id, data.documentIds);
     return { id, token };
 }
@@ -40,14 +63,11 @@ export function createShare(data) {
 export function updateShare(id, data) {
     const db = getContentDb();
     db.prepare(`
-        UPDATE shares SET title=@title, message=@message, is_active=@is_active, updated_at=@now WHERE id=@id
-    `).run({
-        id,
-        title: (data.title || '').trim(),
-        message: (data.message || '').trim(),
-        is_active: data.is_active ? 1 : 0,
-        now: Date.now(),
-    });
+        UPDATE shares SET title=@title, message=@message, purpose=@purpose, company=@company,
+            street=@street, zip=@zip, city=@city, contact=@contact, position=@position,
+            access_code=@access_code, is_active=@is_active, updated_at=@now
+        WHERE id=@id
+    `).run({ id, ...fields(data) });
     setItems(db, id, data.documentIds);
 }
 

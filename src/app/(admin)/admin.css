@@ -363,10 +363,13 @@ body {
     overflow-wrap: anywhere; max-width: 100%;
 }
 
-/* Checkbox-Gruppe (Dokumente einer Freigabe) */
+/* Checkbox-/Feldgruppe (Dokumente + Firmendaten einer Freigabe) */
 .an-checkgroup { border: 1px solid var(--adm-border, rgba(0,0,0,0.12)); border-radius: 8px; padding: 12px 14px; }
 .an-checkgroup legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .an-checkgroup .an-check { display: flex; gap: 8px; margin: 6px 0; }
+.an-checkgroup .an-field-row { margin-bottom: 4px; }
+
+.an-btn-small { align-self: flex-start; padding: 6px 12px; font-size: 13px; margin-top: 6px; }
 
 /* ── Responsiv ────────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {

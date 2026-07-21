@@ -1,55 +1,105 @@
+/* Teaser */
+.teaser {
+    max-width: 760px;
+    margin-bottom: 34px;
+}
+.forWhom {
+    color: var(--primary);
+    font-weight: 600;
+    margin: 4px 0 16px;
+}
 .message {
     white-space: pre-line;
-    max-width: 720px;
-    margin-bottom: 28px;
+    line-height: 1.6;
 }
 
-.docList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+/* Download-Kacheln */
+.tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+    max-width: 900px;
+}
+.tile {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    max-width: 640px;
-}
-
-.docLink {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 18px;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 22px 20px;
     border: 1px solid var(--dark-light);
-    border-radius: 10px;
+    border-radius: 12px;
     text-decoration: none;
     color: var(--dark);
-    transition: border-color .15s ease, background .15s ease;
-}
-
-.docLink:hover {
-    border-color: var(--primary);
     background: var(--dark-light);
+    transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
 }
-
-.pdfIcon {
-    font-size: 28px;
+.tile:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(4, 21, 31, 0.10);
+}
+.tilePdf {
+    font-size: 40px;
     color: #d64545;
-    flex: 0 0 auto;
 }
-
-.docTitle {
-    flex: 1 1 auto;
+.tileTitle {
     font-weight: 600;
+    font-size: 1.05rem;
+    line-height: 1.3;
 }
-
-.dlIcon {
-    font-size: 20px;
+.tileDownload {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
     color: var(--primary);
-    flex: 0 0 auto;
+    margin-top: auto;
 }
 
 .note {
-    margin-top: 32px;
+    margin-top: 34px;
     font-size: 0.9rem;
     color: var(--dark-6);
+}
+
+/* PLZ-Gate */
+.gate {
+    max-width: 440px;
+    margin: 20px auto;
+    text-align: center;
+    padding: 34px 28px;
+    border: 1px solid var(--dark-light);
+    border-radius: 14px;
+}
+.gateIcon {
+    font-size: 40px;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+.gateForm {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+.gateForm input {
+    flex: 1 1 auto;
+    padding: 11px 14px;
+    border: 1px solid var(--dark-light);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+.gateBtn {
+    flex: 0 0 auto;
+    padding: 11px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+.gateBtn:hover { background: var(--primary-dark); }
+.gateError {
+    color: #d64545;
+    font-weight: 600;
 }

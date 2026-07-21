@@ -37,7 +37,9 @@ export default async function SharesAdmin() {
                                     <div className="an-station-title">
                                         {s.title || '(ohne Titel)'}
                                         <span className="an-badge">{s.item_count} Dok.</span>
+                                        {s.access_code && <span className="an-badge" title="PLZ-Gate aktiv">🔒 Code</span>}
                                     </div>
+                                    {s.company && <div className="an-station-sub">{s.company}</div>}
                                     <ShareLink path={`/freigabe/${s.token}`} />
                                 </div>
                                 <div className="an-station-actions">
