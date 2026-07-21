@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
-    createDocument, updateDocument, deleteDocument, reorderDocuments, setDocumentActive, VITA_SETTING_KEY,
+    createDocument, updateDocument, deleteDocument, reorderDocuments, setDocumentActive,
+    VITA_SETTING_KEY, VITA_TEXT_KEY,
 } from '@/lib/content/documentsStore';
 import { setSetting } from '@/lib/content/settingsStore';
 import { saveUploadedPdf } from '@/lib/content/documents';
@@ -71,8 +72,9 @@ export async function reorderDocumentsAction(orderedIds) {
     revalidate();
 }
 
-// Legt fest, welches Dokument der „Vita als Download"-Button verwendet.
+// Legt fest, welches Dokument der Vita-Button verwendet und wie er beschriftet ist.
 export async function setVitaDocumentAction(formData) {
     setSetting(VITA_SETTING_KEY, (formData.get('document_id') || '').toString());
+    setSetting(VITA_TEXT_KEY, (formData.get('button_text') || '').toString().trim());
     revalidate();
 }

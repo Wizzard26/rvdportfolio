@@ -2,6 +2,14 @@ import { getContentDb } from './db';
 import { getSetting, setSetting } from './settingsStore';
 
 export const VITA_SETTING_KEY = 'vita_document_id';
+export const VITA_TEXT_KEY = 'vita_button_text';
+export const VITA_TEXT_DEFAULT = 'Vita als Download';
+
+// Beschriftung des „Vita als Download"-Buttons (im Admin änderbar).
+export function getVitaButtonText() {
+    const t = getSetting(VITA_TEXT_KEY);
+    return (t && t.trim()) ? t : VITA_TEXT_DEFAULT;
+}
 
 // Datenzugriff für den Dokumente-Bereich (herunterladbare PDFs, z. B. die Vita).
 //

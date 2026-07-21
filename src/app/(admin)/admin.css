@@ -343,9 +343,17 @@ body {
 .an-status.is-active { color: #1c7a43; background: rgba(63,157,90,0.14); border-color: rgba(63,157,90,0.38); }
 .an-status.is-draft  { color: #9a6a00; background: rgba(224,149,43,0.14); border-color: rgba(224,149,43,0.40); }
 
-/* Inline-Auswahl (z. B. Vita-Download-Dokument) */
-.an-inline-select { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
-.an-inline-select .an-field { flex: 1 1 340px; margin: 0; }
+/* Inline-Auswahl (z. B. Vita-Download-Dokument) — Felder nebeneinander, unten
+   ausgerichtet; bricht auf schmalen Screens um. flex-direction:row überschreibt
+   die Spalten-Basis von .an-form. */
+.an-inline-select {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 16px;
+}
+.an-inline-select .an-field { flex: 1 1 300px; margin: 0; }
+.an-inline-select button { flex: 0 0 auto; }
 
 /* Freigabe-Link + Kopieren */
 .an-sharelink { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
