@@ -14,5 +14,8 @@ export async function GET(request, { params }) {
     if (!doc || !doc.file) {
         return new NextResponse('Dokument nicht gefunden', { status: 404 });
     }
-    return NextResponse.redirect(new URL(doc.file, request.url), 307);
+    // Relativer Location-Header: der Browser löst ihn gegen die öffentliche URL
+    // auf. `request.url` wäre hinter dem Reverse-Proxy die interne (localhost).
+    // `doc.file` ist immer ein absoluter Pfad (/document/… oder /documents/…).
+    return new NextResponse(null, { status: 307, headers: { Location: doc.file } });
 }
