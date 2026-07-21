@@ -102,6 +102,41 @@ function migrate(database) {
             updated_at  INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_gallery_sort ON gallery_items (gallery, sort_order);
+
+        CREATE TABLE IF NOT EXISTS documents (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            title       TEXT    NOT NULL DEFAULT '',
+            slug        TEXT    NOT NULL DEFAULT '',
+            file        TEXT    NOT NULL DEFAULT '',
+            is_active   INTEGER NOT NULL DEFAULT 1,
+            sort_order  INTEGER NOT NULL DEFAULT 0,
+            updated_at  INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_documents_sort ON documents (sort_order);
+        CREATE INDEX IF NOT EXISTS idx_documents_slug ON documents (slug);
+
+        CREATE TABLE IF NOT EXISTS settings (
+            skey   TEXT PRIMARY KEY,
+            svalue TEXT NOT NULL DEFAULT ''
+        );
+
+        CREATE TABLE IF NOT EXISTS shares (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            token      TEXT    NOT NULL UNIQUE,
+            title      TEXT    NOT NULL DEFAULT '',
+            message    TEXT    NOT NULL DEFAULT '',
+            is_active  INTEGER NOT NULL DEFAULT 1,
+            updated_at INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_shares_token ON shares (token);
+
+        CREATE TABLE IF NOT EXISTS share_items (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            share_id    INTEGER NOT NULL,
+            document_id INTEGER NOT NULL,
+            sort_order  INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_share_items ON share_items (share_id, sort_order);
     `);
 
     // Nachrüsten für bereits bestehende Tabellen (z. B. Vita auf dem Server).

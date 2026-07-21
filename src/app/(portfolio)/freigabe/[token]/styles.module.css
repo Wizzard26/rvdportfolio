@@ -1,0 +1,55 @@
+.message {
+    white-space: pre-line;
+    max-width: 720px;
+    margin-bottom: 28px;
+}
+
+.docList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 640px;
+}
+
+.docLink {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1px solid var(--dark-light);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--dark);
+    transition: border-color .15s ease, background .15s ease;
+}
+
+.docLink:hover {
+    border-color: var(--primary);
+    background: var(--dark-light);
+}
+
+.pdfIcon {
+    font-size: 28px;
+    color: #d64545;
+    flex: 0 0 auto;
+}
+
+.docTitle {
+    flex: 1 1 auto;
+    font-weight: 600;
+}
+
+.dlIcon {
+    font-size: 20px;
+    color: var(--primary);
+    flex: 0 0 auto;
+}
+
+.note {
+    margin-top: 32px;
+    font-size: 0.9rem;
+    color: var(--dark-6);
+}
