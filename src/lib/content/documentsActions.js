@@ -3,8 +3,9 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
-    createDocument, updateDocument, deleteDocument, reorderDocuments, setDocumentActive,
+    createDocument, updateDocument, deleteDocument, reorderDocuments, setDocumentActive, VITA_SETTING_KEY,
 } from '@/lib/content/documentsStore';
+import { setSetting } from '@/lib/content/settingsStore';
 import { saveUploadedPdf } from '@/lib/content/documents';
 
 // Server Actions für den Dokumente-Bereich.
@@ -67,5 +68,11 @@ export async function toggleDocumentAction(formData) {
 export async function reorderDocumentsAction(orderedIds) {
     if (!Array.isArray(orderedIds)) return;
     reorderDocuments(orderedIds);
+    revalidate();
+}
+
+// Legt fest, welches Dokument der „Vita als Download"-Button verwendet.
+export async function setVitaDocumentAction(formData) {
+    setSetting(VITA_SETTING_KEY, (formData.get('document_id') || '').toString());
     revalidate();
 }

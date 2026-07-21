@@ -1,4 +1,7 @@
 import { getContentDb } from './db';
+import { getSetting, setSetting } from './settingsStore';
+
+export const VITA_SETTING_KEY = 'vita_document_id';
 
 // Datenzugriff für den Dokumente-Bereich (herunterladbare PDFs, z. B. die Vita).
 //
@@ -17,10 +20,36 @@ export function normalizeSlug(slug) {
 export function seedDocumentsIfEmpty() {
     const db = getContentDb();
     if (db.prepare('SELECT COUNT(*) AS n FROM documents').get().n > 0) return;
-    db.prepare(`
+    const info = db.prepare(`
         INSERT INTO documents (title, slug, file, is_active, sort_order, updated_at)
         VALUES (@title, @slug, @file, 1, 0, @now)
     `).run({ title: 'Vita / Lebenslauf', slug: 'vita', file: '/document/Vita.pdf', now: Date.now() });
+    // Vita-Download standardmäßig diesem Dokument zuordnen (per Auswahl änderbar).
+    setSetting(VITA_SETTING_KEY, info.lastInsertRowid);
+}
+
+// Stellt sicher, dass die Vita-Einstellung existiert — auch in einer bereits
+// befüllten DB (Server), wo der Seed nicht mehr greift. Setzt sie beim Fehlen
+// auf das Dokument mit Kennung „vita". Gibt die gewählte ID als String zurück.
+export function ensureVitaSetting() {
+    seedDocumentsIfEmpty();
+    const raw = getSetting(VITA_SETTING_KEY); // null = nie gesetzt, '' = bewusst „keins"
+    if (raw === null) {
+        const doc = getDocumentBySlug('vita');
+        if (doc) { setSetting(VITA_SETTING_KEY, doc.id); return String(doc.id); }
+        return '';
+    }
+    return raw;
+}
+
+// Das aktive Dokument für den „Vita als Download"-Button, oder null (dann nutzt
+// die Vita-Seite den Hardcoded-Fallback). null bei „keins" oder wenn das gewählte
+// Dokument fehlt/inaktiv ist.
+export function getVitaDocument() {
+    const id = Number(ensureVitaSetting());
+    if (!id) return null;
+    const doc = getDocument(id);
+    return doc && doc.is_active ? doc : null;
 }
 
 export function getDocuments() {

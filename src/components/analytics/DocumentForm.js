@@ -24,7 +24,7 @@ export default function DocumentForm({ action, document, pdfs = [] }) {
             <label className="an-field">
                 <span>Kennung (optional)</span>
                 <input name="slug" defaultValue={v.slug || ''} placeholder="vita" />
-                <span className="an-card-note">Feste Verlinkung: <code>/download/&lt;kennung&gt;</code>. Die Kennung <code>vita</code> steuert den „Vita als Download"-Button.</span>
+                <span className="an-card-note">Ergibt eine feste Verlinkung <code>/download/&lt;kennung&gt;</code> (bleibt gültig, auch wenn du die Datei austauschst). Welches Dokument der „Vita als Download"-Button nutzt, wählst du in der Übersicht.</span>
             </label>
 
             <div className="an-pdf-field">

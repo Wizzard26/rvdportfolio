@@ -343,6 +343,23 @@ body {
 .an-status.is-active { color: #1c7a43; background: rgba(63,157,90,0.14); border-color: rgba(63,157,90,0.38); }
 .an-status.is-draft  { color: #9a6a00; background: rgba(224,149,43,0.14); border-color: rgba(224,149,43,0.40); }
 
+/* Inline-Auswahl (z. B. Vita-Download-Dokument) */
+.an-inline-select { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.an-inline-select .an-field { flex: 1 1 340px; margin: 0; }
+
+/* Freigabe-Link + Kopieren */
+.an-sharelink { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.an-sharelink-url {
+    font-size: 12px; padding: 3px 8px; border-radius: 6px;
+    background: var(--adm-surface-2, rgba(0,0,0,0.06)); color: var(--adm-ink-muted, #667);
+    overflow-wrap: anywhere; max-width: 100%;
+}
+
+/* Checkbox-Gruppe (Dokumente einer Freigabe) */
+.an-checkgroup { border: 1px solid var(--adm-border, rgba(0,0,0,0.12)); border-radius: 8px; padding: 12px 14px; }
+.an-checkgroup legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
+.an-checkgroup .an-check { display: flex; gap: 8px; margin: 6px 0; }
+
 /* ── Responsiv ────────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
     .an-tiles { grid-template-columns: repeat(2, 1fr); }
