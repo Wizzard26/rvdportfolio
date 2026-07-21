@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { TbFileTypePdf } from "react-icons/tb";
-import { FiDownload, FiLock } from "react-icons/fi";
+import { FiDownload, FiLock, FiCheckCircle, FiArchive } from "react-icons/fi";
 import { roboto_condensed } from "@/app/fonts";
-import { getShareByToken, shareCookieName } from "@/lib/content/sharesStore";
+import { getShareByToken, getShareRawByToken, shareCookieName } from "@/lib/content/sharesStore";
 import { unlockShareAction } from "@/lib/content/sharesActions";
+import CloseShareButton from "@/components/analytics/CloseShareButton";
 import styles from "./styles.module.css";
 
 export const dynamic = 'force-dynamic';
@@ -41,6 +42,7 @@ function GateView({ token, title, error }) {
 }
 
 function ShareView({ share }) {
+    const many = share.documents.length > 1;
     return (
         <main className="main-content">
             <section>
@@ -54,18 +56,50 @@ function ShareView({ share }) {
                     {share.documents.length === 0 ? (
                         <p>Für diese Freigabe sind derzeit keine Dokumente hinterlegt.</p>
                     ) : (
-                        <div className={styles.tiles}>
-                            {share.documents.map((d) => (
-                                <a key={d.id} href={d.file} download className={styles.tile}>
-                                    <TbFileTypePdf aria-hidden="true" className={styles.tilePdf} />
-                                    <span className={styles.tileTitle}>{d.title}</span>
-                                    <span className={styles.tileDownload}><FiDownload aria-hidden="true" /> PDF herunterladen</span>
-                                </a>
-                            ))}
-                        </div>
+                        <>
+                            <div className={styles.tiles}>
+                                {share.documents.map((d) => (
+                                    <a key={d.id} href={d.file} download className={styles.tile}>
+                                        <TbFileTypePdf aria-hidden="true" className={styles.tilePdf} />
+                                        <span className={styles.tileTitle}>{d.title}</span>
+                                        <span className={styles.tileDownload}><FiDownload aria-hidden="true" /> PDF herunterladen</span>
+                                    </a>
+                                ))}
+                            </div>
+
+                            {many && (
+                                <div className={styles.actions}>
+                                    <a href={`/freigabe/${share.token}/download`} className={styles.allBtn}>
+                                        <FiArchive aria-hidden="true" /> Alle Unterlagen herunterladen (ZIP)
+                                    </a>
+                                    <CloseShareButton token={share.token} className={styles.closeBtn} />
+                                </div>
+                            )}
+                            {many && (
+                                <p className={styles.actionsNote}>
+                                    Hinweis: „Alles heruntergeladen" schließt diesen Zugang – der Link ist danach nicht mehr gültig.
+                                </p>
+                            )}
+                        </>
                     )}
 
                     <p className={styles.note}>Diese Dokumente wurden privat über einen persönlichen Link mit Ihnen geteilt.</p>
+                </div>
+            </section>
+        </main>
+    );
+}
+
+function ClosedView() {
+    return (
+        <main className="main-content">
+            <section>
+                <div className="content-inner">
+                    <div className={styles.gate}>
+                        <FiCheckCircle aria-hidden="true" className={styles.gateIcon} />
+                        <h1 className={roboto_condensed.className}>Vielen Dank!</h1>
+                        <p>Dieser Zugang wurde geschlossen. Der Link ist nicht mehr gültig.</p>
+                    </div>
                 </div>
             </section>
         </main>
@@ -76,7 +110,11 @@ export default async function SharePage({ params, searchParams }) {
     const { token } = await params;
     const sp = await searchParams;
     const share = getShareByToken(token);
-    if (!share) notFound();
+    if (!share) {
+        // Gerade selbst geschlossen? → Dank-Ansicht statt 404.
+        if (sp?.closed === '1' && getShareRawByToken(token)) return <ClosedView />;
+        notFound();
+    }
 
     if (share.access_code) {
         const unlocked = (await cookies()).get(shareCookieName(share.id))?.value === '1';

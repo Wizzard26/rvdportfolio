@@ -21,9 +21,13 @@ export default function PortfolioLayout({ children }) {
             <JsonLd data={[personSchema(), webSiteSchema()]} />
             {/* Cookiefreier First-Party-Tracker — nur auf öffentlichen Seiten. */}
             <Tracker />
-            <Header />
-            {children}
-            <Footer />
+            {/* Flex-Spalte über die volle Höhe → der Footer sitzt auch bei wenig
+                Inhalt unten am Viewport (Sticky-Footer). */}
+            <div className="site-shell">
+                <Header />
+                {children}
+                <Footer />
+            </div>
         </>
     )
 }

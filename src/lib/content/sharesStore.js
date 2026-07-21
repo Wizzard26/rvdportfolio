@@ -103,6 +103,13 @@ export function getShare(id) {
     return { ...share, documentIds };
 }
 
+// Freigabe zum Token unabhängig vom Aktiv-Status (für „geschlossen"-Hinweis
+// und das Selbst-Schließen).
+export function getShareRawByToken(token) {
+    if (!token) return null;
+    return getContentDb().prepare('SELECT * FROM shares WHERE token = ?').get(token) || null;
+}
+
 // Öffentlicher Zugriff über den Token: nur aktive Freigaben; liefert die
 // enthaltenen Dokumente (unabhängig vom Entwurf-Status der Dokumente, da bewusst
 // kuratiert), in der festgelegten Reihenfolge.

@@ -56,6 +56,44 @@
     margin-top: auto;
 }
 
+/* Sammel-Aktionen */
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-top: 26px;
+}
+.allBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .15s ease;
+}
+.allBtn:hover { background: var(--primary-dark); }
+.closeBtn {
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--dark-light);
+    background: transparent;
+    color: var(--dark-6);
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .15s ease, color .15s ease;
+}
+.closeBtn:hover { border-color: var(--primary); color: var(--primary); }
+.actionsNote {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--dark-6);
+}
+
 .note {
     margin-top: 34px;
     font-size: 0.9rem;

@@ -4,7 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import {
-    createShare, updateShare, deleteShare, setShareActive, getShareByToken, normalizeCode, shareCookieName,
+    createShare, updateShare, deleteShare, setShareActive, getShareByToken, getShareRawByToken,
+    normalizeCode, shareCookieName,
 } from '@/lib/content/sharesStore';
 
 // Server Actions für die Freigaben (Dokument-Sammlungen mit geheimem Link).
@@ -73,4 +74,14 @@ export async function unlockShareAction(formData) {
         redirect(`/freigabe/${token}`);
     }
     redirect(`/freigabe/${token}?gate=1`);
+}
+
+// „Alles heruntergeladen": schließt den Zugang (Freigabe wird deaktiviert, Link
+// danach ungültig). Vom Empfänger auf der Freigabe-Seite ausgelöst.
+export async function finishShareAction(formData) {
+    const token = (formData.get('token') || '').toString();
+    const share = getShareRawByToken(token);
+    if (share) setShareActive(share.id, false);
+    revalidatePath(`/freigabe/${token}`);
+    redirect(`/freigabe/${token}?closed=1`);
 }
