@@ -1,6 +1,7 @@
 import HeroContent from "@/components/herocontent/page";
 import { getStations } from "@/lib/content/vitaStore";
 import { getAreasWithEntries } from "@/lib/content/vitaPersonalStore";
+import { getDocumentBySlug } from "@/lib/content/documentsStore";
 import styles from "./styles.module.css";
 import {ranga, roboto_condensed} from "@/app/fonts";
 import Button from "@/components/button/Button";
@@ -30,6 +31,7 @@ const variants = {
 export default async function Vita() {
     const pageName = "Vita";
     const data = getStations({ publicOnly: true }); // bereits neueste zuerst, nur aktive
+    const vitaDoc = getDocumentBySlug('vita'); // admin-pflegbares Download-PDF
     const personal = getAreasWithEntries(); // Sidebar-Bereiche aus der DB
     const yearNow = new Date().getFullYear();
     const monthNow = new Date().getMonth();
@@ -105,7 +107,7 @@ export default async function Vita() {
                     <div className={`${styles.vitaActions} row`}>
                         <div className="col-12 col-md-6 align-center align-md-right">
                             <Button
-                                href="/document/Vita.pdf"
+                                href={vitaDoc?.file || "/document/Vita.pdf"}
                                 title="Rene-van-Dinter-Vita"
                                 style="primary"
                                 text="Vita als Download"
