@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { FiEdit2, FiEye, FiDownload, FiClock, FiExternalLink, FiMessageCircle } from 'react-icons/fi';
-import { getApplications, getApplicationStats } from '@/lib/content/sharesStore';
+import { getApplications, getApplicationStats, getRatingSummary } from '@/lib/content/sharesStore';
 import { STATUS_LABELS, STATUS_TONE } from '@/lib/applicationStatus';
 import StatTile from '@/components/analytics/StatTile';
+import RatingSummary from '@/components/analytics/RatingSummary';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,6 +81,7 @@ function Row({ app }) {
 export default async function ApplicationsAdmin() {
     const apps = getApplications();
     const stats = getApplicationStats();
+    const ratings = getRatingSummary();
     const offen = apps.filter((a) => a.running && (a.status || 'offen') === 'offen' && !a.engaged)
         .sort((a, b) => (nachfass(b) ? 1 : 0) - (nachfass(a) ? 1 : 0)); // Nachfass-Fälle oben
     const inProgress = apps.filter((a) => a.running && !((a.status || 'offen') === 'offen' && !a.engaged));
@@ -101,6 +103,13 @@ export default async function ApplicationsAdmin() {
                 <StatTile label="Rücklaufquote" value={`${stats.responseRate}%`}
                           hint={stats.avgResponseDays != null ? `ø Antwort in ${stats.avgResponseDays} Tagen` : 'Antworten / gesamt'} />
             </div>
+
+            {ratings.count > 0 && (
+                <section className="an-card">
+                    <h2 className="an-catgroup-title">Bewertungen <span className="an-muted">· {ratings.count}</span></h2>
+                    <RatingSummary summary={ratings} />
+                </section>
+            )}
 
             <section className="an-card">
                 <h2 className="an-catgroup-title">Offen <span className="an-muted">· {offen.length}</span></h2>

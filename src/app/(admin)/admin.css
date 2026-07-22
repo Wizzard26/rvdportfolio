@@ -415,6 +415,21 @@ body {
 .an-ratings li { display: flex; justify-content: space-between; max-width: 340px; padding: 4px 0; font-size: 14px; }
 .an-stars { color: #e0952b; letter-spacing: 2px; }
 
+/* Bewertungs-Auswertung */
+.an-rsum-head { display: flex; align-items: center; gap: 16px; margin: 0 0 18px; }
+.an-rsum-big { font-size: 44px; font-weight: 700; line-height: 1; color: var(--adm-text, #1c2733); }
+.an-rsum-stars { display: inline-flex; gap: 2px; color: #e0952b; font-size: 20px; }
+.an-rsum-head p { margin: 4px 0 0; font-size: 13px; }
+.an-rsum-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.an-rsum-row { display: grid; grid-template-columns: minmax(140px, 260px) 1fr auto; align-items: center; gap: 12px; font-size: 14px; }
+.an-rsum-bar { height: 10px; border-radius: 6px; background: var(--adm-surface-2, rgba(0,0,0,0.07)); overflow: hidden; }
+.an-rsum-fill { display: block; height: 100%; border-radius: 6px; background: #e0952b; }
+.an-rsum-val { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 34px; text-align: right; }
+@media (max-width: 640px) {
+    .an-rsum-row { grid-template-columns: 1fr auto; }
+    .an-rsum-bar { grid-column: 1 / -1; order: 3; }
+}
+
 /* Verlauf / Timeline */
 .an-timeline { list-style: none; margin: 0; padding: 0; }
 .an-timeline-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--adm-border); }

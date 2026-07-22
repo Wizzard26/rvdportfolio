@@ -297,3 +297,23 @@ export function getApplicationStats() {
 
     return { total, laufend, zusagen, absagen, responseRate, avgResponseDays };
 }
+
+// Auswertung aller abgegebenen Sternebewertungen (prozessunabhängig).
+export function getRatingSummary() {
+    const db = getContentDb();
+    const rows = db.prepare('SELECT * FROM shares WHERE rated_at > 0').all();
+    const count = rows.length;
+    const round1 = (n) => Math.round(n * 10) / 10;
+
+    const factors = RATING_FACTORS.map((f) => {
+        const vals = rows.map((r) => Number(r[`rating_${f.key}`]) || 0).filter((v) => v > 0);
+        const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+        return { key: f.key, label: f.label, avg: round1(avg), rated: vals.length };
+    });
+
+    // Gesamtdurchschnitt über alle vergebenen Einzelsterne.
+    const all = factors.flatMap((f) => (f.rated ? Array(f.rated).fill(f.avg) : []));
+    const overall = all.length ? round1(all.reduce((a, b) => a + b, 0) / all.length) : 0;
+
+    return { count, factors, overall };
+}
