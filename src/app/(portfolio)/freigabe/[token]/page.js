@@ -11,8 +11,8 @@ import ShareResponse from "@/components/freigabe/ShareResponse";
 import styles from "./styles.module.css";
 
 const SENT_MSG = {
-    question: 'Vielen Dank – Ihre Rückfrage ist angekommen. Wir melden uns zeitnah bei Ihnen.',
-    termin: 'Vielen Dank – Ihre Terminvorschläge sind angekommen. Wir stimmen uns ab und melden uns.',
+    question: 'Vielen Dank – Ihre Rückfrage ist angekommen. Ich melde mich zeitnah bei Ihnen.',
+    termin: 'Vielen Dank – Ihre Terminvorschläge sind angekommen. Ich melde mich zur Abstimmung bei Ihnen.',
 };
 
 export const dynamic = 'force-dynamic';

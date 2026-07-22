@@ -31,7 +31,7 @@ export default function ShareResponse({ token }) {
                 <form action={submitQuestionAction} className={styles.responseForm}>
                     <input type="hidden" name="token" value={token} />
                     <label>Ihre Rückfrage oder Nachricht
-                        <textarea name="message" rows={5} required placeholder="Was möchten Sie noch wissen? Oder z. B.: Wir melden uns zeitnah bei Ihnen." /></label>
+                        <textarea name="message" rows={5} required placeholder="Ihre Frage oder eine kurze Rückmeldung …" /></label>
                     <button type="submit" className={styles.submitBtn}>Absenden</button>
                 </form>
             )}
@@ -39,7 +39,7 @@ export default function ShareResponse({ token }) {
             {open === 'termin' && (
                 <form action={submitAppointmentAction} className={styles.responseForm}>
                     <input type="hidden" name="token" value={token} />
-                    <p className={styles.responseHint}>Schlagen Sie bis zu 4 mögliche Termine vor – wir stimmen uns dann auf einen ab.</p>
+                    <p className={styles.responseHint}>Schlagen Sie bis zu 4 mögliche Termine vor – ich melde mich dann zur Abstimmung bei Ihnen.</p>
                     <div className={styles.slots}>
                         {[1, 2, 3, 4].map((i) => (
                             <label key={i}>Vorschlag {i}
