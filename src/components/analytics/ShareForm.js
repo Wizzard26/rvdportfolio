@@ -74,6 +74,12 @@ export default function ShareForm({ action, share, documents = [] }) {
                     <label className="an-field"><span>Ort</span>
                         <input name="city" defaultValue={v.city || ''} placeholder="Musterstadt" /></label>
                 </div>
+                <div className="an-field-row">
+                    <label className="an-field"><span>E-Mail <span className="an-muted">(Absender der Benachrichtigungen)</span></span>
+                        <input type="email" name="email" defaultValue={v.email || ''} placeholder="kontakt@musterfirma.de" /></label>
+                    <label className="an-field"><span>Web-Adresse</span>
+                        <input name="website" defaultValue={v.website || ''} placeholder="musterfirma.de" /></label>
+                </div>
                 <label className="an-field"><span>Stelle / Position</span>
                     <input name="position" defaultValue={v.position || ''} placeholder="Web-Developer (m/w/d)" /></label>
             </fieldset>
