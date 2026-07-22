@@ -139,6 +139,11 @@ export default function ShareForm({ action, share, documents = [] }) {
                 <span className="an-card-note">Ist ein Code gesetzt, muss der Empfänger ihn eingeben, bevor die Dokumente erscheinen.</span>
             </label>
 
+            <label className="an-field">
+                <span>Antwort / Nachricht an den Arbeitgeber <span className="an-muted">(erscheint auf der Freigabe-Seite)</span></span>
+                <textarea name="owner_reply" rows={3} defaultValue={v.owner_reply || ''} placeholder="z. B. Antwort auf eine Rückfrage …" />
+            </label>
+
             <label className="an-field"><span>Interne Notizen (nur im Admin)</span>
                 <textarea name="notes" rows={3} defaultValue={v.notes || ''} placeholder="z. B. Recruiter angerufen, …" /></label>
 

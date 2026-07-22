@@ -68,6 +68,7 @@ function fields(data) {
         rejection_reason: (data.rejection_reason || '').trim(),
         followup_at: (data.followup_at || '').trim(),
         notes: (data.notes || '').trim(),
+        owner_reply: (data.owner_reply || '').trim(),
         is_active: data.is_active ? 1 : 0,
         now: Date.now(),
     };
@@ -77,7 +78,7 @@ const COLS = `title=@title, message=@message, purpose=@purpose, company=@company
     zip=@zip, city=@city, contact=@contact, position=@position, access_code=@access_code,
     sent_at=@sent_at, expires_at=@expires_at, status=@status, interview_at=@interview_at,
     interview_contact=@interview_contact, interview_people=@interview_people, decision_date=@decision_date,
-    rejection_reason=@rejection_reason, followup_at=@followup_at, notes=@notes,
+    rejection_reason=@rejection_reason, followup_at=@followup_at, notes=@notes, owner_reply=@owner_reply,
     is_active=@is_active, updated_at=@now`;
 
 export function createShare(data) {
@@ -99,11 +100,13 @@ export function updateShare(id, data) {
     const db = getContentDb();
     const before = db.prepare('SELECT status, sent_at FROM shares WHERE id = ?').get(id);
     const f = fields(data);
+    const beforeReply = db.prepare('SELECT owner_reply FROM shares WHERE id = ?').get(id);
     db.prepare(`UPDATE shares SET ${COLS} WHERE id=@id`).run({ id, ...f });
     setItems(db, id, data.documentIds);
-    // Verlauf: Statuswechsel und erstmaliges Zustelldatum protokollieren.
+    // Verlauf: Statuswechsel, erstmaliges Zustelldatum, neue Antwort protokollieren.
     if (before && before.status !== f.status) logEvent(db, id, 'status', f.status);
     if (f.sent_at && (!before || !before.sent_at)) logEvent(db, id, 'sent', f.sent_at);
+    if (f.owner_reply && (!beforeReply || beforeReply.owner_reply !== f.owner_reply)) logEvent(db, id, 'reply', '');
 }
 
 export function setShareActive(id, active) {
@@ -192,19 +195,33 @@ export function addAppointment(shareId, slots, message) {
     logEvent(db, shareId, 'appointment', detail);
 }
 
-// Arbeitgeber sagt ab (schließt den Prozess) — mit Feedback + Sternen.
+// Arbeitgeber sagt ab (schließt den Prozess) — mit Feedback + 7 Sternen.
 export function submitRejection(shareId, data) {
     const db = getContentDb();
     const clamp = (n) => Math.max(0, Math.min(5, Number(n) || 0));
     db.prepare(`UPDATE shares SET status='absage', employer_closed=1, feedback_at=@now,
-        feedback_reason=@reason, rating_quality=@quality, rating_fit=@fit, rating_overall=@overall, updated_at=@now
-        WHERE id=@id`).run({
+        feedback_reason=@reason, rating_quality=@quality, rating_fit=@fit, rating_experience=@experience,
+        rating_relevance=@relevance, rating_manner=@manner, rating_culture=@culture, rating_overall=@overall,
+        updated_at=@now WHERE id=@id`).run({
         id: shareId, now: Date.now(),
         reason: (data.reason || '').toString().slice(0, 4000),
-        quality: clamp(data.quality), fit: clamp(data.fit), overall: clamp(data.overall),
+        quality: clamp(data.quality), fit: clamp(data.fit), experience: clamp(data.experience),
+        relevance: clamp(data.relevance), manner: clamp(data.manner), culture: clamp(data.culture),
+        overall: clamp(data.overall),
     });
     logEvent(db, shareId, 'status', 'absage');
     logEvent(db, shareId, 'rejection', (data.reason || '').toString().slice(0, 200));
+}
+
+// Admin bestätigt einen vorgeschlagenen Termin → wird zum Gesprächstermin.
+export function confirmSlot(shareId, slot) {
+    const db = getContentDb();
+    const s = (slot || '').toString().trim();
+    if (!s) return;
+    db.prepare(`UPDATE shares SET confirmed_slot=@slot, interview_at=@slot, status='gespraech', updated_at=@now WHERE id=@id`)
+        .run({ id: shareId, slot: s, now: Date.now() });
+    logEvent(db, shareId, 'slot_confirmed', s);
+    logEvent(db, shareId, 'status', 'gespraech');
 }
 
 export function getShareEvents(shareId) {

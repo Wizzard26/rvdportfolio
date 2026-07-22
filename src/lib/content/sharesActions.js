@@ -5,10 +5,11 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import {
     createShare, updateShare, deleteShare, setShareActive, getShareByToken, getShareRawByToken,
-    normalizeCode, shareCookieName, getShareForResponse, addQuestion, addAppointment, submitRejection,
+    normalizeCode, shareCookieName, getShareForResponse, addQuestion, addAppointment, submitRejection, confirmSlot,
 } from '@/lib/content/sharesStore';
 import { sendOwnerMail } from '@/lib/mail';
 import { siteConfig } from '@/lib/seo';
+import { RATING_FACTORS } from '@/lib/applicationStatus';
 
 // Server Actions für die Freigaben (Dokument-Sammlungen mit geheimem Link).
 
@@ -40,6 +41,7 @@ function parse(formData) {
         rejection_reason: g('rejection_reason'),
         followup_at: g('followup_at'),
         notes: g('notes'),
+        owner_reply: g('owner_reply'),
         is_active: formData.get('is_active') ? 1 : 0,
         documentIds: formData.getAll('document_ids').map((v) => Number(v)).filter(Boolean),
     };
@@ -134,19 +136,22 @@ export async function submitRejectionAction(formData) {
     const token = (formData.get('token') || '').toString();
     const share = getShareForResponse(token);
     if (!share) redirect(`/freigabe/${token}`);
-    const data = {
-        reason: (formData.get('reason') || '').toString().trim(),
-        quality: formData.get('rating_quality'),
-        fit: formData.get('rating_fit'),
-        overall: formData.get('rating_overall'),
-    };
+    const data = { reason: (formData.get('reason') || '').toString().trim() };
+    RATING_FACTORS.forEach((f) => { data[f.key] = formData.get(`rating_${f.key}`); });
     submitRejection(share.id, data);
     revalidate();
     const stars = (n) => '★'.repeat(Number(n) || 0) + '☆'.repeat(5 - (Number(n) || 0));
+    const ratingRows = RATING_FACTORS.map((f) => `${esc(f.label)}: ${stars(data[f.key])}`).join('<br>');
     await notify(share, 'Absage', `
         <p>${data.reason ? esc(data.reason).replace(/\n/g, '<br>') : '(kein Grund angegeben)'}</p>
-        <p>Unterlagen: ${stars(data.quality)} · Passung: ${stars(data.fit)} · Gesamt: ${stars(data.overall)}</p>`);
+        <p>${ratingRows}</p>`);
     redirect(`/freigabe/${token}?sent=absage`);
+}
+
+// Admin bestätigt einen vom Arbeitgeber vorgeschlagenen Termin.
+export async function confirmSlotAction(formData) {
+    confirmSlot(Number(formData.get('id')), (formData.get('slot') || '').toString());
+    revalidate();
 }
 
 // „Alles heruntergeladen": schließt den Zugang (Freigabe wird deaktiviert, Link

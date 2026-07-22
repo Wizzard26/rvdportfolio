@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FiMessageSquare, FiCalendar, FiXCircle } from 'react-icons/fi';
 import { submitQuestionAction, submitAppointmentAction, submitRejectionAction } from '@/lib/content/sharesActions';
+import { RATING_FACTORS } from '@/lib/applicationStatus';
 import StarRating from './StarRating';
 import styles from './response.module.css';
 
@@ -61,9 +62,10 @@ export default function ShareResponse({ token }) {
                     </p>
                     <label>Woran lag es? (optional)
                         <textarea name="reason" rows={4} placeholder="Kurzes Feedback zur Absage …" /></label>
-                    <StarRating name="rating_quality" label="Qualität der Unterlagen" />
-                    <StarRating name="rating_fit" label="Fachliche Passung" />
-                    <StarRating name="rating_overall" label="Gesamteindruck" />
+                    <p className={styles.responseHint}>Bewertung (optional) – hilft mir sehr weiter:</p>
+                    {RATING_FACTORS.map((f) => (
+                        <StarRating key={f.key} name={`rating_${f.key}`} label={f.label} />
+                    ))}
                     <button type="submit" className={styles.rejectSubmit}>Absage absenden</button>
                     <p className={styles.responseNote}>Erst mit dem Absenden wird der Vorgang geschlossen.</p>
                 </form>

@@ -15,6 +15,13 @@ const SENT_MSG = {
     termin: 'Vielen Dank – Ihre Terminvorschläge sind angekommen. Ich melde mich zur Abstimmung bei Ihnen.',
 };
 
+function fmtSlot(s) {
+    if (!s) return s;
+    const [d, t] = s.split('T');
+    const [y, mo, day] = (d || '').split('-');
+    return day ? `${day}.${mo}.${y}${t ? ` · ${t} Uhr` : ''}` : s;
+}
+
 export const dynamic = 'force-dynamic';
 
 // Privater, per Link geteilter Bereich → nicht indexieren.
@@ -62,6 +69,18 @@ function ShareView({ share, sent }) {
                         {share.company && <p className={styles.forWhom}>Zusammengestellt für {share.company}</p>}
                         {share.message && <p className={styles.message}>{share.message}</p>}
                     </header>
+
+                    {share.confirmed_slot && (
+                        <p className={styles.confirmedSlot}>
+                            <FiCheckCircle aria-hidden="true" /> Bestätigter Termin: {fmtSlot(share.confirmed_slot)}
+                        </p>
+                    )}
+                    {share.owner_reply && (
+                        <div className={styles.ownerReply}>
+                            <strong>Nachricht von René van Dinter</strong>
+                            <p>{share.owner_reply}</p>
+                        </div>
+                    )}
 
                     {share.documents.length === 0 ? (
                         <p>Für diese Freigabe sind derzeit keine Dokumente hinterlegt.</p>

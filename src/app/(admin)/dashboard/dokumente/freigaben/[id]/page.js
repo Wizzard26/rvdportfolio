@@ -27,16 +27,20 @@ export default async function EditShare({ params }) {
                     <ShareLink path={`/freigabe/${share.token}`} />
                 </div>
             </div>
-            <ShareReactions share={share} />
-
-            <section className="an-card an-card-form">
-                <ShareForm action={updateShareAction} share={share} documents={documents} />
-            </section>
-
-            <section className="an-card">
-                <h2 className="an-catgroup-title">Verlauf</h2>
-                <ShareTimeline events={events} />
-            </section>
+            <div className="an-edit-grid">
+                <div className="an-edit-main">
+                    <ShareReactions share={share} />
+                    <section className="an-card an-card-form">
+                        <ShareForm action={updateShareAction} share={share} documents={documents} />
+                    </section>
+                </div>
+                <aside className="an-edit-side">
+                    <section className="an-card">
+                        <h2 className="an-catgroup-title">Verlauf</h2>
+                        <ShareTimeline events={events} />
+                    </section>
+                </aside>
+            </div>
         </div>
     );
 }
