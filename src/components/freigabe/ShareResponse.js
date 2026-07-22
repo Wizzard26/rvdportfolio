@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { FiCalendar, FiXCircle, FiCheckCircle, FiMessageCircle } from 'react-icons/fi';
-import { submitQuestionAction, submitAppointmentAction, submitRejectionAction } from '@/lib/content/sharesActions';
+import { FiCalendar, FiXCircle, FiCheckCircle, FiMessageCircle, FiStar } from 'react-icons/fi';
+import { submitQuestionAction, submitAppointmentAction, submitRejectionAction, submitRatingAction } from '@/lib/content/sharesActions';
 import { RATING_FACTORS } from '@/lib/applicationStatus';
 import ShareConversation from './ShareConversation';
 import StarRating from './StarRating';
@@ -15,8 +15,8 @@ function fmtSlot(s) {
     return day ? `${day}.${mo}.${y}${t ? ` · ${t} Uhr` : ''}` : s;
 }
 
-// Rechte Spalte der Freigabe-Seite: Gespräch (Chat), Termine, Absage.
-export default function ShareResponse({ token, conversation = [], confirmedSlot }) {
+// Rechte Spalte der Freigabe-Seite: Rückfragen (Chat), Termine, Bewertung, Absage.
+export default function ShareResponse({ token, conversation = [], confirmedSlot, rated = false }) {
     const [open, setOpen] = useState(null);
     const toggle = (k) => setOpen(open === k ? null : k);
 
@@ -70,15 +70,40 @@ export default function ShareResponse({ token, conversation = [], confirmedSlot 
             </section>
 
             <section className={styles.panel}>
+                <h2 className={styles.panelTitle}><FiStar aria-hidden="true" /> Bewertung</h2>
+                {rated ? (
+                    <p className={styles.confirmed}><FiCheckCircle aria-hidden="true" /> Vielen Dank für Ihre Bewertung!</p>
+                ) : open === 'bewertung' ? (
+                    <form action={submitRatingAction} className={styles.miniForm}>
+                        <input type="hidden" name="token" value={token} />
+                        <p className={styles.hint}>Ihre Einschätzung hilft mir sehr weiter – ganz unabhängig vom Ausgang. Sie können jederzeit bewerten.</p>
+                        {RATING_FACTORS.map((f) => <StarRating key={f.key} name={`rating_${f.key}`} label={f.label} />)}
+                        <div className={styles.miniActions}>
+                            <button type="submit" className={styles.primary}>Bewertung senden</button>
+                            <button type="button" className={styles.ghost} onClick={() => setOpen(null)}>Abbrechen</button>
+                        </div>
+                    </form>
+                ) : (
+                    <button type="button" className={styles.blockBtn} onClick={() => toggle('bewertung')}>
+                        <FiStar aria-hidden="true" /> Jetzt bewerten
+                    </button>
+                )}
+            </section>
+
+            <section className={styles.panel}>
                 {open === 'absage' ? (
                     <form action={submitRejectionAction} className={styles.miniForm}>
                         <input type="hidden" name="token" value={token} />
                         <h2 className={styles.panelTitle}><FiXCircle aria-hidden="true" /> Absage</h2>
-                        <p className={styles.leadText}>Schade, dass es diesmal nicht gepasst hat. Für meine persönliche Weiterentwicklung würde mich sehr interessieren, woran es letztlich gelegen hat – über ein paar ehrliche Zeilen und eine kurze Bewertung freue ich mich sehr.</p>
+                        <p className={styles.leadText}>Schade, dass es diesmal nicht gepasst hat. Für meine persönliche Weiterentwicklung würde mich sehr interessieren, woran es letztlich gelegen hat – über ein paar ehrliche Zeilen{rated ? '' : ' und eine kurze Bewertung'} freue ich mich sehr.</p>
                         <p className={styles.hint}>Falls Sie es sich anders überlegen, schreiben Sie stattdessen im Gespräch – dann bleibt der Prozess offen.</p>
                         <textarea name="reason" rows={3} placeholder="Woran lag es? (optional)" />
-                        <p className={styles.hint}>Bewertung (optional) – hilft mir sehr weiter:</p>
-                        {RATING_FACTORS.map((f) => <StarRating key={f.key} name={`rating_${f.key}`} label={f.label} />)}
+                        {!rated && (
+                            <>
+                                <p className={styles.hint}>Bewertung (optional) – hilft mir sehr weiter:</p>
+                                {RATING_FACTORS.map((f) => <StarRating key={f.key} name={`rating_${f.key}`} label={f.label} />)}
+                            </>
+                        )}
                         <div className={styles.miniActions}>
                             <button type="submit" className={styles.reject}>Absage absenden</button>
                             <button type="button" className={styles.ghost} onClick={() => setOpen(null)}>Abbrechen</button>

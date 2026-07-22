@@ -6,13 +6,13 @@ import { roboto_condensed } from "@/app/fonts";
 import { getShareByToken, getShareRawByToken, shareCookieName, recordView, getConversation } from "@/lib/content/sharesStore";
 import { unlockShareAction } from "@/lib/content/sharesActions";
 import { SESSION_COOKIE } from "@/lib/auth";
-import CloseShareButton from "@/components/analytics/CloseShareButton";
 import ShareResponse from "@/components/freigabe/ShareResponse";
 import styles from "./styles.module.css";
 
 const SENT_MSG = {
     question: 'Vielen Dank – Ihre Rückfrage ist angekommen. Ich melde mich zeitnah bei Ihnen.',
     termin: 'Vielen Dank – Ihre Terminvorschläge sind angekommen. Ich melde mich zur Abstimmung bei Ihnen.',
+    bewertung: 'Vielen Dank für Ihre Bewertung – das hilft mir sehr weiter!',
 };
 
 export const dynamic = 'force-dynamic';
@@ -48,7 +48,7 @@ function GateView({ token, title, error }) {
     );
 }
 
-function ShareView({ share, sent, conversation }) {
+function ShareView({ share, sent, conversation, rated }) {
     const many = share.documents.length > 1;
     return (
         <main className="main-content">
@@ -84,13 +84,7 @@ function ShareView({ share, sent, conversation }) {
                                             <a href={`/freigabe/${share.token}/download`} className={styles.allBtn}>
                                                 <FiArchive aria-hidden="true" /> Alle Unterlagen herunterladen (ZIP)
                                             </a>
-                                            <CloseShareButton token={share.token} className={styles.closeBtn} />
                                         </div>
-                                    )}
-                                    {many && (
-                                        <p className={styles.actionsNote}>
-                                            Hinweis: „Alles heruntergeladen" schließt diesen Zugang – der Link ist danach nicht mehr gültig.
-                                        </p>
                                     )}
                                 </>
                             )}
@@ -99,7 +93,7 @@ function ShareView({ share, sent, conversation }) {
                         </div>
 
                         <div className={styles.shareSide}>
-                            <ShareResponse token={share.token} conversation={conversation} confirmedSlot={share.confirmed_slot} />
+                            <ShareResponse token={share.token} conversation={conversation} confirmedSlot={share.confirmed_slot} rated={rated} />
                         </div>
                     </div>
                 </div>
@@ -167,5 +161,5 @@ export default async function SharePage({ params, searchParams }) {
     if (!isOwner) recordView(share.id);
 
     const conversation = getConversation(share.id);
-    return <ShareView share={share} sent={sp?.sent} conversation={conversation} />;
+    return <ShareView share={share} sent={sp?.sent} conversation={conversation} rated={share.rated_at > 0} />;
 }

@@ -212,15 +212,31 @@ export function addAppointment(shareId, slots, extra = {}) {
     logEvent(db, shareId, 'appointment', detail);
 }
 
-// Arbeitgeber sagt ab (schließt den Prozess) — mit Feedback + Sternen.
-export function submitRejection(shareId, data) {
+// Ob für die Freigabe bereits eine Sternebewertung vorliegt.
+function isRated(db, shareId) {
+    const row = db.prepare('SELECT rated_at FROM shares WHERE id = ?').get(shareId);
+    return !!(row && row.rated_at > 0);
+}
+
+// Arbeitgeber gibt (prozessunabhängig) eine Sternebewertung ab.
+export function submitRating(shareId, data) {
     const db = getContentDb();
     const clamp = (n) => Math.max(0, Math.min(5, Number(n) || 0));
     const setCols = RATING_FACTORS.map((f) => `rating_${f.key}=@r_${f.key}`).join(', ');
-    const params = { id: shareId, now: Date.now(), reason: (data.reason || '').toString().slice(0, 4000) };
+    const params = { id: shareId, now: Date.now() };
     RATING_FACTORS.forEach((f) => { params[`r_${f.key}`] = clamp(data[f.key]); });
+    db.prepare(`UPDATE shares SET ${setCols}, rated_at=@now, updated_at=@now WHERE id=@id`).run(params);
+    logEvent(db, shareId, 'rating', RATING_FACTORS.map((f) => clamp(data[f.key])).join('/'));
+}
+
+// Arbeitgeber sagt ab (schließt den Prozess). Wurde noch nicht bewertet, werden
+// die mit dem Formular übergebenen Sterne mit erfasst; sonst bleiben sie erhalten.
+export function submitRejection(shareId, data) {
+    const db = getContentDb();
+    if (!isRated(db, shareId)) submitRating(shareId, data);
     db.prepare(`UPDATE shares SET status='absage', employer_closed=1, feedback_at=@now,
-        feedback_reason=@reason, ${setCols}, updated_at=@now WHERE id=@id`).run(params);
+        feedback_reason=@reason, updated_at=@now WHERE id=@id`)
+        .run({ id: shareId, now: Date.now(), reason: (data.reason || '').toString().slice(0, 4000) });
     logEvent(db, shareId, 'status', 'absage');
     logEvent(db, shareId, 'rejection', (data.reason || '').toString().slice(0, 200));
 }

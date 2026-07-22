@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 import {
     createShare, updateShare, deleteShare, setShareActive, getShareByToken, getShareRawByToken,
     normalizeCode, shareCookieName, getShareForResponse, addQuestion, addAppointment, submitRejection, confirmSlot,
-    addOwnerMessage,
+    addOwnerMessage, submitRating,
 } from '@/lib/content/sharesStore';
 import { sendOwnerMail } from '@/lib/mail';
 import { siteConfig } from '@/lib/seo';
@@ -137,6 +137,20 @@ export async function submitAppointmentAction(formData) {
     ].filter(Boolean).join('');
     await notify(share, 'Terminvorschlag', `<ul>${list}</ul>${rows}`);
     redirect(`/freigabe/${token}?sent=termin`);
+}
+
+export async function submitRatingAction(formData) {
+    const token = (formData.get('token') || '').toString();
+    const share = getShareForResponse(token);
+    if (!share) redirect(`/freigabe/${token}`);
+    const data = {};
+    RATING_FACTORS.forEach((f) => { data[f.key] = formData.get(`rating_${f.key}`); });
+    submitRating(share.id, data);
+    revalidate();
+    const stars = (n) => '★'.repeat(Number(n) || 0) + '☆'.repeat(5 - (Number(n) || 0));
+    const rows = RATING_FACTORS.map((f) => `${esc(f.label)}: ${stars(data[f.key])}`).join('<br>');
+    await notify(share, 'Bewertung', `<p>${rows}</p>`);
+    redirect(`/freigabe/${token}?sent=bewertung`);
 }
 
 export async function submitRejectionAction(formData) {

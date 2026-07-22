@@ -206,6 +206,8 @@ function migrate(database) {
     ensureColumn(database, 'shares', 'proposed_message', "TEXT NOT NULL DEFAULT ''");
     // „Wie wurde der Bewerbungsprozess wahrgenommen?" (ersetzt Team-/Kultur-Passung).
     ensureColumn(database, 'shares', 'rating_process', 'INTEGER NOT NULL DEFAULT 0');
+    // Zeitpunkt einer (auch prozessunabhängig) abgegebenen Sternebewertung.
+    ensureColumn(database, 'shares', 'rated_at', 'INTEGER NOT NULL DEFAULT 0');
     // Bestehende Freigaben ohne Erstelldatum auf updated_at setzen (idempotent).
     database.prepare('UPDATE shares SET created_at = updated_at WHERE created_at = 0').run();
 }

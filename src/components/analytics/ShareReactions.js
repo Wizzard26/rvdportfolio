@@ -17,8 +17,9 @@ function fmtSlot(s) {
 export default function ShareReactions({ share }) {
     let slots = [];
     try { slots = JSON.parse(share.proposed_slots || '[]'); } catch { slots = []; }
-    const hasFeedback = share.feedback_at > 0;
-    if (slots.length === 0 && !hasFeedback) return null;
+    const hasRating = share.rated_at > 0 || share.feedback_at > 0;
+    const hasRejection = share.feedback_at > 0;
+    if (slots.length === 0 && !hasRating && !hasRejection) return null;
 
     return (
         <section className="an-card an-reactions">
@@ -57,15 +58,21 @@ export default function ShareReactions({ share }) {
                 </div>
             )}
 
-            {hasFeedback && (
+            {hasRating && (
                 <div className="an-reaction-block">
-                    <h3>Feedback zur Absage</h3>
-                    {share.feedback_reason ? <p className="an-reaction-reason">{share.feedback_reason}</p> : <p className="an-muted">Kein Text angegeben.</p>}
+                    <h3>Bewertung</h3>
                     <ul className="an-ratings">
                         {RATING_FACTORS.map((f) => (
                             <li key={f.key}>{f.label} <span className="an-stars">{stars(share[`rating_${f.key}`])}</span></li>
                         ))}
                     </ul>
+                </div>
+            )}
+
+            {hasRejection && (
+                <div className="an-reaction-block">
+                    <h3>Absage</h3>
+                    {share.feedback_reason ? <p className="an-reaction-reason">{share.feedback_reason}</p> : <p className="an-muted">Kein Text angegeben.</p>}
                 </div>
             )}
         </section>
