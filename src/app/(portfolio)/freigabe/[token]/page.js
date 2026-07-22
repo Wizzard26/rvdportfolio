@@ -7,7 +7,13 @@ import { getShareByToken, getShareRawByToken, shareCookieName, recordView } from
 import { unlockShareAction } from "@/lib/content/sharesActions";
 import { SESSION_COOKIE } from "@/lib/auth";
 import CloseShareButton from "@/components/analytics/CloseShareButton";
+import ShareResponse from "@/components/freigabe/ShareResponse";
 import styles from "./styles.module.css";
+
+const SENT_MSG = {
+    question: 'Vielen Dank – Ihre Rückfrage ist angekommen. Wir melden uns zeitnah bei Ihnen.',
+    termin: 'Vielen Dank – Ihre Terminvorschläge sind angekommen. Wir stimmen uns ab und melden uns.',
+};
 
 export const dynamic = 'force-dynamic';
 
@@ -42,12 +48,15 @@ function GateView({ token, title, error }) {
     );
 }
 
-function ShareView({ share }) {
+function ShareView({ share, sent }) {
     const many = share.documents.length > 1;
     return (
         <main className="main-content">
             <section>
                 <div className="content-inner">
+                    {SENT_MSG[sent] && (
+                        <p className={styles.sentBanner}><FiCheckCircle aria-hidden="true" /> {SENT_MSG[sent]}</p>
+                    )}
                     <header className={styles.teaser}>
                         <h1 className={roboto_condensed.className}>{share.title || 'Freigegebene Dokumente'}</h1>
                         {share.company && <p className={styles.forWhom}>Zusammengestellt für {share.company}</p>}
@@ -84,7 +93,26 @@ function ShareView({ share }) {
                         </>
                     )}
 
+                    <ShareResponse token={share.token} />
+
                     <p className={styles.note}>Diese Dokumente wurden privat über einen persönlichen Link mit Ihnen geteilt.</p>
+                </div>
+            </section>
+        </main>
+    );
+}
+
+// Nach einer Absage durch den Arbeitgeber.
+function RejectedView() {
+    return (
+        <main className="main-content">
+            <section>
+                <div className="content-inner">
+                    <div className={styles.gate}>
+                        <FiCheckCircle aria-hidden="true" className={styles.gateIcon} />
+                        <h1 className={roboto_condensed.className}>Vielen Dank für Ihre Rückmeldung</h1>
+                        <p>Der Vorgang ist damit abgeschlossen. Vielen Dank für Ihr ehrliches Feedback – das hilft mir sehr weiter.</p>
+                    </div>
                 </div>
             </section>
         </main>
@@ -127,7 +155,10 @@ export default async function SharePage({ params, searchParams }) {
         }
     }
 
+    // Hat der Arbeitgeber selbst abgesagt? → Vorgang abgeschlossen.
+    if (share.employer_closed) return <RejectedView />;
+
     if (!isOwner) recordView(share.id);
 
-    return <ShareView share={share} />;
+    return <ShareView share={share} sent={sp?.sent} />;
 }

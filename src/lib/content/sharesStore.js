@@ -168,6 +168,45 @@ export function recordDownload(shareId, detail = '') {
     logEvent(getContentDb(), shareId, 'download', detail);
 }
 
+// Freigabe für eine öffentliche Reaktion (aktiv + nicht abgelaufen).
+export function getShareForResponse(token) {
+    const share = getShareRawByToken(token);
+    if (!share || !share.is_active || isExpired(share)) return null;
+    return share;
+}
+
+// Arbeitgeber stellt eine Rückfrage.
+export function addQuestion(shareId, message) {
+    const db = getContentDb();
+    logEvent(db, shareId, 'question', (message || '').toString().slice(0, 4000));
+    db.prepare('UPDATE shares SET updated_at = ? WHERE id = ?').run(Date.now(), shareId);
+}
+
+// Arbeitgeber schlägt bis zu 4 Termine vor (+ optionale Nachricht).
+export function addAppointment(shareId, slots, message) {
+    const db = getContentDb();
+    const clean = (slots || []).map((s) => (s || '').toString().trim()).filter(Boolean).slice(0, 4);
+    db.prepare('UPDATE shares SET proposed_slots = ?, updated_at = ? WHERE id = ?')
+        .run(JSON.stringify(clean), Date.now(), shareId);
+    const detail = clean.length + ' Termin(e)' + (message ? ' · ' + message.toString().slice(0, 2000) : '');
+    logEvent(db, shareId, 'appointment', detail);
+}
+
+// Arbeitgeber sagt ab (schließt den Prozess) — mit Feedback + Sternen.
+export function submitRejection(shareId, data) {
+    const db = getContentDb();
+    const clamp = (n) => Math.max(0, Math.min(5, Number(n) || 0));
+    db.prepare(`UPDATE shares SET status='absage', employer_closed=1, feedback_at=@now,
+        feedback_reason=@reason, rating_quality=@quality, rating_fit=@fit, rating_overall=@overall, updated_at=@now
+        WHERE id=@id`).run({
+        id: shareId, now: Date.now(),
+        reason: (data.reason || '').toString().slice(0, 4000),
+        quality: clamp(data.quality), fit: clamp(data.fit), overall: clamp(data.overall),
+    });
+    logEvent(db, shareId, 'status', 'absage');
+    logEvent(db, shareId, 'rejection', (data.reason || '').toString().slice(0, 200));
+}
+
 export function getShareEvents(shareId) {
     return getContentDb().prepare('SELECT kind, detail, at FROM share_events WHERE share_id = ? ORDER BY at ASC, id ASC').all(shareId);
 }
@@ -180,16 +219,19 @@ export function getApplications() {
             (SELECT COUNT(*) FROM share_events e WHERE e.share_id = s.id AND e.kind='view') AS view_count,
             (SELECT MAX(at) FROM share_events e WHERE e.share_id = s.id AND e.kind='view') AS last_view,
             (SELECT COUNT(*) FROM share_events e WHERE e.share_id = s.id AND e.kind='download') AS download_count,
-            (SELECT MAX(at) FROM share_events e WHERE e.share_id = s.id AND e.kind='download') AS last_download
+            (SELECT MAX(at) FROM share_events e WHERE e.share_id = s.id AND e.kind='download') AS last_download,
+            (SELECT COUNT(*) FROM share_events e WHERE e.share_id = s.id AND e.kind IN ('question','appointment')) AS response_count,
+            (SELECT MAX(at) FROM share_events e WHERE e.share_id = s.id AND e.kind IN ('question','appointment')) AS last_response
         FROM shares s
         WHERE s.purpose IN ('bewerbung', 'initiativ')
         ORDER BY s.created_at DESC, s.id DESC
     `).all();
-    return rows.map((s) => ({
-        ...s,
-        expired: isExpired(s),
-        running: !!s.is_active && !isExpired(s) && RUNNING_STATUS.includes(s.status || 'offen'),
-    }));
+    return rows.map((s) => {
+        const running = !!s.is_active && !isExpired(s) && RUNNING_STATUS.includes(s.status || 'offen');
+        // „engaged": Arbeitgeber hat reagiert oder der Status ist über „offen" hinaus.
+        const engaged = s.response_count > 0 || !!s.interview_at || (s.status && s.status !== 'offen');
+        return { ...s, expired: isExpired(s), running, engaged };
+    });
 }
 
 // Kennzahlen für die Übersicht.

@@ -1,0 +1,50 @@
+.response {
+    margin-top: 40px;
+    padding-top: 26px;
+    border-top: 1px solid var(--dark-light);
+    max-width: 720px;
+}
+.responseTitle { margin-top: 0; }
+
+.responseTabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 4px; }
+.rtab {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 16px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--primary); background: transparent; color: var(--primary);
+    font-weight: 600; font-size: 0.95rem; transition: background .15s ease, color .15s ease;
+}
+.rtab:hover, .rtabActive { background: var(--primary); color: #fff; }
+.rtabReject { border-color: #d64545; color: #d64545; }
+.rtabReject:hover, .rtabReject.rtabActive { background: #d64545; color: #fff; }
+
+.responseForm { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+.responseForm label { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; color: var(--dark-6); }
+.responseForm textarea, .responseForm input[type="datetime-local"] {
+    padding: 10px 12px; border: 1px solid var(--dark-light); border-radius: 8px;
+    font-size: 1rem; font-family: inherit; color: var(--dark); background: #fff;
+}
+.responseForm textarea { resize: vertical; }
+.responseHint { color: var(--dark-6); font-size: 0.92rem; margin: 0; }
+.responseNote { color: var(--dark-6); font-size: 0.82rem; margin: -4px 0 0; }
+
+.slots { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+.submitBtn, .rejectSubmit {
+    align-self: flex-start; padding: 11px 20px; border: 0; border-radius: 8px;
+    color: #fff; font-weight: 600; cursor: pointer;
+}
+.submitBtn { background: var(--primary); }
+.submitBtn:hover { background: var(--primary-dark); }
+.rejectSubmit { background: #d64545; }
+.rejectSubmit:hover { background: #b83a3a; }
+
+/* Sterne */
+.rating { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ratingLabel { font-size: 0.9rem; color: var(--dark-6); min-width: 180px; }
+.stars { display: inline-flex; gap: 2px; }
+.star { background: transparent; border: 0; cursor: pointer; padding: 2px; color: #e0952b; font-size: 22px; line-height: 1; display: inline-flex; }
+
+@media (max-width: 575px) {
+    .slots { grid-template-columns: 1fr; }
+    .ratingLabel { min-width: 0; }
+}

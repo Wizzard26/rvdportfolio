@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FiEdit2, FiEye, FiDownload, FiClock, FiExternalLink } from 'react-icons/fi';
+import { FiEdit2, FiEye, FiDownload, FiClock, FiExternalLink, FiMessageCircle } from 'react-icons/fi';
 import { getApplications, getApplicationStats } from '@/lib/content/sharesStore';
 import { STATUS_LABELS, STATUS_TONE } from '@/lib/applicationStatus';
 import StatTile from '@/components/analytics/StatTile';
@@ -27,9 +27,10 @@ function badge(app) {
     return { label: STATUS_LABELS[app.status] || STATUS_LABELS.offen, tone: STATUS_TONE[app.status] || 'offen' };
 }
 
-// Ist bei laufenden Bewerbungen ein Nachfassen fällig?
+// Ist bei laufenden Bewerbungen ein Nachfassen fällig? (nicht, wenn der
+// Arbeitgeber bereits reagiert hat)
 function nachfass(app) {
-    if (!app.running) return null;
+    if (!app.running || app.engaged) return null;
     if (app.followup_at && app.followup_at <= today()) return 'Wiedervorlage fällig';
     if ((app.status || 'offen') === 'offen') {
         const d = daysSince(app.sent_at || null);
@@ -57,6 +58,7 @@ function Row({ app }) {
                 <div className="an-station-title">
                     {app.company || app.title || '(ohne Firma)'}
                     <span className={`an-appstatus an-appstatus--${b.tone}`}>{b.label}</span>
+                    {app.response_count > 0 && <span className="an-appstatus an-appstatus--info"><FiMessageCircle aria-hidden="true" /> Reaktion</span>}
                     {nf && <span className="an-nachfass"><FiClock aria-hidden="true" /> {nf}</span>}
                 </div>
                 <div className="an-station-sub">
@@ -78,8 +80,9 @@ function Row({ app }) {
 export default async function ApplicationsAdmin() {
     const apps = getApplications();
     const stats = getApplicationStats();
-    const laufend = apps.filter((a) => a.running)
+    const offen = apps.filter((a) => a.running && (a.status || 'offen') === 'offen' && !a.engaged)
         .sort((a, b) => (nachfass(b) ? 1 : 0) - (nachfass(a) ? 1 : 0)); // Nachfass-Fälle oben
+    const inProgress = apps.filter((a) => a.running && !((a.status || 'offen') === 'offen' && !a.engaged));
     const abgeschlossen = apps.filter((a) => !a.running);
 
     return (
@@ -100,9 +103,16 @@ export default async function ApplicationsAdmin() {
             </div>
 
             <section className="an-card">
-                <h2 className="an-catgroup-title">Laufend <span className="an-muted">· {laufend.length}</span></h2>
-                {laufend.length === 0 ? <p className="an-empty">Keine laufenden Bewerbungen</p> : (
-                    <ul className="an-stationlist">{laufend.map((a) => <Row key={a.id} app={a} />)}</ul>
+                <h2 className="an-catgroup-title">Offen <span className="an-muted">· {offen.length}</span></h2>
+                {offen.length === 0 ? <p className="an-empty">Nichts offen</p> : (
+                    <ul className="an-stationlist">{offen.map((a) => <Row key={a.id} app={a} />)}</ul>
+                )}
+            </section>
+
+            <section className="an-card">
+                <h2 className="an-catgroup-title">In Bearbeitung <span className="an-muted">· {inProgress.length}</span></h2>
+                {inProgress.length === 0 ? <p className="an-empty">Nichts in Bearbeitung</p> : (
+                    <ul className="an-stationlist">{inProgress.map((a) => <Row key={a.id} app={a} />)}</ul>
                 )}
             </section>
 

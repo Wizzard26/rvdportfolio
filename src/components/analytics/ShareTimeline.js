@@ -1,15 +1,18 @@
-import { FiPlusCircle, FiSend, FiEye, FiDownload, FiFlag, FiLock, FiUnlock } from 'react-icons/fi';
+import { FiPlusCircle, FiSend, FiEye, FiDownload, FiFlag, FiLock, FiUnlock, FiMessageCircle, FiCalendar, FiXCircle } from 'react-icons/fi';
 import { STATUS_LABELS } from '@/lib/applicationStatus';
 
 // Verlauf einer Freigabe/Bewerbung (aus share_events).
 const META = {
-    created:  { icon: FiPlusCircle, label: () => 'Erstellt' },
-    sent:     { icon: FiSend,       label: (d) => `Zugestellt${d ? ` (${d})` : ''}` },
-    status:   { icon: FiFlag,       label: (d) => `Status: ${STATUS_LABELS[d] || d}` },
-    view:     { icon: FiEye,        label: () => 'Vom Empfänger aufgerufen' },
-    download: { icon: FiDownload,   label: (d) => `Unterlagen heruntergeladen${d === 'zip' ? ' (ZIP)' : ''}` },
-    closed:   { icon: FiLock,       label: () => 'Zugang geschlossen' },
-    reopened: { icon: FiUnlock,     label: () => 'Wieder aktiviert' },
+    created:     { icon: FiPlusCircle,   label: () => 'Erstellt' },
+    sent:        { icon: FiSend,         label: (d) => `Zugestellt${d ? ` (${d})` : ''}` },
+    status:      { icon: FiFlag,         label: (d) => `Status: ${STATUS_LABELS[d] || d}` },
+    view:        { icon: FiEye,          label: () => 'Vom Empfänger aufgerufen' },
+    download:    { icon: FiDownload,     label: (d) => `Unterlagen heruntergeladen${d === 'zip' ? ' (ZIP)' : ''}` },
+    question:    { icon: FiMessageCircle,label: (d) => `Rückfrage: ${d || ''}` },
+    appointment: { icon: FiCalendar,     label: (d) => `Terminvorschlag: ${d || ''}` },
+    rejection:   { icon: FiXCircle,      label: (d) => `Absage${d ? `: ${d}` : ''}` },
+    closed:      { icon: FiLock,         label: () => 'Zugang geschlossen' },
+    reopened:    { icon: FiUnlock,       label: () => 'Wieder aktiviert' },
 };
 
 function fmt(ts) {

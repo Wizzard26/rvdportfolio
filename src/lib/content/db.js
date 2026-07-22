@@ -185,6 +185,14 @@ function migrate(database) {
     ensureColumn(database, 'shares', 'rejection_reason', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'shares', 'followup_at', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'shares', 'notes', "TEXT NOT NULL DEFAULT ''");
+    // Reaktionen des Arbeitgebers (Terminvorschläge, Absage-Feedback).
+    ensureColumn(database, 'shares', 'proposed_slots', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'feedback_reason', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'rating_quality', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'rating_fit', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'rating_overall', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'feedback_at', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'employer_closed', 'INTEGER NOT NULL DEFAULT 0');
     // Bestehende Freigaben ohne Erstelldatum auf updated_at setzen (idempotent).
     database.prepare('UPDATE shares SET created_at = updated_at WHERE created_at = 0').run();
 }

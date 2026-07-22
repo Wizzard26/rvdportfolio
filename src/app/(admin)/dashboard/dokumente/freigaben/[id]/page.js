@@ -7,6 +7,7 @@ import { getShare, getShareEvents } from '@/lib/content/sharesStore';
 import { getDocuments } from '@/lib/content/documentsStore';
 import ShareLink from '@/components/analytics/ShareLink';
 import ShareTimeline from '@/components/analytics/ShareTimeline';
+import ShareReactions from '@/components/analytics/ShareReactions';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,8 @@ export default async function EditShare({ params }) {
                     <ShareLink path={`/freigabe/${share.token}`} />
                 </div>
             </div>
+            <ShareReactions share={share} />
+
             <section className="an-card an-card-form">
                 <ShareForm action={updateShareAction} share={share} documents={documents} />
             </section>

@@ -392,6 +392,15 @@ body {
 .an-app-overdue { box-shadow: inset 3px 0 0 #e0952b; }
 .an-app-signal { display: inline-flex; align-items: center; gap: 4px; color: var(--adm-ink-muted, #667); }
 
+/* Arbeitgeber-Reaktionen (read-only) */
+.an-reaction-block { margin-bottom: 16px; }
+.an-reaction-block h3 { display: flex; align-items: center; gap: 6px; font-size: 15px; margin: 0 0 8px; }
+.an-slotlist { margin: 0 0 6px; padding-left: 20px; }
+.an-reaction-reason { background: var(--adm-surface-2, rgba(0,0,0,0.05)); border-radius: 8px; padding: 10px 12px; margin: 0 0 10px; white-space: pre-line; }
+.an-ratings { list-style: none; margin: 0; padding: 0; }
+.an-ratings li { display: flex; justify-content: space-between; max-width: 340px; padding: 4px 0; font-size: 14px; }
+.an-stars { color: #e0952b; letter-spacing: 2px; }
+
 /* Verlauf / Timeline */
 .an-timeline { list-style: none; margin: 0; padding: 0; }
 .an-timeline-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--adm-border); }

@@ -5,8 +5,10 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import {
     createShare, updateShare, deleteShare, setShareActive, getShareByToken, getShareRawByToken,
-    normalizeCode, shareCookieName,
+    normalizeCode, shareCookieName, getShareForResponse, addQuestion, addAppointment, submitRejection,
 } from '@/lib/content/sharesStore';
+import { sendOwnerMail } from '@/lib/mail';
+import { siteConfig } from '@/lib/seo';
 
 // Server Actions für die Freigaben (Dokument-Sammlungen mit geheimem Link).
 
@@ -85,6 +87,66 @@ export async function unlockShareAction(formData) {
         redirect(`/freigabe/${token}`);
     }
     redirect(`/freigabe/${token}?gate=1`);
+}
+
+// ---- Öffentliche Reaktionen des Arbeitgebers (per Token, kein Login) ----
+
+function esc(s) {
+    return (s || '').toString().replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+function adminLink(id) {
+    return `${siteConfig.url}/dashboard/dokumente/freigaben/${id}`;
+}
+async function notify(share, titel, bodyHtml) {
+    const wer = share.company || share.title || 'Ein Arbeitgeber';
+    await sendOwnerMail(
+        `Bewerbung: ${titel} – ${wer}`,
+        `<p><strong>${esc(wer)}</strong> hat auf „${esc(share.title)}" reagiert:</p>${bodyHtml}
+         <p><a href="${adminLink(share.id)}">Im Admin öffnen</a></p>`,
+    );
+}
+
+export async function submitQuestionAction(formData) {
+    const token = (formData.get('token') || '').toString();
+    const message = (formData.get('message') || '').toString().trim();
+    const share = getShareForResponse(token);
+    if (!share || !message) redirect(`/freigabe/${token}`);
+    addQuestion(share.id, message);
+    revalidate();
+    await notify(share, 'Rückfrage', `<blockquote>${esc(message).replace(/\n/g, '<br>')}</blockquote>`);
+    redirect(`/freigabe/${token}?sent=question`);
+}
+
+export async function submitAppointmentAction(formData) {
+    const token = (formData.get('token') || '').toString();
+    const slots = [1, 2, 3, 4].map((i) => (formData.get(`slot_${i}`) || '').toString().trim()).filter(Boolean);
+    const message = (formData.get('message') || '').toString().trim();
+    const share = getShareForResponse(token);
+    if (!share || slots.length === 0) redirect(`/freigabe/${token}`);
+    addAppointment(share.id, slots, message);
+    revalidate();
+    const list = slots.map((s) => `<li>${esc(s.replace('T', ' '))} Uhr</li>`).join('');
+    await notify(share, 'Terminvorschlag', `<ul>${list}</ul>${message ? `<blockquote>${esc(message)}</blockquote>` : ''}`);
+    redirect(`/freigabe/${token}?sent=termin`);
+}
+
+export async function submitRejectionAction(formData) {
+    const token = (formData.get('token') || '').toString();
+    const share = getShareForResponse(token);
+    if (!share) redirect(`/freigabe/${token}`);
+    const data = {
+        reason: (formData.get('reason') || '').toString().trim(),
+        quality: formData.get('rating_quality'),
+        fit: formData.get('rating_fit'),
+        overall: formData.get('rating_overall'),
+    };
+    submitRejection(share.id, data);
+    revalidate();
+    const stars = (n) => '★'.repeat(Number(n) || 0) + '☆'.repeat(5 - (Number(n) || 0));
+    await notify(share, 'Absage', `
+        <p>${data.reason ? esc(data.reason).replace(/\n/g, '<br>') : '(kein Grund angegeben)'}</p>
+        <p>Unterlagen: ${stars(data.quality)} · Passung: ${stars(data.fit)} · Gesamt: ${stars(data.overall)}</p>`);
+    redirect(`/freigabe/${token}?sent=absage`);
 }
 
 // „Alles heruntergeladen": schließt den Zugang (Freigabe wird deaktiviert, Link
