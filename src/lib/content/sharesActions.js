@@ -2,20 +2,46 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import {
-    createShare, updateShare, deleteShare, setShareActive,
+    createShare, updateShare, deleteShare, setShareActive, getShareByToken, getShareRawByToken,
+    normalizeCode, shareCookieName, getShareForResponse, addQuestion, addAppointment, submitRejection, confirmSlot,
+    addOwnerMessage, submitRating,
 } from '@/lib/content/sharesStore';
+import { sendOwnerMail } from '@/lib/mail';
+import { siteConfig } from '@/lib/seo';
+import { RATING_FACTORS } from '@/lib/applicationStatus';
 
 // Server Actions für die Freigaben (Dokument-Sammlungen mit geheimem Link).
 
 function revalidate() {
     revalidatePath('/dashboard/dokumente/freigaben');
+    revalidatePath('/dashboard/bewerbungen');
 }
 
 function parse(formData) {
+    const g = (k) => (formData.get(k) || '').toString();
     return {
-        title: (formData.get('title') || '').toString(),
-        message: (formData.get('message') || '').toString(),
+        title: g('title'),
+        message: g('message'),
+        purpose: g('purpose'),
+        company: g('company'),
+        street: g('street'),
+        zip: g('zip'),
+        city: g('city'),
+        contact: g('contact'),
+        position: g('position'),
+        access_code: g('access_code'),
+        sent_at: g('sent_at'),
+        expires_at: g('expires_at'),
+        status: g('status'),
+        interview_at: g('interview_at'),
+        interview_contact: g('interview_contact'),
+        interview_people: g('interview_people'),
+        decision_date: g('decision_date'),
+        rejection_reason: g('rejection_reason'),
+        followup_at: g('followup_at'),
+        notes: g('notes'),
         is_active: formData.get('is_active') ? 1 : 0,
         documentIds: formData.getAll('document_ids').map((v) => Number(v)).filter(Boolean),
     };
@@ -48,4 +74,119 @@ export async function deleteShareAction(formData) {
 export async function toggleShareAction(formData) {
     setShareActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidate();
+}
+
+// Öffentliches PLZ-Gate: prüft den Code gegen die hinterlegte PLZ und setzt bei
+// Erfolg ein Cookie, das die Freigabe-Seite freischaltet.
+export async function unlockShareAction(formData) {
+    const token = (formData.get('token') || '').toString();
+    const code = (formData.get('code') || '').toString();
+    const share = getShareByToken(token);
+    if (share && share.access_code && normalizeCode(code) === normalizeCode(share.access_code)) {
+        (await cookies()).set(shareCookieName(share.id), '1', {
+            httpOnly: true, sameSite: 'lax', path: `/freigabe/${token}`, maxAge: 60 * 60 * 24 * 7,
+        });
+        redirect(`/freigabe/${token}`);
+    }
+    redirect(`/freigabe/${token}?gate=1`);
+}
+
+// ---- Öffentliche Reaktionen des Arbeitgebers (per Token, kein Login) ----
+
+function esc(s) {
+    return (s || '').toString().replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+function adminLink(id) {
+    return `${siteConfig.url}/dashboard/dokumente/freigaben/${id}`;
+}
+async function notify(share, titel, bodyHtml) {
+    const wer = share.company || share.title || 'Ein Arbeitgeber';
+    await sendOwnerMail(
+        `Bewerbung: ${titel} – ${wer}`,
+        `<p><strong>${esc(wer)}</strong> hat auf „${esc(share.title)}" reagiert:</p>${bodyHtml}
+         <p><a href="${adminLink(share.id)}">Im Admin öffnen</a></p>`,
+    );
+}
+
+export async function submitQuestionAction(formData) {
+    const token = (formData.get('token') || '').toString();
+    const message = (formData.get('message') || '').toString().trim();
+    const share = getShareForResponse(token);
+    if (!share || !message) redirect(`/freigabe/${token}`);
+    addQuestion(share.id, message);
+    revalidate();
+    await notify(share, 'Rückfrage', `<blockquote>${esc(message).replace(/\n/g, '<br>')}</blockquote>`);
+    redirect(`/freigabe/${token}?sent=question`);
+}
+
+export async function submitAppointmentAction(formData) {
+    const token = (formData.get('token') || '').toString();
+    const slots = [1, 2, 3, 4].map((i) => (formData.get(`slot_${i}`) || '').toString().trim()).filter(Boolean);
+    const contact = (formData.get('contact') || '').toString().trim();
+    const people = (formData.get('people') || '').toString().trim();
+    const message = (formData.get('message') || '').toString().trim();
+    const share = getShareForResponse(token);
+    if (!share || slots.length === 0) redirect(`/freigabe/${token}`);
+    addAppointment(share.id, slots, { contact, people, message });
+    revalidate();
+    const list = slots.map((s) => `<li>${esc(s.replace('T', ' '))} Uhr</li>`).join('');
+    const rows = [
+        contact && `<p><strong>Ansprechpartner:in:</strong> ${esc(contact)}</p>`,
+        people && `<p><strong>Weitere Teilnehmer:</strong> ${esc(people)}</p>`,
+        message && `<blockquote>${esc(message)}</blockquote>`,
+    ].filter(Boolean).join('');
+    await notify(share, 'Terminvorschlag', `<ul>${list}</ul>${rows}`);
+    redirect(`/freigabe/${token}?sent=termin`);
+}
+
+export async function submitRatingAction(formData) {
+    const token = (formData.get('token') || '').toString();
+    const share = getShareForResponse(token);
+    if (!share) redirect(`/freigabe/${token}`);
+    const data = {};
+    RATING_FACTORS.forEach((f) => { data[f.key] = formData.get(`rating_${f.key}`); });
+    submitRating(share.id, data);
+    revalidate();
+    const stars = (n) => '★'.repeat(Number(n) || 0) + '☆'.repeat(5 - (Number(n) || 0));
+    const rows = RATING_FACTORS.map((f) => `${esc(f.label)}: ${stars(data[f.key])}`).join('<br>');
+    await notify(share, 'Bewertung', `<p>${rows}</p>`);
+    redirect(`/freigabe/${token}?sent=bewertung`);
+}
+
+export async function submitRejectionAction(formData) {
+    const token = (formData.get('token') || '').toString();
+    const share = getShareForResponse(token);
+    if (!share) redirect(`/freigabe/${token}`);
+    const data = { reason: (formData.get('reason') || '').toString().trim() };
+    RATING_FACTORS.forEach((f) => { data[f.key] = formData.get(`rating_${f.key}`); });
+    submitRejection(share.id, data);
+    revalidate();
+    const stars = (n) => '★'.repeat(Number(n) || 0) + '☆'.repeat(5 - (Number(n) || 0));
+    const ratingRows = RATING_FACTORS.map((f) => `${esc(f.label)}: ${stars(data[f.key])}`).join('<br>');
+    await notify(share, 'Absage', `
+        <p>${data.reason ? esc(data.reason).replace(/\n/g, '<br>') : '(kein Grund angegeben)'}</p>
+        <p>${ratingRows}</p>`);
+    redirect(`/freigabe/${token}?sent=absage`);
+}
+
+// Admin bestätigt einen vom Arbeitgeber vorgeschlagenen Termin.
+export async function confirmSlotAction(formData) {
+    confirmSlot(Number(formData.get('id')), (formData.get('slot') || '').toString());
+    revalidate();
+}
+
+// René schreibt eine Nachricht in den Gesprächsverlauf (aus dem Admin).
+export async function addOwnerMessageAction(formData) {
+    addOwnerMessage(Number(formData.get('id')), (formData.get('message') || '').toString());
+    revalidate();
+}
+
+// „Alles heruntergeladen": schließt den Zugang (Freigabe wird deaktiviert, Link
+// danach ungültig). Vom Empfänger auf der Freigabe-Seite ausgelöst.
+export async function finishShareAction(formData) {
+    const token = (formData.get('token') || '').toString();
+    const share = getShareRawByToken(token);
+    if (share) setShareActive(share.id, false);
+    revalidatePath(`/freigabe/${token}`);
+    redirect(`/freigabe/${token}?closed=1`);
 }

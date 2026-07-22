@@ -1,0 +1,52 @@
+.aside { display: flex; flex-direction: column; gap: 18px; }
+
+.panel {
+    padding: 18px; border: 1px solid var(--dark-light); border-radius: 12px; background: #fff;
+}
+.panelTitle {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 1.05rem; margin: 0 0 14px;
+}
+.hint { color: var(--dark-6, #667); font-size: 0.88rem; margin: 0; }
+.leadText { color: var(--dark); font-size: 0.95rem; line-height: 1.5; margin: 0; }
+.note { color: var(--dark-6, #889); font-size: 0.8rem; margin: 0; }
+
+.confirmed {
+    display: flex; align-items: center; gap: 8px; margin: 0 0 12px;
+    padding: 10px 12px; border-radius: 8px; font-weight: 600;
+    background: rgba(63,157,90,0.12); border: 1px solid rgba(63,157,90,0.35); color: #1c7a43;
+}
+
+.blockBtn {
+    width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 11px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem;
+    border: 1px solid var(--primary); background: transparent; color: var(--primary);
+    transition: background .15s ease, color .15s ease;
+}
+.blockBtn:hover { background: var(--primary); color: #fff; }
+.rejectBtn { border-color: #d64545; color: #d64545; }
+.rejectBtn:hover { background: #d64545; color: #fff; }
+
+.miniForm { display: flex; flex-direction: column; gap: 10px; }
+.miniForm input[type="datetime-local"], .miniForm input[type="text"], .miniForm textarea {
+    padding: 9px 11px; border: 1px solid var(--dark-light); border-radius: 8px;
+    font-family: inherit; font-size: 0.95rem; color: var(--dark); background: #fff;
+}
+.miniActions { display: flex; gap: 8px; align-items: center; }
+.primary, .reject {
+    padding: 10px 16px; border: 0; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer;
+}
+.primary { background: var(--primary); }
+.primary:hover { background: var(--primary-dark); }
+.reject { background: #d64545; }
+.reject:hover { background: #b83a3a; }
+.ghost {
+    padding: 10px 14px; border: 1px solid var(--dark-light); border-radius: 8px;
+    background: transparent; color: var(--dark-6); cursor: pointer;
+}
+
+/* Sterne */
+.rating { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ratingLabel { font-size: 0.85rem; color: var(--dark-6); min-width: 0; line-height: 1.3; }
+.stars { display: inline-flex; gap: 2px; flex: 0 0 auto; }
+.star { background: transparent; border: 0; cursor: pointer; padding: 1px; color: #e0952b; font-size: 20px; line-height: 1; display: inline-flex; }

@@ -121,12 +121,20 @@ function migrate(database) {
         );
 
         CREATE TABLE IF NOT EXISTS shares (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            token      TEXT    NOT NULL UNIQUE,
-            title      TEXT    NOT NULL DEFAULT '',
-            message    TEXT    NOT NULL DEFAULT '',
-            is_active  INTEGER NOT NULL DEFAULT 1,
-            updated_at INTEGER NOT NULL DEFAULT 0
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            token       TEXT    NOT NULL UNIQUE,
+            title       TEXT    NOT NULL DEFAULT '',
+            message     TEXT    NOT NULL DEFAULT '',
+            purpose     TEXT    NOT NULL DEFAULT 'bewerbung',
+            company     TEXT    NOT NULL DEFAULT '',
+            street      TEXT    NOT NULL DEFAULT '',
+            zip         TEXT    NOT NULL DEFAULT '',
+            city        TEXT    NOT NULL DEFAULT '',
+            contact     TEXT    NOT NULL DEFAULT '',
+            position    TEXT    NOT NULL DEFAULT '',
+            access_code TEXT    NOT NULL DEFAULT '',
+            is_active   INTEGER NOT NULL DEFAULT 1,
+            updated_at  INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_shares_token ON shares (token);
 
@@ -137,6 +145,15 @@ function migrate(database) {
             sort_order  INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_share_items ON share_items (share_id, sort_order);
+
+        CREATE TABLE IF NOT EXISTS share_events (
+            id       INTEGER PRIMARY KEY AUTOINCREMENT,
+            share_id INTEGER NOT NULL,
+            kind     TEXT    NOT NULL DEFAULT '',
+            detail   TEXT    NOT NULL DEFAULT '',
+            at       INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_share_events ON share_events (share_id, at);
     `);
 
     // Nachrüsten für bereits bestehende Tabellen (z. B. Vita auf dem Server).
@@ -147,6 +164,52 @@ function migrate(database) {
     ensureColumn(database, 'showcase_projects', 'sandbox_html', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'showcase_projects', 'sandbox_css', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'showcase_projects', 'sandbox_js', "TEXT NOT NULL DEFAULT ''");
+    // Firmendaten/Personalisierung für Freigaben nachrüsten.
+    ensureColumn(database, 'shares', 'purpose', "TEXT NOT NULL DEFAULT 'bewerbung'");
+    ensureColumn(database, 'shares', 'company', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'street', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'zip', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'city', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'contact', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'position', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'access_code', "TEXT NOT NULL DEFAULT ''");
+    // Bewerbungs-Tracking (Datum, Ablauf, Status, Antwort-Details) nachrüsten.
+    ensureColumn(database, 'shares', 'created_at', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'sent_at', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'expires_at', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'status', "TEXT NOT NULL DEFAULT 'offen'");
+    ensureColumn(database, 'shares', 'interview_at', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'interview_contact', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'interview_people', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'decision_date', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'rejection_reason', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'followup_at', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'notes', "TEXT NOT NULL DEFAULT ''");
+    // Reaktionen des Arbeitgebers (Terminvorschläge, Absage-Feedback).
+    ensureColumn(database, 'shares', 'proposed_slots', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'feedback_reason', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'rating_quality', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'rating_fit', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'rating_overall', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'feedback_at', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'employer_closed', 'INTEGER NOT NULL DEFAULT 0');
+    // Weitere Bewertungsfaktoren + Admin-Antwort + bestätigter Termin.
+    ensureColumn(database, 'shares', 'rating_experience', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'rating_relevance', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'rating_manner', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'rating_culture', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'owner_reply', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'confirmed_slot', "TEXT NOT NULL DEFAULT ''");
+    // Zusatzangaben zum Terminvorschlag des Arbeitgebers.
+    ensureColumn(database, 'shares', 'proposed_contact', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'proposed_people', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'proposed_message', "TEXT NOT NULL DEFAULT ''");
+    // „Wie wurde der Bewerbungsprozess wahrgenommen?" (ersetzt Team-/Kultur-Passung).
+    ensureColumn(database, 'shares', 'rating_process', 'INTEGER NOT NULL DEFAULT 0');
+    // Zeitpunkt einer (auch prozessunabhängig) abgegebenen Sternebewertung.
+    ensureColumn(database, 'shares', 'rated_at', 'INTEGER NOT NULL DEFAULT 0');
+    // Bestehende Freigaben ohne Erstelldatum auf updated_at setzen (idempotent).
+    database.prepare('UPDATE shares SET created_at = updated_at WHERE created_at = 0').run();
 }
 
 export function getContentDb() {

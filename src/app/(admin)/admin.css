@@ -363,10 +363,80 @@ body {
     overflow-wrap: anywhere; max-width: 100%;
 }
 
-/* Checkbox-Gruppe (Dokumente einer Freigabe) */
+/* Checkbox-/Feldgruppe (Dokumente + Firmendaten einer Freigabe) */
 .an-checkgroup { border: 1px solid var(--adm-border, rgba(0,0,0,0.12)); border-radius: 8px; padding: 12px 14px; }
 .an-checkgroup legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .an-checkgroup .an-check { display: flex; gap: 8px; margin: 6px 0; }
+.an-checkgroup .an-field-row { margin-bottom: 4px; }
+
+.an-btn-small { align-self: flex-start; padding: 6px 12px; font-size: 13px; margin-top: 6px; }
+.an-inline-days { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+.an-inline-days .an-days-input { width: 90px; }
+.an-inline-days .an-btn-small { margin-top: 0; }
+
+/* Bewerbungs-Status-Badges + Nachfass */
+.an-appstatus {
+    font-size: 11px; font-weight: 600; line-height: 1.4; white-space: nowrap;
+    padding: 3px 10px; border-radius: 999px; border: 1px solid transparent; margin-left: 8px;
+}
+.an-appstatus--good { color: #1c7a43; background: rgba(63,157,90,0.14); border-color: rgba(63,157,90,0.38); }
+.an-appstatus--bad  { color: #a21f37; background: rgba(214,69,69,0.13); border-color: rgba(214,69,69,0.38); }
+.an-appstatus--info { color: #1f5a8b; background: rgba(31,111,178,0.13); border-color: rgba(31,111,178,0.36); }
+.an-appstatus--offen{ color: var(--adm-ink-muted, #667); background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.14); }
+.an-nachfass {
+    display: inline-flex; align-items: center; gap: 4px; margin-left: 8px;
+    font-size: 11px; font-weight: 600; color: #9a6a00;
+    background: rgba(224,149,43,0.14); border: 1px solid rgba(224,149,43,0.40);
+    padding: 3px 9px; border-radius: 999px;
+}
+.an-app-overdue { box-shadow: inset 3px 0 0 #e0952b; }
+.an-app-signal { display: inline-flex; align-items: center; gap: 4px; color: var(--adm-ink-muted, #667); }
+
+/* Bearbeiten-Seite: 2 Spalten (Formular links, Verlauf rechts) */
+.an-edit-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
+.an-edit-main { min-width: 0; }
+.an-edit-side { position: sticky; top: 20px; }
+@media (max-width: 1100px) {
+    .an-edit-grid { grid-template-columns: 1fr; }
+    .an-edit-side { position: static; }
+}
+
+/* Arbeitgeber-Reaktionen */
+.an-reaction-block { margin-bottom: 16px; }
+.an-reaction-block h3 { display: flex; align-items: center; gap: 6px; font-size: 15px; margin: 0 0 8px; }
+.an-slotlist { list-style: none; margin: 0 0 6px; padding: 0; }
+.an-slot-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--adm-border); }
+.an-slot-row:last-child { border-bottom: 0; }
+.an-reaction-reason { background: var(--adm-surface-2, rgba(0,0,0,0.05)); border-radius: 8px; padding: 10px 12px; margin: 0 0 10px; white-space: pre-line; }
+.an-reaction-meta { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0 0 10px; font-size: 14px; }
+.an-reaction-meta dt { font-weight: 600; color: var(--adm-muted, #667); }
+.an-reaction-meta dd { margin: 0; white-space: pre-line; }
+.an-ratings { list-style: none; margin: 0; padding: 0; }
+.an-ratings li { display: flex; justify-content: space-between; max-width: 340px; padding: 4px 0; font-size: 14px; }
+.an-stars { color: #e0952b; letter-spacing: 2px; }
+
+/* Bewertungs-Auswertung */
+.an-rsum-head { display: flex; align-items: center; gap: 16px; margin: 0 0 18px; }
+.an-rsum-big { font-size: 44px; font-weight: 700; line-height: 1; color: var(--adm-text, #1c2733); }
+.an-rsum-stars { display: inline-flex; gap: 2px; color: #e0952b; font-size: 20px; }
+.an-rsum-head p { margin: 4px 0 0; font-size: 13px; }
+.an-rsum-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.an-rsum-row { display: grid; grid-template-columns: minmax(140px, 260px) 1fr auto; align-items: center; gap: 12px; font-size: 14px; }
+.an-rsum-bar { height: 10px; border-radius: 6px; background: var(--adm-surface-2, rgba(0,0,0,0.07)); overflow: hidden; }
+.an-rsum-fill { display: block; height: 100%; border-radius: 6px; background: #e0952b; }
+.an-rsum-val { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 34px; text-align: right; }
+@media (max-width: 640px) {
+    .an-rsum-row { grid-template-columns: 1fr auto; }
+    .an-rsum-bar { grid-column: 1 / -1; order: 3; }
+}
+
+/* Verlauf / Timeline */
+.an-timeline { list-style: none; margin: 0; padding: 0; }
+.an-timeline-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--adm-border); }
+.an-timeline-item:last-child { border-bottom: 0; }
+.an-timeline-icon { flex: 0 0 auto; color: var(--adm-accent, #3f687e); display: inline-flex; }
+.an-timeline-label { flex: 1 1 auto; font-size: 14px; }
+.an-timeline-time { flex: 0 0 auto; font-size: 12px; color: var(--adm-ink-muted, #667); white-space: nowrap; }
 
 /* ── Responsiv ────────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
