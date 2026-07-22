@@ -57,6 +57,8 @@ function fields(data) {
         city: (data.city || '').trim(),
         contact: (data.contact || '').trim(),
         position: (data.position || '').trim(),
+        email: (data.email || '').trim(),
+        website: (data.website || '').trim(),
         access_code: (data.access_code || '').trim(),
         sent_at: (data.sent_at || '').trim(),
         expires_at: (data.expires_at || '').trim(),
@@ -74,7 +76,7 @@ function fields(data) {
 }
 
 const COLS = `title=@title, message=@message, purpose=@purpose, company=@company, street=@street,
-    zip=@zip, city=@city, contact=@contact, position=@position, access_code=@access_code,
+    zip=@zip, city=@city, contact=@contact, position=@position, email=@email, website=@website, access_code=@access_code,
     sent_at=@sent_at, expires_at=@expires_at, status=@status, interview_at=@interview_at,
     interview_contact=@interview_contact, interview_people=@interview_people, decision_date=@decision_date,
     rejection_reason=@rejection_reason, followup_at=@followup_at, notes=@notes,

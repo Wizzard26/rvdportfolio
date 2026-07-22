@@ -172,6 +172,8 @@ function migrate(database) {
     ensureColumn(database, 'shares', 'city', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'shares', 'contact', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'shares', 'position', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'email', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'website', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'shares', 'access_code', "TEXT NOT NULL DEFAULT ''");
     // Bewerbungs-Tracking (Datum, Ablauf, Status, Antwort-Details) nachrüsten.
     ensureColumn(database, 'shares', 'created_at', 'INTEGER NOT NULL DEFAULT 0');

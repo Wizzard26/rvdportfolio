@@ -31,6 +31,8 @@ function parse(formData) {
         city: g('city'),
         contact: g('contact'),
         position: g('position'),
+        email: g('email'),
+        website: g('website'),
         access_code: g('access_code'),
         sent_at: g('sent_at'),
         expires_at: g('expires_at'),
@@ -101,10 +103,13 @@ function adminLink(id) {
 }
 async function notify(share, titel, bodyHtml) {
     const wer = share.company || share.title || 'Ein Arbeitgeber';
+    const absender = [esc(share.contact), share.email && `&lt;${esc(share.email)}&gt;`, esc(share.website)].filter(Boolean).join(' · ');
     await sendOwnerMail(
         `Bewerbung: ${titel} – ${wer}`,
         `<p><strong>${esc(wer)}</strong> hat auf „${esc(share.title)}" reagiert:</p>${bodyHtml}
+         ${absender ? `<p>Absender: ${absender}</p>` : ''}
          <p><a href="${adminLink(share.id)}">Im Admin öffnen</a></p>`,
+        share.email,
     );
 }
 
