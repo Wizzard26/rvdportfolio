@@ -68,7 +68,6 @@ function fields(data) {
         rejection_reason: (data.rejection_reason || '').trim(),
         followup_at: (data.followup_at || '').trim(),
         notes: (data.notes || '').trim(),
-        owner_reply: (data.owner_reply || '').trim(),
         is_active: data.is_active ? 1 : 0,
         now: Date.now(),
     };
@@ -78,7 +77,7 @@ const COLS = `title=@title, message=@message, purpose=@purpose, company=@company
     zip=@zip, city=@city, contact=@contact, position=@position, access_code=@access_code,
     sent_at=@sent_at, expires_at=@expires_at, status=@status, interview_at=@interview_at,
     interview_contact=@interview_contact, interview_people=@interview_people, decision_date=@decision_date,
-    rejection_reason=@rejection_reason, followup_at=@followup_at, notes=@notes, owner_reply=@owner_reply,
+    rejection_reason=@rejection_reason, followup_at=@followup_at, notes=@notes,
     is_active=@is_active, updated_at=@now`;
 
 export function createShare(data) {
@@ -100,13 +99,26 @@ export function updateShare(id, data) {
     const db = getContentDb();
     const before = db.prepare('SELECT status, sent_at FROM shares WHERE id = ?').get(id);
     const f = fields(data);
-    const beforeReply = db.prepare('SELECT owner_reply FROM shares WHERE id = ?').get(id);
     db.prepare(`UPDATE shares SET ${COLS} WHERE id=@id`).run({ id, ...f });
     setItems(db, id, data.documentIds);
-    // Verlauf: Statuswechsel, erstmaliges Zustelldatum, neue Antwort protokollieren.
+    // Verlauf: Statuswechsel und erstmaliges Zustelldatum protokollieren.
     if (before && before.status !== f.status) logEvent(db, id, 'status', f.status);
     if (f.sent_at && (!before || !before.sent_at)) logEvent(db, id, 'sent', f.sent_at);
-    if (f.owner_reply && (!beforeReply || beforeReply.owner_reply !== f.owner_reply)) logEvent(db, id, 'reply', '');
+}
+
+// Nachricht von René an den Arbeitgeber (Teil des Gesprächsverlaufs).
+export function addOwnerMessage(shareId, body) {
+    const text = (body || '').toString().trim();
+    if (!text) return;
+    logEvent(getContentDb(), shareId, 'reply', text.slice(0, 4000));
+}
+
+// Gesprächsverlauf (Chat): Rückfragen des Arbeitgebers + Antworten von René.
+export function getConversation(shareId) {
+    return getContentDb()
+        .prepare("SELECT kind, detail, at FROM share_events WHERE share_id = ? AND kind IN ('question','reply') ORDER BY at ASC, id ASC")
+        .all(shareId)
+        .map((e) => ({ sender: e.kind === 'question' ? 'employer' : 'owner', body: e.detail, at: e.at }));
 }
 
 export function setShareActive(id, active) {

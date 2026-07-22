@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 import {
     createShare, updateShare, deleteShare, setShareActive, getShareByToken, getShareRawByToken,
     normalizeCode, shareCookieName, getShareForResponse, addQuestion, addAppointment, submitRejection, confirmSlot,
+    addOwnerMessage,
 } from '@/lib/content/sharesStore';
 import { sendOwnerMail } from '@/lib/mail';
 import { siteConfig } from '@/lib/seo';
@@ -41,7 +42,6 @@ function parse(formData) {
         rejection_reason: g('rejection_reason'),
         followup_at: g('followup_at'),
         notes: g('notes'),
-        owner_reply: g('owner_reply'),
         is_active: formData.get('is_active') ? 1 : 0,
         documentIds: formData.getAll('document_ids').map((v) => Number(v)).filter(Boolean),
     };
@@ -151,6 +151,12 @@ export async function submitRejectionAction(formData) {
 // Admin bestätigt einen vom Arbeitgeber vorgeschlagenen Termin.
 export async function confirmSlotAction(formData) {
     confirmSlot(Number(formData.get('id')), (formData.get('slot') || '').toString());
+    revalidate();
+}
+
+// René schreibt eine Nachricht in den Gesprächsverlauf (aus dem Admin).
+export async function addOwnerMessageAction(formData) {
+    addOwnerMessage(Number(formData.get('id')), (formData.get('message') || '').toString());
     revalidate();
 }
 

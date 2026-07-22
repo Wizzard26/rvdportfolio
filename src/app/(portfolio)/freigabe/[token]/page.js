@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { TbFileTypePdf } from "react-icons/tb";
 import { FiDownload, FiLock, FiCheckCircle, FiArchive } from "react-icons/fi";
 import { roboto_condensed } from "@/app/fonts";
-import { getShareByToken, getShareRawByToken, shareCookieName, recordView } from "@/lib/content/sharesStore";
+import { getShareByToken, getShareRawByToken, shareCookieName, recordView, getConversation } from "@/lib/content/sharesStore";
 import { unlockShareAction } from "@/lib/content/sharesActions";
 import { SESSION_COOKIE } from "@/lib/auth";
 import CloseShareButton from "@/components/analytics/CloseShareButton";
@@ -14,13 +14,6 @@ const SENT_MSG = {
     question: 'Vielen Dank – Ihre Rückfrage ist angekommen. Ich melde mich zeitnah bei Ihnen.',
     termin: 'Vielen Dank – Ihre Terminvorschläge sind angekommen. Ich melde mich zur Abstimmung bei Ihnen.',
 };
-
-function fmtSlot(s) {
-    if (!s) return s;
-    const [d, t] = s.split('T');
-    const [y, mo, day] = (d || '').split('-');
-    return day ? `${day}.${mo}.${y}${t ? ` · ${t} Uhr` : ''}` : s;
-}
 
 export const dynamic = 'force-dynamic';
 
@@ -55,7 +48,7 @@ function GateView({ token, title, error }) {
     );
 }
 
-function ShareView({ share, sent }) {
+function ShareView({ share, sent, conversation }) {
     const many = share.documents.length > 1;
     return (
         <main className="main-content">
@@ -64,57 +57,51 @@ function ShareView({ share, sent }) {
                     {SENT_MSG[sent] && (
                         <p className={styles.sentBanner}><FiCheckCircle aria-hidden="true" /> {SENT_MSG[sent]}</p>
                     )}
-                    <header className={styles.teaser}>
-                        <h1 className={roboto_condensed.className}>{share.title || 'Freigegebene Dokumente'}</h1>
-                        {share.company && <p className={styles.forWhom}>Zusammengestellt für {share.company}</p>}
-                        {share.message && <p className={styles.message}>{share.message}</p>}
-                    </header>
+                    <div className={styles.shareGrid}>
+                        <div className={styles.shareMain}>
+                            <header className={styles.teaser}>
+                                <h1 className={roboto_condensed.className}>{share.title || 'Freigegebene Dokumente'}</h1>
+                                {share.company && <p className={styles.forWhom}>Zusammengestellt für {share.company}</p>}
+                                {share.message && <p className={styles.message}>{share.message}</p>}
+                            </header>
 
-                    {share.confirmed_slot && (
-                        <p className={styles.confirmedSlot}>
-                            <FiCheckCircle aria-hidden="true" /> Bestätigter Termin: {fmtSlot(share.confirmed_slot)}
-                        </p>
-                    )}
-                    {share.owner_reply && (
-                        <div className={styles.ownerReply}>
-                            <strong>Nachricht von René van Dinter</strong>
-                            <p>{share.owner_reply}</p>
+                            {share.documents.length === 0 ? (
+                                <p>Für diese Freigabe sind derzeit keine Dokumente hinterlegt.</p>
+                            ) : (
+                                <>
+                                    <div className={styles.tiles}>
+                                        {share.documents.map((d) => (
+                                            <a key={d.id} href={d.file} download className={styles.tile}>
+                                                <TbFileTypePdf aria-hidden="true" className={styles.tilePdf} />
+                                                <span className={styles.tileTitle}>{d.title}</span>
+                                                <span className={styles.tileDownload}><FiDownload aria-hidden="true" /> PDF herunterladen</span>
+                                            </a>
+                                        ))}
+                                    </div>
+
+                                    {many && (
+                                        <div className={styles.actions}>
+                                            <a href={`/freigabe/${share.token}/download`} className={styles.allBtn}>
+                                                <FiArchive aria-hidden="true" /> Alle Unterlagen herunterladen (ZIP)
+                                            </a>
+                                            <CloseShareButton token={share.token} className={styles.closeBtn} />
+                                        </div>
+                                    )}
+                                    {many && (
+                                        <p className={styles.actionsNote}>
+                                            Hinweis: „Alles heruntergeladen" schließt diesen Zugang – der Link ist danach nicht mehr gültig.
+                                        </p>
+                                    )}
+                                </>
+                            )}
+
+                            <p className={styles.note}>Diese Dokumente wurden privat über einen persönlichen Link mit Ihnen geteilt.</p>
                         </div>
-                    )}
 
-                    {share.documents.length === 0 ? (
-                        <p>Für diese Freigabe sind derzeit keine Dokumente hinterlegt.</p>
-                    ) : (
-                        <>
-                            <div className={styles.tiles}>
-                                {share.documents.map((d) => (
-                                    <a key={d.id} href={d.file} download className={styles.tile}>
-                                        <TbFileTypePdf aria-hidden="true" className={styles.tilePdf} />
-                                        <span className={styles.tileTitle}>{d.title}</span>
-                                        <span className={styles.tileDownload}><FiDownload aria-hidden="true" /> PDF herunterladen</span>
-                                    </a>
-                                ))}
-                            </div>
-
-                            {many && (
-                                <div className={styles.actions}>
-                                    <a href={`/freigabe/${share.token}/download`} className={styles.allBtn}>
-                                        <FiArchive aria-hidden="true" /> Alle Unterlagen herunterladen (ZIP)
-                                    </a>
-                                    <CloseShareButton token={share.token} className={styles.closeBtn} />
-                                </div>
-                            )}
-                            {many && (
-                                <p className={styles.actionsNote}>
-                                    Hinweis: „Alles heruntergeladen" schließt diesen Zugang – der Link ist danach nicht mehr gültig.
-                                </p>
-                            )}
-                        </>
-                    )}
-
-                    <ShareResponse token={share.token} />
-
-                    <p className={styles.note}>Diese Dokumente wurden privat über einen persönlichen Link mit Ihnen geteilt.</p>
+                        <div className={styles.shareSide}>
+                            <ShareResponse token={share.token} conversation={conversation} confirmedSlot={share.confirmed_slot} />
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
@@ -179,5 +166,6 @@ export default async function SharePage({ params, searchParams }) {
 
     if (!isOwner) recordView(share.id);
 
-    return <ShareView share={share} sent={sp?.sent} />;
+    const conversation = getConversation(share.id);
+    return <ShareView share={share} sent={sp?.sent} conversation={conversation} />;
 }

@@ -1,50 +1,51 @@
-.response {
-    margin-top: 40px;
-    padding-top: 26px;
-    border-top: 1px solid var(--dark-light);
-    max-width: 720px;
-}
-.responseTitle { margin-top: 0; }
+.aside { display: flex; flex-direction: column; gap: 18px; }
 
-.responseTabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 4px; }
-.rtab {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 16px; border-radius: 8px; cursor: pointer;
+.panel {
+    padding: 18px; border: 1px solid var(--dark-light); border-radius: 12px; background: #fff;
+}
+.panelTitle {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 1.05rem; margin: 0 0 14px;
+}
+.hint { color: var(--dark-6, #667); font-size: 0.88rem; margin: 0; }
+.note { color: var(--dark-6, #889); font-size: 0.8rem; margin: 0; }
+
+.confirmed {
+    display: flex; align-items: center; gap: 8px; margin: 0 0 12px;
+    padding: 10px 12px; border-radius: 8px; font-weight: 600;
+    background: rgba(63,157,90,0.12); border: 1px solid rgba(63,157,90,0.35); color: #1c7a43;
+}
+
+.blockBtn {
+    width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 11px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem;
     border: 1px solid var(--primary); background: transparent; color: var(--primary);
-    font-weight: 600; font-size: 0.95rem; transition: background .15s ease, color .15s ease;
+    transition: background .15s ease, color .15s ease;
 }
-.rtab:hover, .rtabActive { background: var(--primary); color: #fff; }
-.rtabReject { border-color: #d64545; color: #d64545; }
-.rtabReject:hover, .rtabReject.rtabActive { background: #d64545; color: #fff; }
+.blockBtn:hover { background: var(--primary); color: #fff; }
+.rejectBtn { border-color: #d64545; color: #d64545; }
+.rejectBtn:hover { background: #d64545; color: #fff; }
 
-.responseForm { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
-.responseForm label { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; color: var(--dark-6); }
-.responseForm textarea, .responseForm input[type="datetime-local"] {
-    padding: 10px 12px; border: 1px solid var(--dark-light); border-radius: 8px;
-    font-size: 1rem; font-family: inherit; color: var(--dark); background: #fff;
+.miniForm { display: flex; flex-direction: column; gap: 10px; }
+.miniForm input[type="datetime-local"], .miniForm textarea {
+    padding: 9px 11px; border: 1px solid var(--dark-light); border-radius: 8px;
+    font-family: inherit; font-size: 0.95rem; color: var(--dark); background: #fff;
 }
-.responseForm textarea { resize: vertical; }
-.responseHint { color: var(--dark-6); font-size: 0.92rem; margin: 0; }
-.responseNote { color: var(--dark-6); font-size: 0.82rem; margin: -4px 0 0; }
-
-.slots { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-
-.submitBtn, .rejectSubmit {
-    align-self: flex-start; padding: 11px 20px; border: 0; border-radius: 8px;
-    color: #fff; font-weight: 600; cursor: pointer;
+.miniActions { display: flex; gap: 8px; align-items: center; }
+.primary, .reject {
+    padding: 10px 16px; border: 0; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer;
 }
-.submitBtn { background: var(--primary); }
-.submitBtn:hover { background: var(--primary-dark); }
-.rejectSubmit { background: #d64545; }
-.rejectSubmit:hover { background: #b83a3a; }
+.primary { background: var(--primary); }
+.primary:hover { background: var(--primary-dark); }
+.reject { background: #d64545; }
+.reject:hover { background: #b83a3a; }
+.ghost {
+    padding: 10px 14px; border: 1px solid var(--dark-light); border-radius: 8px;
+    background: transparent; color: var(--dark-6); cursor: pointer;
+}
 
 /* Sterne */
-.rating { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.ratingLabel { font-size: 0.9rem; color: var(--dark-6); min-width: 180px; }
+.rating { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.ratingLabel { font-size: 0.85rem; color: var(--dark-6); }
 .stars { display: inline-flex; gap: 2px; }
-.star { background: transparent; border: 0; cursor: pointer; padding: 2px; color: #e0952b; font-size: 22px; line-height: 1; display: inline-flex; }
-
-@media (max-width: 575px) {
-    .slots { grid-template-columns: 1fr; }
-    .ratingLabel { min-width: 0; }
-}
+.star { background: transparent; border: 0; cursor: pointer; padding: 1px; color: #e0952b; font-size: 20px; line-height: 1; display: inline-flex; }

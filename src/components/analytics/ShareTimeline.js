@@ -1,4 +1,4 @@
-import { FiPlusCircle, FiSend, FiEye, FiDownload, FiFlag, FiLock, FiUnlock, FiMessageCircle, FiCalendar, FiXCircle } from 'react-icons/fi';
+import { FiPlusCircle, FiSend, FiEye, FiDownload, FiFlag, FiLock, FiUnlock, FiMessageCircle, FiCalendar, FiXCircle, FiCornerUpLeft, FiCheckCircle } from 'react-icons/fi';
 import { STATUS_LABELS } from '@/lib/applicationStatus';
 
 // Verlauf einer Freigabe/Bewerbung (aus share_events).
@@ -9,7 +9,9 @@ const META = {
     view:        { icon: FiEye,          label: () => 'Vom Empfänger aufgerufen' },
     download:    { icon: FiDownload,     label: (d) => `Unterlagen heruntergeladen${d === 'zip' ? ' (ZIP)' : ''}` },
     question:    { icon: FiMessageCircle,label: (d) => `Rückfrage: ${d || ''}` },
+    reply:       { icon: FiCornerUpLeft, label: (d) => `Antwort: ${d || ''}` },
     appointment: { icon: FiCalendar,     label: (d) => `Terminvorschlag: ${d || ''}` },
+    slot_confirmed: { icon: FiCheckCircle, label: (d) => `Termin bestätigt${d ? `: ${d.replace('T', ' ')} Uhr` : ''}` },
     rejection:   { icon: FiXCircle,      label: (d) => `Absage${d ? `: ${d}` : ''}` },
     closed:      { icon: FiLock,         label: () => 'Zugang geschlossen' },
     reopened:    { icon: FiUnlock,       label: () => 'Wieder aktiviert' },

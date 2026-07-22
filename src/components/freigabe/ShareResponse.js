@@ -1,75 +1,85 @@
 'use client';
 
 import { useState } from 'react';
-import { FiMessageSquare, FiCalendar, FiXCircle } from 'react-icons/fi';
+import { FiCalendar, FiXCircle, FiCheckCircle } from 'react-icons/fi';
 import { submitQuestionAction, submitAppointmentAction, submitRejectionAction } from '@/lib/content/sharesActions';
 import { RATING_FACTORS } from '@/lib/applicationStatus';
+import ShareConversation from './ShareConversation';
 import StarRating from './StarRating';
 import styles from './response.module.css';
 
-// Reaktions-Bereich für den Arbeitgeber (unter den Downloads): Rückfrage,
-// Terminvorschlag oder Absage (mit Feedback).
-export default function ShareResponse({ token }) {
+function fmtSlot(s) {
+    if (!s) return s;
+    const [d, t] = s.split('T');
+    const [y, mo, day] = (d || '').split('-');
+    return day ? `${day}.${mo}.${y}${t ? ` · ${t} Uhr` : ''}` : s;
+}
+
+// Rechte Spalte der Freigabe-Seite: Gespräch (Chat), Termine, Absage.
+export default function ShareResponse({ token, conversation = [], confirmedSlot }) {
     const [open, setOpen] = useState(null);
     const toggle = (k) => setOpen(open === k ? null : k);
 
     return (
-        <section className={styles.response}>
-            <h2 className={styles.responseTitle}>Ihre Reaktion</h2>
-            <div className={styles.responseTabs}>
-                <button type="button" className={`${styles.rtab}${open === 'question' ? ` ${styles.rtabActive}` : ''}`} onClick={() => toggle('question')}>
-                    <FiMessageSquare aria-hidden="true" /> Rückfrage stellen
-                </button>
-                <button type="button" className={`${styles.rtab}${open === 'termin' ? ` ${styles.rtabActive}` : ''}`} onClick={() => toggle('termin')}>
-                    <FiCalendar aria-hidden="true" /> Termin vorschlagen
-                </button>
-                <button type="button" className={`${styles.rtab} ${styles.rtabReject}${open === 'absage' ? ` ${styles.rtabActive}` : ''}`} onClick={() => toggle('absage')}>
-                    <FiXCircle aria-hidden="true" /> Absagen
-                </button>
-            </div>
+        <div className={styles.aside}>
+            <section className={styles.panel}>
+                <h2 className={styles.panelTitle}>Gespräch</h2>
+                <ShareConversation
+                    messages={conversation}
+                    perspective="employer"
+                    sendAction={submitQuestionAction}
+                    hiddenName="token"
+                    hiddenValue={token}
+                    placeholder="Ihre Rückfrage oder Nachricht …"
+                />
+            </section>
 
-            {open === 'question' && (
-                <form action={submitQuestionAction} className={styles.responseForm}>
-                    <input type="hidden" name="token" value={token} />
-                    <label>Ihre Rückfrage oder Nachricht
-                        <textarea name="message" rows={5} required placeholder="Ihre Frage oder eine kurze Rückmeldung …" /></label>
-                    <button type="submit" className={styles.submitBtn}>Absenden</button>
-                </form>
-            )}
-
-            {open === 'termin' && (
-                <form action={submitAppointmentAction} className={styles.responseForm}>
-                    <input type="hidden" name="token" value={token} />
-                    <p className={styles.responseHint}>Schlagen Sie bis zu 4 mögliche Termine vor – ich melde mich dann zur Abstimmung bei Ihnen.</p>
-                    <div className={styles.slots}>
+            <section className={styles.panel}>
+                <h2 className={styles.panelTitle}><FiCalendar aria-hidden="true" /> Termin</h2>
+                {confirmedSlot && (
+                    <p className={styles.confirmed}><FiCheckCircle aria-hidden="true" /> Bestätigt: {fmtSlot(confirmedSlot)}</p>
+                )}
+                {open === 'termin' ? (
+                    <form action={submitAppointmentAction} className={styles.miniForm}>
+                        <input type="hidden" name="token" value={token} />
+                        <p className={styles.hint}>Bis zu 4 mögliche Termine – ich melde mich zur Abstimmung.</p>
                         {[1, 2, 3, 4].map((i) => (
-                            <label key={i}>Vorschlag {i}
-                                <input type="datetime-local" name={`slot_${i}`} /></label>
+                            <input key={i} type="datetime-local" name={`slot_${i}`} aria-label={`Terminvorschlag ${i}`} />
                         ))}
-                    </div>
-                    <label>Nachricht (optional)
-                        <textarea name="message" rows={3} placeholder="Anmerkungen zu den Terminen …" /></label>
-                    <button type="submit" className={styles.submitBtn}>Termine vorschlagen</button>
-                </form>
-            )}
+                        <textarea name="message" rows={2} placeholder="Anmerkung (optional) …" />
+                        <div className={styles.miniActions}>
+                            <button type="submit" className={styles.primary}>Vorschlagen</button>
+                            <button type="button" className={styles.ghost} onClick={() => setOpen(null)}>Abbrechen</button>
+                        </div>
+                    </form>
+                ) : (
+                    <button type="button" className={styles.blockBtn} onClick={() => toggle('termin')}>
+                        {confirmedSlot ? 'Anderen Termin vorschlagen' : 'Termin vorschlagen'}
+                    </button>
+                )}
+            </section>
 
-            {open === 'absage' && (
-                <form action={submitRejectionAction} className={styles.responseForm}>
-                    <input type="hidden" name="token" value={token} />
-                    <p className={styles.responseHint}>
-                        Schade! Ein kurzes Feedback hilft sehr weiter. Falls Sie es sich anders überlegen,
-                        können Sie stattdessen auch eine <strong>Rückfrage</strong> stellen – dann bleibt der Prozess offen.
-                    </p>
-                    <label>Woran lag es? (optional)
-                        <textarea name="reason" rows={4} placeholder="Kurzes Feedback zur Absage …" /></label>
-                    <p className={styles.responseHint}>Bewertung (optional) – hilft mir sehr weiter:</p>
-                    {RATING_FACTORS.map((f) => (
-                        <StarRating key={f.key} name={`rating_${f.key}`} label={f.label} />
-                    ))}
-                    <button type="submit" className={styles.rejectSubmit}>Absage absenden</button>
-                    <p className={styles.responseNote}>Erst mit dem Absenden wird der Vorgang geschlossen.</p>
-                </form>
-            )}
-        </section>
+            <section className={styles.panel}>
+                {open === 'absage' ? (
+                    <form action={submitRejectionAction} className={styles.miniForm}>
+                        <input type="hidden" name="token" value={token} />
+                        <h2 className={styles.panelTitle}><FiXCircle aria-hidden="true" /> Absage</h2>
+                        <p className={styles.hint}>Falls Sie es sich anders überlegen, schreiben Sie stattdessen im Gespräch – dann bleibt der Prozess offen.</p>
+                        <textarea name="reason" rows={3} placeholder="Woran lag es? (optional)" />
+                        <p className={styles.hint}>Bewertung (optional) – hilft mir sehr weiter:</p>
+                        {RATING_FACTORS.map((f) => <StarRating key={f.key} name={`rating_${f.key}`} label={f.label} />)}
+                        <div className={styles.miniActions}>
+                            <button type="submit" className={styles.reject}>Absage absenden</button>
+                            <button type="button" className={styles.ghost} onClick={() => setOpen(null)}>Abbrechen</button>
+                        </div>
+                        <p className={styles.note}>Erst mit dem Absenden wird der Vorgang geschlossen.</p>
+                    </form>
+                ) : (
+                    <button type="button" className={`${styles.blockBtn} ${styles.rejectBtn}`} onClick={() => toggle('absage')}>
+                        <FiXCircle aria-hidden="true" /> Absagen
+                    </button>
+                )}
+            </section>
+        </div>
     );
 }
