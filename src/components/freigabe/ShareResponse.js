@@ -74,6 +74,7 @@ export default function ShareResponse({ token, conversation = [], confirmedSlot 
                     <form action={submitRejectionAction} className={styles.miniForm}>
                         <input type="hidden" name="token" value={token} />
                         <h2 className={styles.panelTitle}><FiXCircle aria-hidden="true" /> Absage</h2>
+                        <p className={styles.leadText}>Schade, dass es diesmal nicht gepasst hat. Für meine persönliche Weiterentwicklung würde mich sehr interessieren, woran es letztlich gelegen hat – über ein paar ehrliche Zeilen und eine kurze Bewertung freue ich mich sehr.</p>
                         <p className={styles.hint}>Falls Sie es sich anders überlegen, schreiben Sie stattdessen im Gespräch – dann bleibt der Prozess offen.</p>
                         <textarea name="reason" rows={3} placeholder="Woran lag es? (optional)" />
                         <p className={styles.hint}>Bewertung (optional) – hilft mir sehr weiter:</p>
