@@ -122,13 +122,20 @@ export async function submitQuestionAction(formData) {
 export async function submitAppointmentAction(formData) {
     const token = (formData.get('token') || '').toString();
     const slots = [1, 2, 3, 4].map((i) => (formData.get(`slot_${i}`) || '').toString().trim()).filter(Boolean);
+    const contact = (formData.get('contact') || '').toString().trim();
+    const people = (formData.get('people') || '').toString().trim();
     const message = (formData.get('message') || '').toString().trim();
     const share = getShareForResponse(token);
     if (!share || slots.length === 0) redirect(`/freigabe/${token}`);
-    addAppointment(share.id, slots, message);
+    addAppointment(share.id, slots, { contact, people, message });
     revalidate();
     const list = slots.map((s) => `<li>${esc(s.replace('T', ' '))} Uhr</li>`).join('');
-    await notify(share, 'Terminvorschlag', `<ul>${list}</ul>${message ? `<blockquote>${esc(message)}</blockquote>` : ''}`);
+    const rows = [
+        contact && `<p><strong>Ansprechpartner:in:</strong> ${esc(contact)}</p>`,
+        people && `<p><strong>Weitere Teilnehmer:</strong> ${esc(people)}</p>`,
+        message && `<blockquote>${esc(message)}</blockquote>`,
+    ].filter(Boolean).join('');
+    await notify(share, 'Terminvorschlag', `<ul>${list}</ul>${rows}`);
     redirect(`/freigabe/${token}?sent=termin`);
 }
 

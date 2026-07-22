@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { getContentDb } from './db';
-import { STATUS_ORDER, RUNNING_STATUS } from '@/lib/applicationStatus';
+import { STATUS_ORDER, RUNNING_STATUS, RATING_FACTORS } from '@/lib/applicationStatus';
 
 // Freigaben: benannte Dokument-Sammlungen unter /freigabe/<token>, zugleich
 // Bewerbungs-Tracking (Status, Termine, Aufrufe/Downloads, Verlauf).
@@ -197,30 +197,30 @@ export function addQuestion(shareId, message) {
     db.prepare('UPDATE shares SET updated_at = ? WHERE id = ?').run(Date.now(), shareId);
 }
 
-// Arbeitgeber schlägt bis zu 4 Termine vor (+ optionale Nachricht).
-export function addAppointment(shareId, slots, message) {
+// Arbeitgeber schlägt bis zu 4 Termine vor (+ optional Ansprechpartner:in,
+// weitere Teilnehmer und eine Anmerkung).
+export function addAppointment(shareId, slots, extra = {}) {
     const db = getContentDb();
     const clean = (slots || []).map((s) => (s || '').toString().trim()).filter(Boolean).slice(0, 4);
-    db.prepare('UPDATE shares SET proposed_slots = ?, updated_at = ? WHERE id = ?')
-        .run(JSON.stringify(clean), Date.now(), shareId);
-    const detail = clean.length + ' Termin(e)' + (message ? ' · ' + message.toString().slice(0, 2000) : '');
+    const contact = (extra.contact || '').toString().slice(0, 300);
+    const people = (extra.people || '').toString().slice(0, 500);
+    const message = (extra.message || '').toString().slice(0, 2000);
+    db.prepare(`UPDATE shares SET proposed_slots=@slots, proposed_contact=@contact,
+        proposed_people=@people, proposed_message=@message, updated_at=@now WHERE id=@id`)
+        .run({ id: shareId, slots: JSON.stringify(clean), contact, people, message, now: Date.now() });
+    const detail = clean.length + ' Termin(e)' + (message ? ' · ' + message : '');
     logEvent(db, shareId, 'appointment', detail);
 }
 
-// Arbeitgeber sagt ab (schließt den Prozess) — mit Feedback + 7 Sternen.
+// Arbeitgeber sagt ab (schließt den Prozess) — mit Feedback + Sternen.
 export function submitRejection(shareId, data) {
     const db = getContentDb();
     const clamp = (n) => Math.max(0, Math.min(5, Number(n) || 0));
+    const setCols = RATING_FACTORS.map((f) => `rating_${f.key}=@r_${f.key}`).join(', ');
+    const params = { id: shareId, now: Date.now(), reason: (data.reason || '').toString().slice(0, 4000) };
+    RATING_FACTORS.forEach((f) => { params[`r_${f.key}`] = clamp(data[f.key]); });
     db.prepare(`UPDATE shares SET status='absage', employer_closed=1, feedback_at=@now,
-        feedback_reason=@reason, rating_quality=@quality, rating_fit=@fit, rating_experience=@experience,
-        rating_relevance=@relevance, rating_manner=@manner, rating_culture=@culture, rating_overall=@overall,
-        updated_at=@now WHERE id=@id`).run({
-        id: shareId, now: Date.now(),
-        reason: (data.reason || '').toString().slice(0, 4000),
-        quality: clamp(data.quality), fit: clamp(data.fit), experience: clamp(data.experience),
-        relevance: clamp(data.relevance), manner: clamp(data.manner), culture: clamp(data.culture),
-        overall: clamp(data.overall),
-    });
+        feedback_reason=@reason, ${setCols}, updated_at=@now WHERE id=@id`).run(params);
     logEvent(db, shareId, 'status', 'absage');
     logEvent(db, shareId, 'rejection', (data.reason || '').toString().slice(0, 200));
 }

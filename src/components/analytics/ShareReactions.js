@@ -46,6 +46,13 @@ export default function ShareReactions({ share }) {
                             );
                         })}
                     </ul>
+                    {(share.proposed_contact || share.proposed_people || share.proposed_message) && (
+                        <dl className="an-reaction-meta">
+                            {share.proposed_contact && (<><dt>Ansprechpartner:in</dt><dd>{share.proposed_contact}</dd></>)}
+                            {share.proposed_people && (<><dt>Weitere Teilnehmer</dt><dd>{share.proposed_people}</dd></>)}
+                            {share.proposed_message && (<><dt>Anmerkung</dt><dd>{share.proposed_message}</dd></>)}
+                        </dl>
+                    )}
                     <p className="an-card-note">Bestätigen setzt den Status auf „Einladung zum Gespräch"; der Arbeitgeber sieht den Termin auf der Freigabe-Seite.</p>
                 </div>
             )}

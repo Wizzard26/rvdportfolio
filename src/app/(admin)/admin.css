@@ -408,6 +408,9 @@ body {
 .an-slot-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--adm-border); }
 .an-slot-row:last-child { border-bottom: 0; }
 .an-reaction-reason { background: var(--adm-surface-2, rgba(0,0,0,0.05)); border-radius: 8px; padding: 10px 12px; margin: 0 0 10px; white-space: pre-line; }
+.an-reaction-meta { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0 0 10px; font-size: 14px; }
+.an-reaction-meta dt { font-weight: 600; color: var(--adm-muted, #667); }
+.an-reaction-meta dd { margin: 0; white-space: pre-line; }
 .an-ratings { list-style: none; margin: 0; padding: 0; }
 .an-ratings li { display: flex; justify-content: space-between; max-width: 340px; padding: 4px 0; font-size: 14px; }
 .an-stars { color: #e0952b; letter-spacing: 2px; }

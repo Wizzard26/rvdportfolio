@@ -31,7 +31,7 @@ export const RATING_FACTORS = [
     { key: 'experience', label: 'Relevante Erfahrung' },
     { key: 'relevance', label: 'Bezug zu Stelle & Firma' },
     { key: 'manner', label: 'Auftreten / Freundlichkeit' },
-    { key: 'culture', label: 'Team-/Kultur-Passung' },
+    { key: 'process', label: 'Bewerbungsprozess (Ablauf & Kommunikation)' },
     { key: 'overall', label: 'Gesamteindruck' },
 ];
 

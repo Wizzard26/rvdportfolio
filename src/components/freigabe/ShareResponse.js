@@ -54,6 +54,8 @@ export default function ShareResponse({ token, conversation = [], confirmedSlot 
                         {[1, 2, 3, 4].map((i) => (
                             <input key={i} type="datetime-local" name={`slot_${i}`} aria-label={`Terminvorschlag ${i}`} />
                         ))}
+                        <input type="text" name="contact" placeholder="Ansprechpartner:in im Gespräch (optional)" aria-label="Ansprechpartner:in im Gespräch" />
+                        <input type="text" name="people" placeholder="Weitere Teilnehmer (optional)" aria-label="Weitere Teilnehmer" />
                         <textarea name="message" rows={2} placeholder="Anmerkung (optional) …" />
                         <div className={styles.miniActions}>
                             <button type="submit" className={styles.primary}>Vorschlagen</button>

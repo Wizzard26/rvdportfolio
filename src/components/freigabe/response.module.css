@@ -27,7 +27,7 @@
 .rejectBtn:hover { background: #d64545; color: #fff; }
 
 .miniForm { display: flex; flex-direction: column; gap: 10px; }
-.miniForm input[type="datetime-local"], .miniForm textarea {
+.miniForm input[type="datetime-local"], .miniForm input[type="text"], .miniForm textarea {
     padding: 9px 11px; border: 1px solid var(--dark-light); border-radius: 8px;
     font-family: inherit; font-size: 0.95rem; color: var(--dark); background: #fff;
 }

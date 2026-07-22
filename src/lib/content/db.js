@@ -200,6 +200,12 @@ function migrate(database) {
     ensureColumn(database, 'shares', 'rating_culture', 'INTEGER NOT NULL DEFAULT 0');
     ensureColumn(database, 'shares', 'owner_reply', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'shares', 'confirmed_slot', "TEXT NOT NULL DEFAULT ''");
+    // Zusatzangaben zum Terminvorschlag des Arbeitgebers.
+    ensureColumn(database, 'shares', 'proposed_contact', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'proposed_people', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'proposed_message', "TEXT NOT NULL DEFAULT ''");
+    // „Wie wurde der Bewerbungsprozess wahrgenommen?" (ersetzt Team-/Kultur-Passung).
+    ensureColumn(database, 'shares', 'rating_process', 'INTEGER NOT NULL DEFAULT 0');
     // Bestehende Freigaben ohne Erstelldatum auf updated_at setzen (idempotent).
     database.prepare('UPDATE shares SET created_at = updated_at WHERE created_at = 0').run();
 }
