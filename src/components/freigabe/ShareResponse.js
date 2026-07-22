@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FiCalendar, FiXCircle, FiCheckCircle } from 'react-icons/fi';
+import { FiCalendar, FiXCircle, FiCheckCircle, FiMessageCircle } from 'react-icons/fi';
 import { submitQuestionAction, submitAppointmentAction, submitRejectionAction } from '@/lib/content/sharesActions';
 import { RATING_FACTORS } from '@/lib/applicationStatus';
 import ShareConversation from './ShareConversation';
@@ -20,18 +20,26 @@ export default function ShareResponse({ token, conversation = [], confirmedSlot 
     const [open, setOpen] = useState(null);
     const toggle = (k) => setOpen(open === k ? null : k);
 
+    const showChat = conversation.length > 0 || open === 'rueckfrage';
+
     return (
         <div className={styles.aside}>
             <section className={styles.panel}>
-                <h2 className={styles.panelTitle}>Gespräch</h2>
-                <ShareConversation
-                    messages={conversation}
-                    perspective="employer"
-                    sendAction={submitQuestionAction}
-                    hiddenName="token"
-                    hiddenValue={token}
-                    placeholder="Ihre Rückfrage oder Nachricht …"
-                />
+                <h2 className={styles.panelTitle}><FiMessageCircle aria-hidden="true" /> Rückfragen</h2>
+                {showChat ? (
+                    <ShareConversation
+                        messages={conversation}
+                        perspective="employer"
+                        sendAction={submitQuestionAction}
+                        hiddenName="token"
+                        hiddenValue={token}
+                        placeholder="Ihre Rückfrage oder Nachricht …"
+                    />
+                ) : (
+                    <button type="button" className={styles.blockBtn} onClick={() => toggle('rueckfrage')}>
+                        <FiMessageCircle aria-hidden="true" /> Rückfrage / Nachricht
+                    </button>
+                )}
             </section>
 
             <section className={styles.panel}>

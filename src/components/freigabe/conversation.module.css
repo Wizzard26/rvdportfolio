@@ -19,14 +19,14 @@
 .body { margin: 0; white-space: pre-line; font-size: 0.95rem; line-height: 1.45; }
 .time { font-size: 10px; color: var(--dark-6, #889); align-self: flex-end; }
 
-.form { display: flex; gap: 8px; align-items: flex-end; }
+.form { display: flex; flex-direction: column; gap: 8px; }
 .form textarea {
-    flex: 1 1 auto; padding: 9px 11px; border: 1px solid rgba(0,0,0,0.14);
+    width: 100%; min-height: 96px; padding: 11px 13px; border: 1px solid rgba(0,0,0,0.14);
     border-radius: 8px; font-family: inherit; font-size: 0.95rem; resize: vertical; background: #fff;
 }
 .form button {
-    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px;
-    padding: 9px 14px; border: 0; border-radius: 8px;
+    width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 11px 14px; border: 0; border-radius: 8px;
     background: var(--primary, #3f687e); color: #fff; font-weight: 600; cursor: pointer;
 }
 .form button:hover { background: var(--primary-dark, #375567); }
