@@ -3,9 +3,10 @@ import { notFound } from 'next/navigation';
 import { FiArrowLeft } from 'react-icons/fi';
 import ShareForm from '@/components/analytics/ShareForm';
 import { updateShareAction } from '@/lib/content/sharesActions';
-import { getShare } from '@/lib/content/sharesStore';
+import { getShare, getShareEvents } from '@/lib/content/sharesStore';
 import { getDocuments } from '@/lib/content/documentsStore';
 import ShareLink from '@/components/analytics/ShareLink';
+import ShareTimeline from '@/components/analytics/ShareTimeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,7 @@ export default async function EditShare({ params }) {
     const share = getShare(Number(id));
     if (!share) notFound();
     const documents = getDocuments();
+    const events = getShareEvents(share.id);
 
     return (
         <div className="an-dashboard">
@@ -26,6 +28,11 @@ export default async function EditShare({ params }) {
             </div>
             <section className="an-card an-card-form">
                 <ShareForm action={updateShareAction} share={share} documents={documents} />
+            </section>
+
+            <section className="an-card">
+                <h2 className="an-catgroup-title">Verlauf</h2>
+                <ShareTimeline events={events} />
             </section>
         </div>
     );

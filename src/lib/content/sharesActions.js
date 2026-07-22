@@ -12,6 +12,7 @@ import {
 
 function revalidate() {
     revalidatePath('/dashboard/dokumente/freigaben');
+    revalidatePath('/dashboard/bewerbungen');
 }
 
 function parse(formData) {
@@ -27,6 +28,16 @@ function parse(formData) {
         contact: g('contact'),
         position: g('position'),
         access_code: g('access_code'),
+        sent_at: g('sent_at'),
+        expires_at: g('expires_at'),
+        status: g('status'),
+        interview_at: g('interview_at'),
+        interview_contact: g('interview_contact'),
+        interview_people: g('interview_people'),
+        decision_date: g('decision_date'),
+        rejection_reason: g('rejection_reason'),
+        followup_at: g('followup_at'),
+        notes: g('notes'),
         is_active: formData.get('is_active') ? 1 : 0,
         documentIds: formData.getAll('document_ids').map((v) => Number(v)).filter(Boolean),
     };

@@ -3,8 +3,9 @@ import { cookies } from "next/headers";
 import { TbFileTypePdf } from "react-icons/tb";
 import { FiDownload, FiLock, FiCheckCircle, FiArchive } from "react-icons/fi";
 import { roboto_condensed } from "@/app/fonts";
-import { getShareByToken, getShareRawByToken, shareCookieName } from "@/lib/content/sharesStore";
+import { getShareByToken, getShareRawByToken, shareCookieName, recordView } from "@/lib/content/sharesStore";
 import { unlockShareAction } from "@/lib/content/sharesActions";
+import { SESSION_COOKIE } from "@/lib/auth";
 import CloseShareButton from "@/components/analytics/CloseShareButton";
 import styles from "./styles.module.css";
 
@@ -116,12 +117,17 @@ export default async function SharePage({ params, searchParams }) {
         notFound();
     }
 
+    const cookieStore = await cookies();
+    const isOwner = !!cookieStore.get(SESSION_COOKIE)?.value; // eigene Vorschau nicht zählen
+
     if (share.access_code) {
-        const unlocked = (await cookies()).get(shareCookieName(share.id))?.value === '1';
+        const unlocked = cookieStore.get(shareCookieName(share.id))?.value === '1';
         if (!unlocked) {
             return <GateView token={token} title={share.title} error={sp?.gate === '1'} />;
         }
     }
+
+    if (!isOwner) recordView(share.id);
 
     return <ShareView share={share} />;
 }

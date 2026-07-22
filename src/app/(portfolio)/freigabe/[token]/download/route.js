@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { readFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
-import { getShareByToken, shareCookieName } from '@/lib/content/sharesStore';
+import { getShareByToken, shareCookieName, recordDownload } from '@/lib/content/sharesStore';
 import { documentsDir, isSafePdfName } from '@/lib/content/documents';
 import { createZip } from '@/lib/zip';
+import { SESSION_COOKIE } from '@/lib/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -47,6 +48,9 @@ export async function GET(request, { params }) {
         if (data) entries.push({ name: safeEntryName(d.title, used), data });
     }
     if (entries.length === 0) return new NextResponse('Keine Dateien', { status: 404 });
+
+    // Download protokollieren (eigene Downloads des Admins ausgenommen).
+    if (!request.cookies.get(SESSION_COOKIE)?.value) recordDownload(share.id, 'zip');
 
     const zip = createZip(entries);
     const zipName = (share.purpose === 'bewerbung' || share.purpose === 'initiativ')

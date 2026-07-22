@@ -145,6 +145,15 @@ function migrate(database) {
             sort_order  INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_share_items ON share_items (share_id, sort_order);
+
+        CREATE TABLE IF NOT EXISTS share_events (
+            id       INTEGER PRIMARY KEY AUTOINCREMENT,
+            share_id INTEGER NOT NULL,
+            kind     TEXT    NOT NULL DEFAULT '',
+            detail   TEXT    NOT NULL DEFAULT '',
+            at       INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_share_events ON share_events (share_id, at);
     `);
 
     // Nachrüsten für bereits bestehende Tabellen (z. B. Vita auf dem Server).
@@ -164,6 +173,20 @@ function migrate(database) {
     ensureColumn(database, 'shares', 'contact', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'shares', 'position', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'shares', 'access_code', "TEXT NOT NULL DEFAULT ''");
+    // Bewerbungs-Tracking (Datum, Ablauf, Status, Antwort-Details) nachrüsten.
+    ensureColumn(database, 'shares', 'created_at', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'shares', 'sent_at', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'expires_at', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'status', "TEXT NOT NULL DEFAULT 'offen'");
+    ensureColumn(database, 'shares', 'interview_at', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'interview_contact', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'interview_people', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'decision_date', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'rejection_reason', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'followup_at', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'shares', 'notes', "TEXT NOT NULL DEFAULT ''");
+    // Bestehende Freigaben ohne Erstelldatum auf updated_at setzen (idempotent).
+    database.prepare('UPDATE shares SET created_at = updated_at WHERE created_at = 0').run();
 }
 
 export function getContentDb() {
