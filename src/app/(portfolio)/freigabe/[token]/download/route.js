@@ -63,6 +63,7 @@ export async function GET(request, { params }) {
             'Content-Disposition': `attachment; filename="${zipName}"`,
             'Content-Length': String(zip.length),
             'Cache-Control': 'no-store',
+            'X-Robots-Tag': 'noindex, nofollow',
         },
     });
 }

@@ -145,14 +145,35 @@ export default function Home() {
 
                 <section>
                     <div className="content-inner">
-                        <h2 className={`${roboto.className} is--centered`}>Sie haben Interesse an ein Gespräch ?</h2>
-                        <div className="col-12  align-center">
-                            <Button
-                                href="/contact"
-                                title="Kontaktieren"
-                                style="secondary-full"
-                                text="Nachricht Schreiben"
-                            />
+                        <h2 className={`${roboto.className} is--centered`}>Sie haben Interesse an ein Gespräch?</h2>
+                        <p className="is--centered" style={{ maxWidth: '760px', margin: '0 auto 24px' }}>
+                            Sie möchten mich kennenlernen oder haben eine Frage? Dann schreiben Sie mir einfach
+                            eine Nachricht – ich melde mich zeitnah bei Ihnen.
+                        </p>
+                        <h3 className={`${ranga.className} is--centered`} style={{ margin: '0 0 16px' }}>
+                            Oder möchten Sie sich meinem Bewerbungsprozess stellen?
+                        </h3>
+                        <p className="is--centered" style={{ maxWidth: '760px', margin: '0 auto 28px' }}>
+                            Was halten Sie von einem Perspektivwechsel? Bewerben Sie sich einfach bei mir und beantworten
+                            Sie mir ein paar Fragen. Kein Muss, keine Formalität – nur ein Angebot auf Augenhöhe.
+                        </p>
+                        <div className="home-cta-actions row">
+                            <div className="col-12 col-md-6 align-center align-md-right">
+                                <Button
+                                    href="/contact"
+                                    title="Kontaktieren"
+                                    style="secondary-full"
+                                    text="Nachricht schreiben"
+                                />
+                            </div>
+                            <div className="col-12 col-md-6 align-center align-md-left">
+                                <Button
+                                    href="/angebot"
+                                    title="Ihr Angebot an mich"
+                                    style="primary"
+                                    text="Bewerben Sie sich bei mir"
+                                />
+                            </div>
                         </div>
                     </div>
                 </section>

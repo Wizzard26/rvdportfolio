@@ -14,6 +14,7 @@ const routes = [
     { path: '/showcase', changeFrequency: 'monthly', priority: 0.9 },
     { path: '/vita', changeFrequency: 'monthly', priority: 0.9 },
     { path: '/about-me', changeFrequency: 'monthly', priority: 0.8 },
+    { path: '/angebot', changeFrequency: 'monthly', priority: 0.8 },
     { path: '/contact', changeFrequency: 'yearly', priority: 0.7 },
     { path: '/imprint', changeFrequency: 'yearly', priority: 0.2 },
     { path: '/disclaimer', changeFrequency: 'yearly', priority: 0.2 },

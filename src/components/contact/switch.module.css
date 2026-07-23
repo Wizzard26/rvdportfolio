@@ -1,0 +1,14 @@
+.switch {
+    display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap;
+}
+.tab {
+    flex: 1 1 240px; padding: 13px 18px; border: 1px solid var(--dark-light); border-radius: 10px;
+    background: #fff; color: var(--dark-6, #667); cursor: pointer; font-size: 1.02rem; line-height: 1.2;
+    transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+.tab:hover { border-color: var(--primary); color: var(--primary); }
+.active { border-color: var(--primary); background: var(--primary); color: #fff; }
+.active:hover { color: #fff; }
+
+.offer > h2 { margin: 0 0 8px; }
+.lead { margin: 0 0 24px; line-height: 1.6; max-width: 760px; }

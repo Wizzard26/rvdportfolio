@@ -1,7 +1,7 @@
 import Teaser from "@/components/teaser/page";
 import HeroContent from "@/components/herocontent/page";
 import styles from "./styles.module.css";
-import ContactForm from "@/components/contact/ContactForm";
+import ContactSwitch from "@/components/contact/ContactSwitch";
 import ContactData from "@/components/contact/ContactData";
 import JsonLd from "@/components/seo/JsonLd";
 import { breadcrumbSchema, pageMetadata, siteConfig } from "@/lib/seo";
@@ -46,7 +46,7 @@ export default function Contact() {
                                 <ContactData />
                             </div>
                             <div className={'col-12 col-lg-9'}>
-                                <ContactForm />
+                                <ContactSwitch />
                             </div>
                         </div>
                     </div>

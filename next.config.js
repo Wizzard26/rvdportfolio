@@ -9,6 +9,19 @@ const nextConfig = {
     // - geoip-lite lädt seine Länder-Datendateien (.dat) per __dirname
     // Beim Bündeln würden die Pfade brechen (ENOENT auf die .dat-Datei).
     serverExternalPackages: ['better-sqlite3', 'geoip-lite'],
+    async headers() {
+        return [
+            // Repo-PDFs (z. B. /document/Vita.pdf) werden statisch von Next
+            // ausgeliefert und sind das Ziel der /download/…-Redirects. Sie sind
+            // private/geteilte Dateien → nicht indexieren. Die dynamischen
+            // Datei-Routen (/documents, /freigabe/…/download) setzen den Header
+            // selbst.
+            {
+                source: '/document/:path*',
+                headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+            },
+        ]
+    },
     async redirects() {
         return [
             // www → non-www.
