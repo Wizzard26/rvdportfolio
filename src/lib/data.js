@@ -99,6 +99,12 @@ export const heroContent = [
 
     },
     {
+        sitename: "Angebot",
+        imgUrl: "/img/hero_contact.jpg",
+        imgAlt: "Ihr Angebot an mich",
+        textBoxBg: false,
+    },
+    {
         sitename: "Disclaimer",
         imgUrl: "/img/hero_imprint.jpg",
         imgAlt: "Disclaimer",
@@ -210,6 +216,17 @@ export const pageContent = [
                 headline: "Moin! Nehmen Sie doch einfach mal Kontakt mit mir auf.",
                 subline: "Jedes Gespräch beginnt mit einem ersten Satz",
                 textBox: "Sie haben Interesse daran mich besser kennenzulernen, oder haben noch weitere Fragen?<br/>Dann geben Sie mir doch einfach Bescheid über einen meiner aufgelisteten Kanäle,<br/> ich werde mich dann schnellstmöglich bei Ihnen melden.<br/><br/>Mit dem hier dargestellten Kontaktformular,<br/> können Sie mir auf direkten Wege eine Nachricht zukommen lassen."
+            }
+        ]
+    },
+    {
+        sitename: "Angebot",
+        section: [
+            {
+                name: "teaser",
+                headline: "Trauen Sie sich, meinen Bewerbungsprozess zu bestehen?",
+                subline: "Bewerben Sie sich bei mir – ein Perspektivwechsel auf Augenhöhe",
+                textBox: "Sie suchen jemanden wie mich?<br/>Dann machen Sie mir Ihr Angebot – und beantworten Sie einmal die Fragen, die sonst ich beantworten müsste.<br/><br/>Kein Muss und keine Formalität, sondern ein ehrlicher Perspektivwechsel auf Augenhöhe. Wer sich traut, hebt sich schon beim ersten Kontakt ab."
             }
         ]
     }

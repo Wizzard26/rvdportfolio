@@ -411,6 +411,23 @@ body {
 .an-reaction-meta { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0 0 10px; font-size: 14px; }
 .an-reaction-meta dt { font-weight: 600; color: var(--adm-muted, #667); }
 .an-reaction-meta dd { margin: 0; white-space: pre-line; }
+
+/* Angebote („umgekehrte Bewerbung") */
+.an-offer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.an-offer-head h2 { margin: 0; font-size: 20px; }
+.an-offer-qa { margin: 0 0 16px; }
+.an-offer-qa:last-child { margin-bottom: 0; }
+.an-offer-qa strong { display: block; font-size: 13px; color: var(--adm-muted, #667); margin-bottom: 3px; }
+.an-offer-qa p { margin: 0; white-space: pre-line; line-height: 1.5; }
+.an-star-input { display: inline-flex; gap: 2px; }
+.an-star-btn { background: transparent; border: 0; cursor: pointer; padding: 1px; color: #e0952b; font-size: 20px; line-height: 1; display: inline-flex; }
+.an-offer-rating .an-ratings li { align-items: center; }
+.an-offer-rating > button { margin-top: 14px; }
+.an-offer-notes { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.an-offer-notes textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--adm-border); border-radius: 8px;
+    font-family: inherit; font-size: 14px; resize: vertical; background: var(--adm-surface, #fff); color: inherit;
+}
 .an-ratings { list-style: none; margin: 0; padding: 0; }
 .an-ratings li { display: flex; justify-content: space-between; max-width: 340px; padding: 4px 0; font-size: 14px; }
 .an-stars { color: #e0952b; letter-spacing: 2px; }

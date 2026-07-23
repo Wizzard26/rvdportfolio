@@ -1,0 +1,101 @@
+/* Formular – volle Content-Breite, zweispaltig auf Desktop.
+   Optik bewusst an das Kontaktformular angeglichen: flach, ohne Karten-Rahmen,
+   schlichte Felder, eckiger großgeschriebener Primär-Button. */
+.form { display: flex; flex-direction: column; gap: 34px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 30px; }
+.full { grid-column: 1 / -1; }
+@media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+.formError {
+    padding: 12px 16px; margin: 0;
+    background: rgba(214,69,69,0.1); border: 1px solid rgba(214,69,69,0.35); color: #b83a3a; font-weight: 600;
+}
+.block { border: 0; padding: 0; margin: 0; }
+.block legend {
+    float: none; width: 100%; padding: 0; margin: 0 0 6px; font-family: inherit; font-weight: 700; font-size: 1.35rem; color: var(--dark);
+}
+.hint { color: var(--dark-6, #667); font-size: 0.9rem; margin: 0 0 6px; }
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+@media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+
+.field { display: flex; flex-direction: column; margin-bottom: 20px; }
+.field > span { font-size: 1rem; color: var(--dark); margin-bottom: 5px; }
+.field > input, .field > textarea {
+    width: 100%; height: 45px; padding: 5px 10px;
+    font-family: inherit; font-size: 1rem; color: var(--dark); resize: vertical;
+}
+.field > textarea { height: auto; }
+
+.muted { color: var(--dark-6, #889); font-weight: 400; font-style: normal; font-size: 0.85em; }
+
+/* Arbeitsmodell / Vertragsart – Pillen-Checkboxen auf abgesetztem Panel */
+.checks {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    padding: 16px; margin: 5px 0 6px;
+    background: rgba(63,104,126,0.05); border: 1px solid var(--dark-light); border-radius: 4px;
+}
+.check {
+    display: inline-flex; align-items: center; gap: 8px; padding: 9px 15px;
+    border: 1px solid var(--dark-light); border-radius: 999px; cursor: pointer; background: #fff;
+    font-size: 0.92rem; user-select: none; transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+.check input { accent-color: var(--primary); margin: 0; }
+.check:has(input:checked) { border-color: var(--primary); background: rgba(63,104,126,0.14); color: var(--primary); font-weight: 600; }
+
+/* Schieber */
+.range { display: flex; flex-direction: column; gap: 10px; padding-top: 2px; }
+.rangeValue { font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+.rangeTrack { position: relative; height: 24px; }
+.rangeTrack::before {
+    content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 6px;
+    transform: translateY(-50%); background: var(--dark-light); border-radius: 3px;
+}
+.rangeFill { position: absolute; top: 50%; height: 6px; transform: translateY(-50%); background: var(--primary); border-radius: 3px; }
+.rangeThumb {
+    position: absolute; top: 0; left: 0; width: 100%; height: 24px; margin: 0;
+    background: transparent; -webkit-appearance: none; appearance: none; pointer-events: none;
+}
+.rangeThumb::-webkit-slider-runnable-track { background: transparent; border: 0; }
+.rangeThumb::-moz-range-track { background: transparent; border: 0; }
+.rangeThumb::-webkit-slider-thumb {
+    -webkit-appearance: none; pointer-events: auto; width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--primary); cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.rangeThumb::-moz-range-thumb {
+    pointer-events: auto; width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--primary); cursor: pointer;
+}
+.singleRange {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px; margin: 9px 0;
+    background: linear-gradient(var(--primary), var(--primary)) 0/var(--fill, 50%) 100% no-repeat, var(--dark-light);
+}
+.singleRange::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--primary); cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.singleRange::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 2px solid var(--primary); cursor: pointer;
+}
+
+.actions { display: flex; align-items: center; justify-content: flex-end; gap: 20px; flex-wrap: wrap; }
+.submit {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 15px 35px; border: 0; border-radius: 0; cursor: pointer;
+    background: var(--primary); color: var(--fontlight); font-size: 1rem;
+    text-transform: uppercase; transition: background 300ms ease-in-out;
+}
+.submit:hover { background: var(--primary-dark); }
+.submit:disabled { opacity: 0.6; cursor: default; }
+.required { color: var(--dark-6, #889); font-size: 0.875rem; }
+
+/* Honeypot – für Menschen unsichtbar, für Bots ein Köder. */
+.honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+/* Erfolgs-Ansicht */
+.success {
+    max-width: 640px; text-align: center; padding: 40px 28px;
+    border: 1px solid var(--dark-light); border-radius: 16px;
+}
+.successIcon { font-size: 48px; color: #3f9d5a; margin-bottom: 12px; }
+.success h2 { margin: 0 0 12px; }
+.success p { line-height: 1.6; margin: 0; color: var(--dark-6, #445); }

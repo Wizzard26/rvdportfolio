@@ -154,6 +154,59 @@ function migrate(database) {
             at       INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_share_events ON share_events (share_id, at);
+
+        -- „Umgekehrte Bewerbung": Angebote von Arbeitgebern an René.
+        CREATE TABLE IF NOT EXISTS offers (
+            id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+            company               TEXT    NOT NULL DEFAULT '',
+            contact               TEXT    NOT NULL DEFAULT '',
+            email                 TEXT    NOT NULL DEFAULT '',
+            website               TEXT    NOT NULL DEFAULT '',
+            position              TEXT    NOT NULL DEFAULT '',
+            q_found               TEXT    NOT NULL DEFAULT '',
+            q_profile             TEXT    NOT NULL DEFAULT '',
+            q_tech                TEXT    NOT NULL DEFAULT '',
+            q_ai                  TEXT    NOT NULL DEFAULT '',
+            q_team                TEXT    NOT NULL DEFAULT '',
+            q_reviews             TEXT    NOT NULL DEFAULT '',
+            q_onboarding          TEXT    NOT NULL DEFAULT '',
+            q_equipment           TEXT    NOT NULL DEFAULT '',
+            q_growth              TEXT    NOT NULL DEFAULT '',
+            q_benefits            TEXT    NOT NULL DEFAULT '',
+            q_why                 TEXT    NOT NULL DEFAULT '',
+            model                 TEXT    NOT NULL DEFAULT '',
+            location              TEXT    NOT NULL DEFAULT '',
+            homeoffice_pct        INTEGER NOT NULL DEFAULT 0,
+            hours_per_week        INTEGER NOT NULL DEFAULT 0,
+            vacation_days         INTEGER NOT NULL DEFAULT 0,
+            start_date            TEXT    NOT NULL DEFAULT '',
+            probation             TEXT    NOT NULL DEFAULT '',
+            contract              TEXT    NOT NULL DEFAULT '',
+            learning_budget       INTEGER NOT NULL DEFAULT 0,
+            salary_min            INTEGER NOT NULL DEFAULT 0,
+            salary_max            INTEGER NOT NULL DEFAULT 0,
+            message               TEXT    NOT NULL DEFAULT '',
+            status                TEXT    NOT NULL DEFAULT 'neu',
+            notes                 TEXT    NOT NULL DEFAULT '',
+            rating_seriositaet    INTEGER NOT NULL DEFAULT 0,
+            rating_gehalt         INTEGER NOT NULL DEFAULT 0,
+            rating_passung        INTEGER NOT NULL DEFAULT 0,
+            rating_gesamteindruck INTEGER NOT NULL DEFAULT 0,
+            rated_at              INTEGER NOT NULL DEFAULT 0,
+            viewed_at             INTEGER NOT NULL DEFAULT 0,
+            created_at            INTEGER NOT NULL DEFAULT 0,
+            updated_at            INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_offers_created ON offers (created_at);
+
+        CREATE TABLE IF NOT EXISTS offer_events (
+            id       INTEGER PRIMARY KEY AUTOINCREMENT,
+            offer_id INTEGER NOT NULL,
+            kind     TEXT    NOT NULL DEFAULT '',
+            detail   TEXT    NOT NULL DEFAULT '',
+            at       INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_offer_events ON offer_events (offer_id, at);
     `);
 
     // Nachrüsten für bereits bestehende Tabellen (z. B. Vita auf dem Server).
