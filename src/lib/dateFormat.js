@@ -21,3 +21,19 @@ export function formatGermanDate(value) {
     const [y, mo, d] = iso.split('-');
     return `${d}.${mo}.${y}`;
 }
+
+// Datum + Uhrzeit in deutscher Zeitzone (Europe/Berlin) — für die Admin-Anzeige
+// (Analytics-Aufrufe, Angebots-/Share-Verläufe). WICHTIG: `timeZone` fest setzen.
+// Ohne ihn nutzt Node die Zeitzone des Servers — im Docker-Container ist das UTC,
+// wodurch alle Zeiten 2 h (im Winter 1 h) zu früh angezeigt würden. Europe/Berlin
+// berücksichtigt Sommer-/Winterzeit (CEST/CET) automatisch.
+export function formatBerlinDateTime(value, { withSeconds = false } = {}) {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return String(value ?? '');
+    return d.toLocaleString('de-DE', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+        ...(withSeconds ? { second: '2-digit' } : {}),
+        timeZone: 'Europe/Berlin',
+    });
+}

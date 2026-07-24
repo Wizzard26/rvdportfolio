@@ -1,5 +1,6 @@
 import { FiPlusCircle, FiSend, FiEye, FiDownload, FiFlag, FiLock, FiUnlock, FiMessageCircle, FiCalendar, FiXCircle, FiCornerUpLeft, FiCheckCircle, FiStar } from 'react-icons/fi';
 import { STATUS_LABELS } from '@/lib/applicationStatus';
+import { formatBerlinDateTime } from '@/lib/dateFormat';
 
 // Verlauf einer Freigabe/Bewerbung (aus share_events).
 const META = {
@@ -18,11 +19,7 @@ const META = {
     reopened:    { icon: FiUnlock,       label: () => 'Wieder aktiviert' },
 };
 
-function fmt(ts) {
-    return new Date(ts).toLocaleString('de-DE', {
-        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
-    });
-}
+const fmt = (ts) => formatBerlinDateTime(ts);
 
 export default function ShareTimeline({ events = [] }) {
     if (events.length === 0) return <p className="an-muted">Noch keine Ereignisse.</p>;

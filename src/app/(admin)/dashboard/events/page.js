@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getRawEvents, getEventTypeCounts } from '@/lib/analytics/queries';
 import { resolveRange } from '@/lib/analytics/range';
 import { formatNumber } from '@/lib/analytics/format';
+import { formatBerlinDateTime } from '@/lib/dateFormat';
 import AnHead from '@/components/analytics/AnHead';
 
 export const dynamic = 'force-dynamic';
@@ -11,8 +12,9 @@ const PAGE_SIZES = [25, 50, 100, 200];
 const DEFAULT_SIZE = 50;
 
 function timeLabel(ts) {
-    // Kompakt, UTC (wie die Speicherung).
-    return new Date(ts).toISOString().replace('T', ' ').slice(0, 19);
+    // Deutsche Zeit (Europe/Berlin). Gespeichert wird UTC; hier zur Anzeige
+    // umgerechnet, sonst zeigte der UTC-Container die Zeiten 2 h zu früh.
+    return formatBerlinDateTime(ts, { withSeconds: true });
 }
 
 export default async function Events({ searchParams }) {

@@ -15,7 +15,7 @@ function fmtDate(iso) {
     const [y, m, d] = iso.slice(0, 10).split('-');
     return d && m && y ? `${d}.${m}.${y}` : iso;
 }
-function fmtTs(ts) { return ts ? fmtDate(new Date(ts).toISOString()) : null; }
+function fmtTs(ts) { return ts ? new Date(ts).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' }) : null; }
 function daysSince(iso) {
     if (!iso) return null;
     return Math.floor((new Date(today()) - new Date(iso.slice(0, 10))) / 86400000);

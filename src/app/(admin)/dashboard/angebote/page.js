@@ -8,7 +8,7 @@ import StatTile from '@/components/analytics/StatTile';
 export const dynamic = 'force-dynamic';
 
 function fmtDate(ts) {
-    return ts ? new Date(ts).toLocaleDateString('de-DE') : '';
+    return ts ? new Date(ts).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' }) : '';
 }
 function fmtSalary(o) {
     if (!o.salary_min && !o.salary_max) return null;

@@ -42,7 +42,7 @@ export default function ShareForm({ action, share, documents = [] }) {
             {state.error && <p className="an-form-error" role="alert">{state.error}</p>}
 
             {share?.created_at ? (
-                <p className="an-muted">Erstellt am {new Date(share.created_at).toLocaleDateString('de-DE')}</p>
+                <p className="an-muted">Erstellt am {new Date(share.created_at).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' })}</p>
             ) : null}
 
             <div className="an-field-row">
