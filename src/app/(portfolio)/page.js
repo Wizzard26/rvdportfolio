@@ -9,10 +9,12 @@ import ContactBox from "@/components/contact/ContactBox";
 import KnowledgeSection from "@/components/home/KnowledgeSection";
 import { pageMetadata, siteConfig } from "@/lib/seo";
 
-// ISR: Die Startseite bindet die neuesten Blog-Beiträge und Doku-Bereiche aus
-// content.db ein. Periodisch neu erzeugen, damit neue Inhalte erscheinen, ohne
-// die Seite bei jedem Request dynamisch zu rendern (Performance).
-export const revalidate = 600;
+// Dynamisch rendern: Die Startseite zeigt die neuesten Blog-Beiträge (mit ihren
+// admin-editierbaren Bildern) und die Doku-Bereiche aus content.db. Bei ISR/
+// statischem Prerender würde der tokenlose/leere CI-Build den Seed-Stand
+// (Platzhalterbilder) einbacken und bis zur Revalidierung ausliefern. Wie
+// /blog, /vita, /docs liest die Seite deshalb pro Request die echte Server-DB.
+export const dynamic = 'force-dynamic';
 
 // `absolute`, damit an den Titel der Startseite nicht noch einmal der Name
 // gehängt wird ("… | René van Dinter").
