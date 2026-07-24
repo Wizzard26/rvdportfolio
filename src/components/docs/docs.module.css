@@ -1,0 +1,244 @@
+/* GitBook-artiges Doku-Layout: Sidebar · Inhalt · Inhaltsverzeichnis */
+
+.shell {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr) 210px;
+    gap: 40px;
+    align-items: start;
+}
+
+/* ── Linke Sidebar (Baum) ─────────────────────────────────────────────── */
+.sidebar {
+    position: sticky;
+    top: 100px;
+    align-self: start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+/* Bereichs-Kopf über dem Sidebar-Baum */
+.spaceHead {
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--dark-light);
+}
+.spaceBack {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    color: var(--grey);
+    text-decoration: none;
+    margin-bottom: 6px;
+}
+.spaceBack:hover { color: var(--primary); }
+.spaceName {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.nav {
+    font-size: 0.95rem;
+}
+
+.navGroup { margin-bottom: 22px; }
+
+.navGroupTitle {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--grey);
+    margin: 0 0 8px;
+}
+
+.nav ul { list-style: none; margin: 0; padding: 0; }
+
+.nav li a {
+    display: block;
+    padding: 5px 10px;
+    border-radius: 6px;
+    color: var(--dark-6);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color 150ms ease, background 150ms ease;
+}
+.nav li a:hover { color: var(--primary); background: var(--dark-light); }
+
+.navActive {
+    color: var(--primary) !important;
+    font-weight: 600;
+    border-left-color: var(--primary) !important;
+    background: var(--dark-light);
+}
+
+.navChildren { margin: 2px 0 2px 12px; }
+.navChildren li a { font-size: 0.9rem; padding: 4px 10px; }
+
+/* ── Mittlerer Inhalt ─────────────────────────────────────────────────── */
+.article { min-width: 0; }
+
+.docTitle {
+    color: var(--primary);
+    font-size: 2rem;
+    line-height: 1.2;
+    margin: 0 0 8px;
+}
+.docSubline {
+    color: var(--grey);
+    font-size: 1.1rem;
+    margin: 0 0 24px;
+}
+
+/* Doku-Auswahl (/docs) — Karten je Bereich */
+.overviewLead { color: var(--dark-6); margin: 4px 0 0; }
+.spaceCards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 22px;
+    margin-top: 24px;
+}
+.spaceCard {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 26px 26px 22px;
+    background: var(--light);
+    border: 1px solid var(--dark-light);
+    border-radius: 14px;
+    text-decoration: none;
+    box-shadow: 0 1px 2px rgba(4, 21, 31, .04);
+    transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+.spaceCard:hover {
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(4, 21, 31, .10);
+}
+
+/* Icon-Kachel oben */
+.spaceCardIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: var(--dark-light);
+    color: var(--primary);
+    font-size: 1.35rem;
+    transition: background 160ms ease, color 160ms ease;
+}
+.spaceCard:hover .spaceCardIcon { background: var(--primary); color: var(--light); }
+
+.spaceCardName { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+.spaceCardDesc { color: var(--dark-6); font-size: 0.95rem; line-height: 1.5; }
+
+/* Fußzeile: Seitenanzahl links, „Weiterlesen" rechts. `margin-top: auto` schiebt
+   sie stets an den unteren Kartenrand — auch bei wenig/keinem Text, damit alle
+   Karten gleich aussehen (die Karten sind im Grid ohnehin gleich hoch). */
+.spaceCardFoot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--dark-light);
+}
+.spaceCardMeta { color: var(--grey); font-size: 0.82rem; }
+.spaceCardCta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--secondary);
+    transition: gap 160ms ease;
+}
+.spaceCard:hover .spaceCardCta { gap: 10px; }
+
+/* Index-Übersicht (Bereichs-Startseite) */
+.indexGroup { margin-bottom: 28px; }
+.indexGroupTitle { color: var(--primary); font-size: 1.25rem; margin: 0 0 10px; }
+.indexList { list-style: none; margin: 0; padding: 0; }
+.indexList li { padding: 8px 0; border-bottom: 1px solid var(--dark-light); }
+.indexList li a { color: var(--secondary); font-weight: 600; text-decoration: none; }
+.indexList li a:hover { color: var(--secondary-dark); text-decoration: underline; }
+.indexTeaser { display: block; color: var(--grey); font-size: 0.9rem; margin-top: 2px; }
+
+/* ── Rechtes Inhaltsverzeichnis ───────────────────────────────────────── */
+.toc {
+    position: sticky;
+    top: 100px;
+    align-self: start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    font-size: 0.85rem;
+}
+
+.tocTitle {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--grey);
+    margin: 0 0 10px;
+}
+
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc li { margin: 2px 0; }
+.toc li a {
+    display: block;
+    padding: 3px 0;
+    color: var(--dark-6);
+    text-decoration: none;
+    border-left: 2px solid var(--dark-light);
+    padding-left: 12px;
+}
+.toc li a:hover { color: var(--primary); border-left-color: var(--primary); }
+.tocSub a { padding-left: 24px; font-size: 0.82rem; }
+
+/* ── Prev / Next ──────────────────────────────────────────────────────── */
+.prevnext {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(112, 112, 112, .35);
+}
+
+.prevnextLink {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 16px;
+    border: 1px solid var(--dark-light);
+    border-radius: 8px;
+    text-decoration: none;
+    max-width: 48%;
+    transition: border-color 150ms ease;
+}
+.prevnextLink:hover { border-color: var(--primary); }
+.prevnextRight { text-align: right; margin-left: auto; }
+
+.prevnextDir { font-size: 0.78rem; color: var(--grey); }
+.prevnextTitle { color: var(--primary); font-weight: 600; }
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+    .shell { grid-template-columns: 220px minmax(0, 1fr); }
+    .toc { display: none; }
+}
+@media (max-width: 780px) {
+    .shell { grid-template-columns: 1fr; gap: 24px; }
+    .sidebar {
+        position: static;
+        max-height: none;
+        border-bottom: 1px solid var(--dark-light);
+        padding-bottom: 16px;
+    }
+}
