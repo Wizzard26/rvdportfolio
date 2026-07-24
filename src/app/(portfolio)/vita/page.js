@@ -6,7 +6,7 @@ import styles from "./styles.module.css";
 import {ranga, roboto_condensed} from "@/app/fonts";
 import Button from "@/components/button/Button";
 import {Fragment} from "react";
-import { MotionDiv } from "@/components/MotionDiv/MotionDiv";
+import Reveal from "@/components/reveal/Reveal";
 import { TbFileTypePdf } from "react-icons/tb";
 import JsonLd from "@/components/seo/JsonLd";
 import { breadcrumbSchema, careerSchema, pageMetadata } from "@/lib/seo";
@@ -22,11 +22,6 @@ export const metadata = pageMetadata({
 // Request rendern — die Server-DB (Volume) existiert erst zur Laufzeit, ein
 // Build-Prerender würde sie nicht sehen.
 export const dynamic = 'force-dynamic';
-
-const variants = {
-    hidden: { opacity:0 },
-    visible: { opacity: 1 },
-};
 
 export default async function Vita() {
     const pageName = "Vita";
@@ -54,18 +49,9 @@ export default async function Vita() {
                     <h1>Beruflicher Werdegang, Stationen und Positionen</h1>
                     <div className={`row`}>
                         <div className={`col-12 col-lg-8 col-xl-9`}>
-                            {data.map(vita => (
-                                <MotionDiv
-                                    variants={variants}
-                                    initial="hidden"
-                                    whileInView="visible"
-                                    exit="hidden"
-                                    transition={{
-                                        delay: 0.5,
-                                        ease: "easeInOut",
-                                        duration: 0.5,
-                                    }}
-                                    viewport={{ once: true }}
+                            {data.map((vita, i) => (
+                                <Reveal
+                                    delay={Math.min(i * 0.06, 0.3)}
                                     className={`${styles.vitaEntry}`}
                                     key={vita.id}>
                                     <div className={`${styles.vitaHeadline}`}>
@@ -81,7 +67,7 @@ export default async function Vita() {
                                         <h3 className={`${ranga.className} ${styles.vitaCompany}`}>{vita.company}</h3>
                                         <p>{vita.description}</p>
                                     </div>
-                                </MotionDiv>
+                                </Reveal>
                             ))}
                         </div>
                         <div className={`${styles.vitaSidebar} secondary--bg col-12 col-lg-4 col-xl-3`}>

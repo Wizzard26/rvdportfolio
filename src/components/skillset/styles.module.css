@@ -28,9 +28,26 @@
     top: 0;
     left: 0;
     height: 100%;
-    width: 100%;
+    /* Ohne JS: Balken steht direkt auf seinem Wert (robust, kein leerer Balken). */
+    width: var(--skill-width, 100%);
     background-color: #008075;
     box-shadow: #023602 2px 0px 6px inset;
+}
+
+/* Mit JS: von 0 starten und beim Sichtbarwerden der Reihe füllen. */
+:global(.js) .progressBarInner {
+    width: 0;
+    transition: width 0.7s ease;
+}
+:global(.js) .inView .progressBarInner {
+    width: var(--skill-width, 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+    :global(.js) .progressBarInner,
+    :global(.js) .inView .progressBarInner {
+        width: var(--skill-width, 100%);
+        transition: none;
+    }
 }
 
 .Beginner .progressBarInner {

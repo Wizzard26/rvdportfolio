@@ -1,0 +1,151 @@
+/* Fließtext-Styling für gerenderte Markdown-Bodies (Blog + Doku).
+   Nutzt die globalen Farbvariablen aus globals.css, damit Light/Dark passt. */
+
+.prose {
+    color: var(--dark);
+    line-height: 1.7;
+    font-size: 1.05rem;
+    word-break: break-word;
+}
+
+.prose > *:first-child { margin-top: 0; }
+.prose > *:last-child { margin-bottom: 0; }
+
+.prose p { margin: 0 0 1.2em; }
+
+.heading {
+    color: var(--primary);
+    line-height: 1.25;
+    margin: 1.8em 0 0.6em;
+    scroll-margin-top: 6rem; /* Anker unter dem fixierten Header freihalten */
+}
+h1.heading { font-size: 1.9rem; }
+h2.heading { font-size: 1.5rem; }
+h3.heading { font-size: 1.25rem; }
+h4.heading { font-size: 1.1rem; }
+
+.prose a {
+    color: var(--secondary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.prose a:hover { color: var(--secondary-dark); }
+
+.prose ul,
+.prose ol { margin: 0 0 1.2em; padding-left: 1.4em; }
+.prose li { margin: 0.3em 0; }
+
+.prose blockquote {
+    margin: 1.4em 0;
+    padding: 0.6em 1.1em;
+    border-left: 4px solid var(--primary);
+    background: var(--dark-light);
+    color: var(--dark-6);
+    border-radius: 0 6px 6px 0;
+}
+
+.prose hr {
+    border: none;
+    border-top: 1px solid var(--dark-light);
+    margin: 2em 0;
+}
+
+/* Inline-Code */
+.prose :not(pre) > code {
+    background: var(--dark-light);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Codeblöcke */
+.prose pre {
+    background: #011627;
+    color: #d6deeb;
+    padding: 1.1em 1.3em;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0 0 1.4em;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+.prose pre code {
+    background: none;
+    padding: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.imgWrap { display: block; text-align: center; margin: 1.6em 0; }
+/* Natürliche Größe bis Container-Breite bzw. max. Höhe — verhindert, dass ein
+   sehr hohes/großes Bild den Artikel dominiert; kleine Bilder werden nicht
+   hochskaliert. Zentriert. */
+.img {
+    max-width: 100%;
+    max-height: 600px;
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+/* Media-Layout (:::media-left / :::media-right) — Bild und Text nebeneinander,
+   stapelt auf schmalen Screens untereinander. */
+.media {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin: 1.8em 0;
+}
+.mediaRight { flex-direction: row-reverse; }
+
+.mediaFigure { flex: 1 1 0; min-width: 0; }
+.mediaFigure p { margin: 0; }
+.mediaFigure .imgWrap { margin: 0; }
+.mediaFigure img { width: 100%; max-height: none; border-radius: 8px; }
+
+.mediaBody { flex: 1 1 0; min-width: 0; }
+.mediaBody > *:first-child { margin-top: 0; }
+.mediaBody > *:last-child { margin-bottom: 0; }
+
+@media (max-width: 640px) {
+    .media,
+    .mediaRight { flex-direction: column; gap: 14px; }
+    .mediaFigure,
+    .mediaBody { width: 100%; }
+}
+
+.tableWrap { overflow-x: auto; margin: 0 0 1.4em; }
+.tableWrap table { border-collapse: collapse; width: 100%; }
+.tableWrap th,
+.tableWrap td {
+    border: 1px solid var(--dark-light);
+    padding: 0.5em 0.8em;
+    text-align: left;
+}
+.tableWrap th { background: var(--dark-light); }
+
+/* Syntax-Highlighting (rehype-highlight, „Night Owl"-nahe Palette) */
+.prose :global(.hljs-comment),
+.prose :global(.hljs-quote) { color: #637777; font-style: italic; }
+.prose :global(.hljs-keyword),
+.prose :global(.hljs-selector-tag),
+.prose :global(.hljs-built_in) { color: #c792ea; }
+.prose :global(.hljs-string),
+.prose :global(.hljs-attr),
+.prose :global(.hljs-template-tag) { color: #ecc48d; }
+.prose :global(.hljs-number),
+.prose :global(.hljs-literal) { color: #f78c6c; }
+.prose :global(.hljs-title),
+.prose :global(.hljs-title.function_),
+.prose :global(.hljs-section) { color: #82aaff; }
+.prose :global(.hljs-name),
+.prose :global(.hljs-tag) { color: #7fdbca; }
+.prose :global(.hljs-variable),
+.prose :global(.hljs-attribute) { color: #addb67; }
+.prose :global(.hljs-type),
+.prose :global(.hljs-class .hljs-title) { color: #ffcb8b; }
+.prose :global(.hljs-symbol),
+.prose :global(.hljs-regexp) { color: #d3423e; }
+.prose :global(.hljs-emphasis) { font-style: italic; }
+.prose :global(.hljs-strong) { font-weight: 700; }

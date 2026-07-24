@@ -207,7 +207,75 @@ function migrate(database) {
             at       INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_offer_events ON offer_events (offer_id, at);
+
+        -- Redaktionelle Beiträge: eine Engine, zwei Modi (type = 'blog' | 'doc').
+        -- body ist Markdown; das Frontend rendert es je nach type im Blog- oder
+        -- Doku-Layout. doc_group/parent_id bauen den Doku-Seitenbaum (Sidebar).
+        CREATE TABLE IF NOT EXISTS content_posts (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            type         TEXT    NOT NULL DEFAULT 'blog',
+            slug         TEXT    NOT NULL DEFAULT '',
+            title        TEXT    NOT NULL DEFAULT '',
+            subline      TEXT    NOT NULL DEFAULT '',
+            teaser       TEXT    NOT NULL DEFAULT '',
+            body         TEXT    NOT NULL DEFAULT '',
+            category     TEXT    NOT NULL DEFAULT '',
+            author       TEXT    NOT NULL DEFAULT 'René van Dinter',
+            image        TEXT    NOT NULL DEFAULT '',
+            doc_group    TEXT    NOT NULL DEFAULT '',
+            parent_id    INTEGER NOT NULL DEFAULT 0,
+            published_at TEXT    NOT NULL DEFAULT '',
+            is_active    INTEGER NOT NULL DEFAULT 1,
+            sort_order   INTEGER NOT NULL DEFAULT 0,
+            updated_at   INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_posts_type ON content_posts (type, sort_order, id);
+        CREATE INDEX IF NOT EXISTS idx_posts_slug ON content_posts (type, slug);
+
+        -- Blog-Kategorien (admin-verwaltet). Beiträge speichern die Namen als
+        -- CSV in content_posts.category; diese Tabelle liefert die Auswahlliste.
+        CREATE TABLE IF NOT EXISTS post_categories (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            name       TEXT    NOT NULL UNIQUE,
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            updated_at INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_categories_sort ON post_categories (sort_order);
+
+        -- Doku-Bereiche (wie GitBook-Projekte): mehrere in sich geschlossene
+        -- Dokus nebeneinander. Eine Doku-Seite (content_posts type='doc') gehört
+        -- über space_id zu genau einem Bereich; ihr Baum (doc_group/parent_id)
+        -- lebt innerhalb dieses Bereichs. Slugs sind je Bereich eindeutig.
+        CREATE TABLE IF NOT EXISTS doc_spaces (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            name        TEXT    NOT NULL DEFAULT '',
+            slug        TEXT    NOT NULL UNIQUE,
+            description TEXT    NOT NULL DEFAULT '',
+            is_active   INTEGER NOT NULL DEFAULT 1,
+            sort_order  INTEGER NOT NULL DEFAULT 0,
+            updated_at  INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_spaces_sort ON doc_spaces (sort_order);
     `);
+
+    // Doku-Seiten einem Bereich zuordnen (Mehr-Doku-Fähigkeit nachgerüstet).
+    ensureColumn(database, 'content_posts', 'space_id', 'INTEGER NOT NULL DEFAULT 0');
+    // Kategorien aktiv/inaktiv schalten (DEFAULT 1 → Bestand bleibt sichtbar).
+    ensureColumn(database, 'post_categories', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
+
+    // Veröffentlichungsdatum vom alten Anzeigeformat (TT/MM/JJJJ, aus dem Seed)
+    // auf ISO (YYYY-MM-DD) normalisieren — für maschinenlesbares datePublished.
+    // Das LIKE-Muster trifft ISO-Werte nicht, daher idempotent.
+    const legacyDates = database.prepare(
+        "SELECT id, published_at FROM content_posts WHERE published_at LIKE '__/__/____'",
+    ).all();
+    for (const row of legacyDates) {
+        const m = row.published_at.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (m) {
+            database.prepare('UPDATE content_posts SET published_at = ? WHERE id = ?')
+                .run(`${m[3]}-${m[2]}-${m[1]}`, row.id);
+        }
+    }
 
     // Nachrüsten für bereits bestehende Tabellen (z. B. Vita auf dem Server).
     ensureColumn(database, 'vita_stations', 'is_active', 'INTEGER NOT NULL DEFAULT 1');

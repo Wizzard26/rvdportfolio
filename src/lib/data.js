@@ -4,7 +4,7 @@ export const heroContent = [
         imgUrl: "/img/hero_home.jpg",
         imgAlt: "Welcome on my portfolio",
         textBoxBg: false,
-        headline: "Shopware-6- & Web-Developer mit Designhintergrund",
+        headline: "Shopware-6-Entwickler & Web-Developer mit Designhintergrund",
         headSubline: "Ich entwickle E-Commerce-Lösungen, Plugins und moderne Web-Apps – sauber, durchdacht und benutzerfreundlich.",
         listHeadline: "Womit ich arbeite:",
         list: [

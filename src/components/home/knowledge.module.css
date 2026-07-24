@@ -1,0 +1,71 @@
+/* „Fachwissen & Einblicke" – Startseiten-Section (Blog + Dokus) */
+
+/* Dokus-Panel als Wissensdatenbank-Index neben den Blog-Karten. */
+.dokusPanel {
+    height: 100%;
+    padding: 26px 24px;
+    border: 1px solid var(--dark-light);
+    border-radius: 14px;
+    background: var(--light);
+    box-shadow: 0 1px 3px rgba(4, 21, 31, 0.06);
+}
+.dokusTitle {
+    margin: 0 0 8px;
+    color: var(--primary);
+}
+.dokusLead {
+    margin: 0 0 18px;
+    font-size: 0.95rem;
+    color: var(--dark-6);
+    line-height: 1.5;
+}
+
+.dokusList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.dokusList li + li {
+    margin-top: 2px;
+}
+.dokusLink {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 9px;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.3;
+    text-decoration: none;
+    transition: background 150ms ease, color 150ms ease, transform 150ms ease;
+}
+.dokusLink svg {
+    flex-shrink: 0;
+    color: var(--secondary);
+    transition: transform 150ms ease;
+}
+.dokusLink:hover {
+    background: var(--dark-light);
+    color: var(--secondary);
+}
+.dokusLink:hover svg {
+    transform: translateX(3px);
+}
+
+/* Absprung-Buttons unter der Section, zentriert. */
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 34px;
+}
+
+@media (max-width: 992px) {
+    /* Auf schmalen Viewports das Panel von den Karten absetzen. */
+    .dokusPanel {
+        margin-top: 8px;
+    }
+}
