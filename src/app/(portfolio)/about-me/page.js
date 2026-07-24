@@ -10,8 +10,11 @@ import ActivitySection from "@/components/activity/ActivitySection";
 import JsonLd from "@/components/seo/JsonLd";
 import { breadcrumbSchema, pageMetadata, siteConfig } from "@/lib/seo";
 
-// Tages-ISR: die zusammengeführte Entwickler-Aktivität wird täglich neu geholt.
-export const revalidate = 86400;
+// Dynamisch rendern, damit die Entwickler-Aktivität zur REQUEST-Zeit auf dem
+// Server geholt wird (nur dort liegen die ACTIVITY_*-Tokens). Bei statischem
+// Build-Prerender fehlen die Tokens → die Heatmap wäre dauerhaft weg. Der teure
+// Abruf bleibt via unstable_cache (getActivity) auf 1×/Tag begrenzt.
+export const dynamic = 'force-dynamic';
 
 export const metadata = pageMetadata({
     title: 'Entwickler mit Designhintergrund',
