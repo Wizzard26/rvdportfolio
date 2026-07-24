@@ -48,3 +48,6 @@ next-env.d.ts
 
 # Working notes & screenshots for the Calculator Builder case study (contain demo-lead PII)
 docs/calculator-case-study/
+
+# lokale Sicherung der Original-Showcase-Bilder vor dem Downscaling (nicht committen)
+/image-originals/

@@ -14,7 +14,7 @@ import BlogCategories from "@/components/blog/BlogCategories";
 // und `metadata` exportieren kann — hier konkret das `noindex`, solange der
 // Blog nur Platzhalter-Beiträge enthält.
 
-function BlogContent() {
+function BlogContent({ posts, categories }) {
     const searchParams = useSearchParams();
     const cat = searchParams.get('cat');
 
@@ -31,10 +31,11 @@ function BlogContent() {
             <main className="main-content">
                 <section>
                     <div className="content-inner">
-                        <h1 className={roboto.className}>Neuigkeiten und Allgemeine Blog Themen</h1>
+                        <h1 className={`${roboto.className} ${styles.blogHeadline}`}>Neuigkeiten und Allgemeine Blog Themen</h1>
                         <div className="blog-main row">
                             <div className={`${styles.blogSidebar} blog-sidebar col-12 col-lg-3 order-md-2 d-none d-lg-block`} >
                                 <BlogCategories
+                                    categories={categories}
                                     activeCategory={activeCategory}
                                 />
                             </div>
@@ -45,6 +46,7 @@ function BlogContent() {
                                     </div>
                                 }
                                 <BlogList
+                                    posts={posts}
                                     cat={cat}
                                     author={true}
                                     tags={true}
@@ -69,10 +71,10 @@ function BlogContent() {
     )
 }
 
-export default function BlogClient() {
+export default function BlogClient({ posts = [], categories = [] }) {
     return (
         <Suspense fallback={<main className="main-content"><section><div className="content-inner">Beiträge werden geladen …</div></section></main>}>
-            <BlogContent />
+            <BlogContent posts={posts} categories={categories} />
         </Suspense>
     )
 }

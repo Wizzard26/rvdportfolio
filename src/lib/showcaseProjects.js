@@ -19,7 +19,7 @@ export const showcaseProjects = [
         "headline": "Interaktive Rechner-Widgets als Baukasten – vom Rechner bis zum Angebot",
         "intro": [
             "Eigenentwicklung eines Shopware-6-Plugins, mit dem sich interaktive Rechner-Widgets vollständig im Backend zusammenklicken lassen – ganz ohne Code. Ob Futtermengen-, Solar-Rentabilitäts- oder Fenstertausch-Angebotsrechner: Jeder Rechner entsteht in einem visuellen Builder mit Live-Vorschau für Desktop, Tablet und Mobile.",
-            "Ziel war es, Shopbetreiber:innen unabhängig von Entwickler:innen zu machen. Statt für jeden Anwendungsfall ein eigenes Plugin zu bauen, konfigurieren Redakteur:innen Eingabefelder, Formeln und Ergebnis-Darstellung selbst und binden den fertigen Rechner per Erlebniswelten-Element an beliebiger Stelle im Shop ein.",
+            "Ziel war es, Shopbetreiber unabhängig von Entwicklern zu machen. Statt für jeden Anwendungsfall ein eigenes Plugin zu bauen, konfigurieren Redakteure Eingabefelder, Formeln und Ergebnis-Darstellung selbst und binden den fertigen Rechner per Erlebniswelten-Element an beliebiger Stelle im Shop ein.",
             "So wird aus einem reinen Produktshop ein Beratungswerkzeug: Rechner beantworten echte Kundenfragen, berechnen live Mengen, Kosten oder Wirtschaftlichkeit und führen direkt in den Warenkorb – oder bei erklärungsbedürftigen Leistungen in eine qualifizierte Angebotsanfrage. Erfasste Leads landen in einem eigenen Angebots-Workflow mit DSGVO-konformer Speicherung."
         ],
         "features": [
@@ -156,8 +156,8 @@ export const showcaseProjects = [
         "headline": "Rezeptliste mit Zusatzrechner",
         "intro": [
             "Entwicklung eines individuellen Shopware-5-Plugins zur Bereitstellung einer interaktiven Rezeptdatenbank für Tierhalter, die ihre Hunde oder Katzen nach dem BARF-Prinzip ernähren möchten.",
-            "Ziel war es, Shop-Besucher:innen nicht nur Produkte anzubieten, sondern ihnen auch fundiertes Wissen und konkrete Rezepte rund ums BARFen bereitzustellen – direkt im Shop, mit direkter Verlinkung zu den passenden Produkten.",
-            "Mit dem Plugin wird der Shop zum echten Kompetenzzentrum rund ums Thema BARF. Kund:innen erhalten nicht nur Produkte, sondern fundierte Informationen und maßgeschneiderte Rezepte – inklusive praktischer Einkaufshilfe. Das Plugin wurde von Grund auf selbst entwickelt und erweitert Shopware 5 um eine eigenständige Rezeptverwaltung."
+            "Ziel war es, Shop-Besuchern nicht nur Produkte anzubieten, sondern ihnen auch fundiertes Wissen und konkrete Rezepte rund ums BARFen bereitzustellen – direkt im Shop, mit direkter Verlinkung zu den passenden Produkten.",
+            "Mit dem Plugin wird der Shop zum echten Kompetenzzentrum rund ums Thema BARF. Kunden erhalten nicht nur Produkte, sondern fundierte Informationen und maßgeschneiderte Rezepte – inklusive praktischer Einkaufshilfe. Das Plugin wurde von Grund auf selbst entwickelt und erweitert Shopware 5 um eine eigenständige Rezeptverwaltung."
         ],
         "features": [
             "Rezeptdatenbank für Hunde und Katzen",

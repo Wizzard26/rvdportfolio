@@ -272,6 +272,9 @@ body {
 
 /* ── Formular ─────────────────────────────────────────────────────────── */
 .an-card-form { max-width: 720px; }
+/* Breite Variante — für Formulare mit dem Markdown-Editor (Textarea +
+   Live-Preview brauchen den Platz). Nutzt die volle .an-dashboard-Breite. */
+.an-card-form.an-card-wide { max-width: none; }
 .an-form { display: flex; flex-direction: column; gap: 16px; }
 .an-field { display: flex; flex-direction: column; gap: 6px; }
 .an-field > span { font-size: 13px; color: var(--adm-ink-soft); }
@@ -285,6 +288,14 @@ body {
 .an-field textarea { resize: vertical; }
 .an-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .an-check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--adm-ink-soft); }
+/* Kategorie-Auswahl im Beitragsformular (mehrspaltig) */
+fieldset.an-field { border: none; padding: 0; margin: 0; }
+.an-checkgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px 16px; }
+/* Kategorien-Verwaltung: Inline-Formular „neue Kategorie" */
+.an-inline-add { display: flex; gap: 10px; margin-bottom: 18px; }
+.an-inline-add input { flex: 1 1 auto; padding: 9px 12px; border: 1px solid var(--adm-border); border-radius: 8px; font-size: 14px; }
+.an-inline-add input:focus { outline: none; border-color: var(--adm-accent); }
+.an-inline-add .an-btn-primary { white-space: nowrap; }
 .an-form-error { margin: 0; padding: 10px 12px; border-radius: 6px; background: #fdecec; color: #a21f37; font-size: 14px; }
 .an-form-actions { display: flex; gap: 12px; align-items: center; margin-top: 4px; }
 

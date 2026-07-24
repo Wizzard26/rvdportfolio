@@ -1,12 +1,21 @@
 'use client';
 import BlogArticle from "@/components/blog/BlogArticle";
-import {getCategoryPost, getAllPost} from "@/blog/blogPost";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import Pagination from "@/components/pagination/Pagination";
 import {scrollToTop} from "@/utils/scrollTop";
 
+// Filtert die (serverseitig geladenen) Beiträge nach Kategorie. Die Beiträge
+// kommen aus content.db und werden von der Blog-Seite als `posts` durchgereicht.
+function filterByCategory(posts, cat) {
+    if (!cat) return posts;
+    const needle = cat.toLowerCase();
+    return posts.filter((p) =>
+        (p.categoryList || []).some((c) => c.toLowerCase().includes(needle))
+    );
+}
 
 export default function BlogList({
+     posts = [],
      cat= '',
      author =  false,
      tags = false,
@@ -16,31 +25,16 @@ export default function BlogList({
      pagination = false,
      articleCols = 'col-12'
 }) {
-    const [blogData, setBlogData] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const blogData = useMemo(() => filterByCategory(posts, cat), [posts, cat]);
     const [pages, setPages] = useState(1);
     const [activePage, setActivePage] = useState(1);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const data = !cat ? getAllPost() : getCategoryPost({params: `${cat}`});
-                setBlogData(data);
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Error by fetching data', error);
-            }
-        };
-
-        fetchData();
-    },[cat])
 
     const blogEntries = blogData?.length;
 
     useEffect(() => {
         if(perPage) setPages(Math.ceil(blogEntries / perPage));
         setActivePage(1)
-    }, [blogData, pages]);
+    }, [blogData, perPage, blogEntries]);
 
     const handlePageChange = (newPage) => {
         setActivePage(newPage);
@@ -51,13 +45,15 @@ export default function BlogList({
     const endIndex = limit > 0 ? limit : startIndex + perPage;
     let keyIndex = 1;
 
-
-
-    if(isLoading) return <p>Loading...</p>
+    if (blogData.length === 0) return <p>Aktuell sind keine Beiträge vorhanden.</p>
 
     return (
         <>
-            <div className="blog-entries row">
+            {/* Der `key` bindet das Grid an Filter + Seite: ändert sich einer,
+                mountet die Liste komplett neu und alle Boxen laufen sauber der
+                Reihe nach ein (statt dass nur neu hinzukommende Boxen gestaffelt
+                animieren und die übrigen stehenbleiben → „durcheinander"). */}
+            <div className="blog-entries row" key={`${cat || 'all'}-${activePage}`}>
                 {
                     blogData.slice(startIndex, endIndex).map((blogEntry) => (
                         <BlogArticle

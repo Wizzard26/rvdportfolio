@@ -10,7 +10,7 @@ import styles from "./styles.module.css";
 // Origin und kann NICHT auf Cookies, DOM oder localStorage der Hauptseite
 // zugreifen. `allow-modals` erlaubt alert/confirm in Demos. Der eingebettete
 // Code stammt aus dem geschützten Admin (Renés eigene Inhalte); die Sandbox
-// schützt zusätzlich die Besucher:innen vor fehlerhaftem/fremdem Code.
+// schützt zusätzlich die Besucher vor fehlerhaftem/fremdem Code.
 //
 // Höhe: der Frame meldet seine Inhaltshöhe per postMessage an die Seite zurück
 // (der Frame ist origin-los, daher wird auf die Quelle, nicht die Origin geprüft).

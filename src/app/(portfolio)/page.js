@@ -4,20 +4,25 @@ import { ranga, roboto, roboto_condensed } from "@/app/fonts";
 import { pageContent } from "@/lib/data";
 import Teaser from "@/components/teaser/page";
 import Button from "@/components/button/Button";
-import BlogList from "@/components/blog/BlogList";
 import ServiceBox from "@/components/service/ServiceBox";
 import ContactBox from "@/components/contact/ContactBox";
+import KnowledgeSection from "@/components/home/KnowledgeSection";
 import { pageMetadata, siteConfig } from "@/lib/seo";
+
+// ISR: Die Startseite bindet die neuesten Blog-Beiträge und Doku-Bereiche aus
+// content.db ein. Periodisch neu erzeugen, damit neue Inhalte erscheinen, ohne
+// die Seite bei jedem Request dynamisch zu rendern (Performance).
+export const revalidate = 600;
 
 // `absolute`, damit an den Titel der Startseite nicht noch einmal der Name
 // gehängt wird ("… | René van Dinter").
 export const metadata = {
     ...pageMetadata({
-        title: 'René van Dinter – Shopware- & Web-Developer aus Stade',
+        title: 'René van Dinter – Shopware-Entwickler & Web-Developer aus Stade',
         description: siteConfig.description,
         path: '/',
     }),
-    title: { absolute: 'René van Dinter – Shopware- & Web-Developer aus Stade' },
+    title: { absolute: 'René van Dinter – Shopware-Entwickler & Web-Developer aus Stade' },
 };
 
 const getData = (pageComp, sectionData) => {
@@ -109,71 +114,57 @@ export default function Home() {
                         </div>
                     </div>
                 </section>
-                {/*
+
+                {/* Verfügbarkeit / „Hire me" — für Job-Findung (Festanstellung,
+                    Raum Hamburg, remote/hybrid) und GEO. Verwebt die Ziel-Keywords
+                    natürlich im Fließtext. */}
                 <section>
                     <div className="content-inner">
-                        <h2 className={`${roboto.className} is--centered`}>News und Blogbeiträge</h2>
-                        <BlogList
-                            author={false}
-                            tags={false}
-                            button={true}
-                            limit={2}
-                            pagination={false}
-                            articleCols={'card-blog--entries col-12 col-xl-6'}
-                        />
-                        <div className="blog-teaser-actions row">
-                            <div className="col-12 col-md-6 align-center align-md-right">
-                                <Button
-                                    href="/blog"
-                                    title="Weitere Beiträge lesen"
-                                    style="primary"
-                                    text="Alle Beiträge Lesen"
-                                />
-                            </div>
-                            <div className="col-12 col-md-6 align-center align-md-left">
-                                <Button
-                                    href="/contact"
-                                    title="Kontaktieren"
-                                    style="secondary-full"
-                                    text="Nachricht Schreiben"
-                                />
-                            </div>
+                        <h2 className={`${roboto.className} is--centered`}>Offen für neue Herausforderungen</h2>
+                        <p className="is--centered" style={{ maxWidth: '820px', margin: '0 auto' }}>
+                            Ich bin <strong>Shopware-Entwickler</strong> und <strong>Web-Entwickler</strong> aus Stade
+                            in der <strong>Metropolregion Hamburg</strong> und offen für eine neue <strong>Festanstellung</strong>
+                            {' '}– ob remote, hybrid oder vor Ort. Mein Schwerpunkt liegt auf der
+                            {' '}<strong>Shopware-6-Entwicklung</strong> (Plugins, Apps und Storefront-Themes) sowie modernen
+                            {' '}Web-Apps mit <strong>React und Next.js</strong>. Für passende <strong>Freelance-Projekte</strong>
+                            {' '}bin ich ebenfalls ansprechbar.
+                        </p>
+                        <div className="home-cta-actions row" style={{ justifyContent: 'center', gap: '12px', marginTop: '20px' }}>
+                            <Button
+                                href="/shopware-entwickler"
+                                title="Shopware-Entwickler & Web-Entwickler – Details & Verfügbarkeit"
+                                style="primary"
+                                text="Entwickler gesucht? Mehr erfahren"
+                            />
+                            <Button
+                                href="/contact"
+                                title="Kontakt aufnehmen"
+                                style="secondary"
+                                text="Kontakt aufnehmen"
+                            />
                         </div>
                     </div>
                 </section>
-                */}
+
+                {/* Fachwissen & Einblicke: Blog + Dokus als Kompetenz-Beleg und
+                    Absprungpunkt. Bewusst nach der Verfügbarkeit, vor der
+                    umgekehrten Bewerbung. */}
+                <KnowledgeSection />
 
                 <section>
                     <div className="content-inner">
-                        <h2 className={`${roboto.className} is--centered`}>Sie haben Interesse an ein Gespräch?</h2>
-                        <p className="is--centered" style={{ maxWidth: '760px', margin: '0 auto 24px' }}>
-                            Sie möchten mich kennenlernen oder haben eine Frage? Dann schreiben Sie mir einfach
-                            eine Nachricht – ich melde mich zeitnah bei Ihnen.
-                        </p>
-                        <h3 className={`${ranga.className} is--centered`} style={{ margin: '0 0 16px' }}>
-                            Oder möchten Sie sich meinem Bewerbungsprozess stellen?
-                        </h3>
+                        <h2 className={`${roboto.className} is--centered`}>Möchten Sie sich meinem Bewerbungsprozess stellen?</h2>
                         <p className="is--centered" style={{ maxWidth: '760px', margin: '0 auto 28px' }}>
                             Was halten Sie von einem Perspektivwechsel? Bewerben Sie sich einfach bei mir und beantworten
                             Sie mir ein paar Fragen. Kein Muss, keine Formalität – nur ein Angebot auf Augenhöhe.
                         </p>
-                        <div className="home-cta-actions row">
-                            <div className="col-12 col-md-6 align-center align-md-right">
-                                <Button
-                                    href="/contact"
-                                    title="Kontaktieren"
-                                    style="secondary-full"
-                                    text="Nachricht schreiben"
-                                />
-                            </div>
-                            <div className="col-12 col-md-6 align-center align-md-left">
-                                <Button
-                                    href="/angebot"
-                                    title="Ihr Angebot an mich"
-                                    style="primary"
-                                    text="Bewerben Sie sich bei mir"
-                                />
-                            </div>
+                        <div className="home-cta-actions row" style={{ justifyContent: 'center' }}>
+                            <Button
+                                href="/angebot"
+                                title="Ihr Angebot an mich"
+                                style="primary"
+                                text="Bewerben Sie sich bei mir"
+                            />
                         </div>
                     </div>
                 </section>

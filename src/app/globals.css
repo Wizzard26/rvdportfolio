@@ -824,3 +824,30 @@ span.title {
   max-width: 500px;
   max-height: 500px;
 }
+
+/* ── Reveal: Inhalt sanft einblenden, aber robust ──────────────────────────
+   Progressive Enhancement: Ohne JS ist alles sichtbar (.reveal = opacity 1).
+   Erst wenn das Inline-Skript im Layout die Klasse `js` an <html> setzt, wird
+   der Startzustand versteckt und beim Hereinscrollen (.is-visible) eingeblendet.
+   `prefers-reduced-motion` schaltet die Animation komplett ab. So kann kein
+   essenzieller Inhalt (Kenntnisse, Vita, Aufgaben) hinter opacity:0 verschwinden. */
+.reveal {
+  opacity: 1;
+}
+.js .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal,
+  .js .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

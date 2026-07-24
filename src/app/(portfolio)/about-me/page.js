@@ -6,8 +6,12 @@ import styles from "./styles.module.css";
 import Button from "@/components/button/Button";
 import Skillset from "@/components/skillset/Skillset";
 import BlockqoutesClient from "@/components/blockqoutes/BlockqoutesClient";
+import ActivitySection from "@/components/activity/ActivitySection";
 import JsonLd from "@/components/seo/JsonLd";
 import { breadcrumbSchema, pageMetadata, siteConfig } from "@/lib/seo";
+
+// Tages-ISR: die zusammengeführte Entwickler-Aktivität wird täglich neu geholt.
+export const revalidate = 86400;
 
 export const metadata = pageMetadata({
     title: 'Entwickler mit Designhintergrund',
@@ -66,6 +70,9 @@ export default async function AboutMe() {
                     </div>
                 </div>
             </section>
+
+            <ActivitySection />
+
             <section>
                 <div className="content-inner">
                     <h2 className={`${roboto.className} is--centered`}>Aufgabenbereiche und Arbeitsweisen</h2>

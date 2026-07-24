@@ -49,6 +49,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang={siteConfig.lang} suppressHydrationWarning>
       <body className={kanit.className}>
+        {/* Setzt synchron (vor dem Paint) die Klasse `js` an <html>. Damit
+            greift der versteckte Startzustand der Reveal-Animation nur, wenn
+            JavaScript wirklich läuft – ohne JS bleibt aller Inhalt sichtbar. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         {children}
       </body>
     </html>
