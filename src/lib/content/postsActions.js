@@ -17,6 +17,10 @@ function revalidate(type) {
         revalidatePath('/docs');
     } else {
         revalidatePath('/blog');
+        // Die Startseite ist ISR (revalidate=600) und zeigt die 2 neuesten
+        // Beiträge (KnowledgeSection). Ohne dieses gezielte Erneuern blieben dort
+        // bis zu 10 Min alte Titel/Bilder stehen.
+        revalidatePath('/');
     }
 }
 
