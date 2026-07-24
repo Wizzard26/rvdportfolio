@@ -27,7 +27,7 @@ export default function BlogArticle ({blogEntry, button = false, articleCols = '
                 <h3 className={ranga.className}>{blogEntry.subline}</h3>
                 <p className={styles.blogTeaser}>{blogEntry.teaser}</p>
                 { button &&
-                    <Link href={`/blog/${blogEntry.slug}`}>Weiterlesen</Link>
+                    <Link href={`/blog/${blogEntry.slug}`} aria-label={`Weiterlesen: ${blogEntry.title}`}>Weiterlesen</Link>
                 }
             </div>
         </Reveal>
