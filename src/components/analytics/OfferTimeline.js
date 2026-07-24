@@ -1,5 +1,6 @@
 import { FiPlusCircle, FiFlag, FiStar } from 'react-icons/fi';
 import { OFFER_STATUS_LABELS } from '@/lib/offerContent';
+import { formatBerlinDateTime } from '@/lib/dateFormat';
 
 // Verlauf eines eingegangenen Angebots (aus offer_events).
 const META = {
@@ -8,11 +9,7 @@ const META = {
     rating:  { icon: FiStar,       label: () => 'Bewertung gespeichert' },
 };
 
-function fmt(ts) {
-    return new Date(ts).toLocaleString('de-DE', {
-        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
-    });
-}
+const fmt = (ts) => formatBerlinDateTime(ts);
 
 export default function OfferTimeline({ events = [] }) {
     if (events.length === 0) return <p className="an-muted">Noch keine Ereignisse.</p>;
