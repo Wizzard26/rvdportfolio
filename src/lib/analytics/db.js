@@ -51,6 +51,21 @@ function migrate(database) {
         CREATE INDEX IF NOT EXISTS idx_events_path       ON events (path);
         CREATE INDEX IF NOT EXISTS idx_events_ref_source ON events (ref_source);
         CREATE INDEX IF NOT EXISTS idx_events_session    ON events (session_id);
+
+        -- Serverseitiges Bot-/Crawler-Log. Bewusst getrennt von den Besucher-
+        -- Events und OHNE IP/Kennung: Bots sind keine natürlichen Personen, es
+        -- werden nur Bot-Name, Kategorie, Pfad und Zeit gespeichert.
+        CREATE TABLE IF NOT EXISTS bot_hits (
+            id       INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts       INTEGER NOT NULL,
+            day      TEXT    NOT NULL,
+            category TEXT    NOT NULL,
+            name     TEXT    NOT NULL,
+            path     TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_bothits_ts  ON bot_hits (ts);
+        CREATE INDEX IF NOT EXISTS idx_bothits_day ON bot_hits (day);
+        CREATE INDEX IF NOT EXISTS idx_bothits_cat ON bot_hits (category);
     `);
 
     // Fehlende Spalten nachziehen (für bestehende DBs aus der ersten Version).

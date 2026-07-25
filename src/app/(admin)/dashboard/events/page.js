@@ -56,7 +56,7 @@ export default async function Events({ searchParams }) {
                     <div className="an-table-wrap">
                         <table className="an-table">
                             <thead>
-                                <tr><th>Zeit (UTC)</th><th>Typ</th><th>Seite</th><th>Herkunft</th><th>Gerät</th><th>Land</th><th>Detail</th><th>Wert</th></tr>
+                                <tr><th>Zeit</th><th>Typ</th><th>Seite</th><th>Herkunft</th><th>Gerät</th><th>Land</th><th>Detail</th><th>Wert</th></tr>
                             </thead>
                             <tbody>
                                 {rows.map((r, i) => (
