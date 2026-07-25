@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import {
     createProject, updateProject, deleteProject, reorderProjects, setProjectActive,
 } from '@/lib/content/showcaseStore';
-import { saveUploadedImage } from '@/lib/content/media';
+import { saveUploadedImage, imageAiHint } from '@/lib/content/media';
 
 // Server Actions für die Showcase-Projekte.
 
@@ -17,6 +17,18 @@ const VARIANTS = new Set(['full', 'compact']);
 function revalidate() {
     revalidatePath('/showcase');
     revalidatePath('/dashboard/showcase');
+}
+
+// KI-Kennzeichnung für Projektbilder: manueller Haken ODER (bei neuem Upload)
+// Metadaten-Hinweis. Nur relevant, wenn das Medium ein Bild ist.
+async function resolveAiImage(formData, mediaType) {
+    if (mediaType !== 'image') return false;
+    if (formData.get('ai_image') != null) return true;
+    const file = formData.get('image');
+    if (file && typeof file === 'object' && typeof file.arrayBuffer === 'function' && file.size > 0) {
+        return await imageAiHint(file);
+    }
+    return false;
 }
 
 // Bestimmt das Medium je nach Typ: Bild (Upload hat Vorrang vor Auswahl),
@@ -63,7 +75,8 @@ export async function createProjectAction(prevState, formData) {
     if (!data.name) return { error: 'Titel fehlt', values: data };
     let media;
     try { media = await resolveMedia(formData, data.media_type); } catch (e) { return { error: e.message, values: data }; }
-    createProject({ ...data, media });
+    const ai_image = await resolveAiImage(formData, data.media_type);
+    createProject({ ...data, media, ai_image });
     revalidate();
     redirect('/dashboard/showcase');
 }
@@ -78,7 +91,8 @@ export async function updateProjectAction(prevState, formData) {
     if (data.media_type === 'image' && !media) {
         media = (formData.get('current_media') || '').toString();
     }
-    updateProject(id, { ...data, media });
+    const ai_image = await resolveAiImage(formData, data.media_type);
+    updateProject(id, { ...data, media, ai_image });
     revalidate();
     redirect('/dashboard/showcase');
 }

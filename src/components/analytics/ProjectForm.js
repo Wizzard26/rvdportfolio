@@ -88,6 +88,10 @@ export default function ProjectForm({ action, project, images }) {
                         <span>oder neues Bild hochladen (überschreibt die Auswahl)</span>
                         <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" />
                     </label>
+                    <label className="an-check">
+                        <input type="checkbox" name="ai_image" defaultChecked={!!v.ai_image} />
+                        <span>Projektbild mit KI erstellt – zeigt einen „KI-Bild"-Badge</span>
+                    </label>
                 </div>
             )}
 

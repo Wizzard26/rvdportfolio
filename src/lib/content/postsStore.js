@@ -101,6 +101,7 @@ function fields(data) {
         space_id: Number(data.space_id) || 0,
         published_at: data.published_at || '',
         is_active: data.is_active ? 1 : 0,
+        ai_image: data.ai_image ? 1 : 0,
         updated_at: Date.now(),
     };
 }
@@ -112,10 +113,10 @@ export function createPost(data) {
     return db.prepare(`
         INSERT INTO content_posts
             (type, slug, title, subline, teaser, body, category, author, image,
-             doc_group, parent_id, space_id, published_at, is_active, sort_order, updated_at)
+             doc_group, parent_id, space_id, published_at, is_active, ai_image, sort_order, updated_at)
         VALUES
             (@type, @slug, @title, @subline, @teaser, @body, @category, @author, @image,
-             @doc_group, @parent_id, @space_id, @published_at, @is_active, @sort_order, @updated_at)
+             @doc_group, @parent_id, @space_id, @published_at, @is_active, @ai_image, @sort_order, @updated_at)
     `).run({ ...f, sort_order: max + 1 }).lastInsertRowid;
 }
 
@@ -125,7 +126,7 @@ export function updatePost(id, data) {
             type=@type, slug=@slug, title=@title, subline=@subline, teaser=@teaser,
             body=@body, category=@category, author=@author, image=@image,
             doc_group=@doc_group, parent_id=@parent_id, space_id=@space_id, published_at=@published_at,
-            is_active=@is_active, updated_at=@updated_at
+            is_active=@is_active, ai_image=@ai_image, updated_at=@updated_at
         WHERE id=@id
     `).run({ ...fields(data), id });
 }

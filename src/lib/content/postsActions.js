@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import {
     createPost, updatePost, deletePost, reorderPosts, reorderDocsInSpace, setPostActive, slugify,
 } from '@/lib/content/postsStore';
-import { saveUploadedImage } from '@/lib/content/media';
+import { saveUploadedImage, imageAiHint } from '@/lib/content/media';
 
 // Server Actions für redaktionelle Beiträge (Blog + Doku).
 
@@ -65,9 +65,12 @@ export async function createPostAction(prevState, formData) {
     const data = parseCommon(formData);
     if (!data.title) return { error: 'Titel fehlt', values: data };
     if (!data.slug) return { error: 'Slug konnte nicht gebildet werden', values: data };
+    const file = formData.get('image');
     let image;
-    try { image = await saveUploadedImage(formData.get('image')); } catch (e) { return { error: e.message, values: data }; }
-    createPost({ ...data, image: image || (formData.get('image_select') || '').toString() });
+    try { image = await saveUploadedImage(file); } catch (e) { return { error: e.message, values: data }; }
+    // KI-Kennzeichnung: manueller Haken ODER (bei neuem Upload) Metadaten-Hinweis.
+    const aiImage = formData.get('ai_image') != null || (image ? await imageAiHint(file) : false);
+    createPost({ ...data, image: image || (formData.get('image_select') || '').toString(), ai_image: aiImage });
     revalidate(data.type);
     redirect(afterSaveTarget(data));
 }
@@ -77,13 +80,17 @@ export async function updatePostAction(prevState, formData) {
     const data = parseCommon(formData);
     if (!data.title) return { error: 'Titel fehlt', values: { ...data, id } };
     if (!data.slug) return { error: 'Slug konnte nicht gebildet werden', values: { ...data, id } };
+    const file = formData.get('image');
     let image;
-    try { image = await saveUploadedImage(formData.get('image')); } catch (e) { return { error: e.message, values: { ...data, id } }; }
+    try { image = await saveUploadedImage(file); } catch (e) { return { error: e.message, values: { ...data, id } }; }
+    const newUpload = !!image;
     // Kein neuer Upload & keine Auswahl → vorhandenes Bild behalten.
     if (!image) {
         image = (formData.get('image_select') || '').toString() || (formData.get('current_image') || '').toString();
     }
-    updatePost(id, { ...data, image });
+    // KI-Kennzeichnung: manueller Haken ODER (bei neuem Upload) Metadaten-Hinweis.
+    const aiImage = formData.get('ai_image') != null || (newUpload ? await imageAiHint(file) : false);
+    updatePost(id, { ...data, image, ai_image: aiImage });
     revalidate(data.type);
     redirect(afterSaveTarget(data));
 }

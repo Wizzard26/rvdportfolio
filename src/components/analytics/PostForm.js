@@ -135,6 +135,11 @@ export default function PostForm({ action, post, images = [], categories = [], d
                 </label>
             </div>
 
+            <label className="an-check">
+                <input type="checkbox" name="ai_image" defaultChecked={!!v.ai_image} />
+                <span>Beitragsbild mit KI erstellt – zeigt einen „KI-Bild"-Badge (bei Bild-Upload mit KI-Metadaten automatisch gesetzt)</span>
+            </label>
+
             <label className="an-field">
                 <span>Inhalt (Markdown)</span>
                 <MarkdownEditor name="body" defaultValue={v.body || ''} />

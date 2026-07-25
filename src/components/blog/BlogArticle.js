@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {ranga, roboto} from "@/app/fonts";
 import Reveal from "@/components/reveal/Reveal";
+import AiBadge from "@/components/ai/AiBadge";
 
 // Bildpfad: Uploads liegen als absoluter /media/…-Pfad vor, Alt-Bilder als
 // bloßer Dateiname unter /img/blog/. Kein Bild → Platzhalter.
@@ -17,6 +18,7 @@ export default function BlogArticle ({blogEntry, button = false, articleCols = '
             delay={Math.min((index - 1) * 0.08, 0.32)}
             className={`${styles.blogEntryBox} ${articleCols} `} >
             <div className={`${styles.blogImageContainer}`}>
+                {blogEntry.ai_image ? <AiBadge /> : null}
                 <Link className={styles.blogImageLink} href={`/blog/${blogEntry.slug}`} >
                     <Image className={`${styles.blogEntryImage}`} src={imageSrc(blogEntry.image)} title={`${blogEntry.title}`} width={640} height={360} alt={`${blogEntry.title}`} />
                 </Link>

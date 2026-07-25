@@ -126,6 +126,7 @@ function fields(data) {
         sandbox_css: data.sandbox_css || '',
         sandbox_js: data.sandbox_js || '',
         is_active: data.is_active ? 1 : 0,
+        ai_image: data.ai_image ? 1 : 0,
         updated_at: Date.now(),
     };
 }
@@ -138,11 +139,11 @@ export function createProject(data) {
         INSERT INTO showcase_projects
             (category, variant, name, headline, intro, features, tech, media_type, media,
              schema_type, application_category, sandbox_html, sandbox_css, sandbox_js,
-             is_active, sort_order, updated_at)
+             is_active, ai_image, sort_order, updated_at)
         VALUES
             (@category, @variant, @name, @headline, @intro, @features, @tech, @media_type, @media,
              @schema_type, @application_category, @sandbox_html, @sandbox_css, @sandbox_js,
-             @is_active, @sort_order, @updated_at)
+             @is_active, @ai_image, @sort_order, @updated_at)
     `).run({ ...f, sort_order: max + 1 }).lastInsertRowid;
 }
 
@@ -153,7 +154,7 @@ export function updateProject(id, data) {
             features=@features, tech=@tech, media_type=@media_type, media=@media,
             schema_type=@schema_type, application_category=@application_category,
             sandbox_html=@sandbox_html, sandbox_css=@sandbox_css, sandbox_js=@sandbox_js,
-            is_active=@is_active, updated_at=@updated_at
+            is_active=@is_active, ai_image=@ai_image, updated_at=@updated_at
         WHERE id=@id
     `).run({ ...fields(data), id });
 }

@@ -260,6 +260,8 @@ function migrate(database) {
 
     // Doku-Seiten einem Bereich zuordnen (Mehr-Doku-Fähigkeit nachgerüstet).
     ensureColumn(database, 'content_posts', 'space_id', 'INTEGER NOT NULL DEFAULT 0');
+    // KI-Kennzeichnung: markiert ein mit KI erzeugtes Beitragsbild (Blog/Doku).
+    ensureColumn(database, 'content_posts', 'ai_image', 'INTEGER NOT NULL DEFAULT 0');
     // Kategorien aktiv/inaktiv schalten (DEFAULT 1 → Bestand bleibt sichtbar).
     ensureColumn(database, 'post_categories', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
 
@@ -280,6 +282,8 @@ function migrate(database) {
     // Nachrüsten für bereits bestehende Tabellen (z. B. Vita auf dem Server).
     ensureColumn(database, 'vita_stations', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
     ensureColumn(database, 'showcase_projects', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
+    // KI-Kennzeichnung: markiert ein mit KI erzeugtes Projektbild.
+    ensureColumn(database, 'showcase_projects', 'ai_image', 'INTEGER NOT NULL DEFAULT 0');
     ensureColumn(database, 'gallery_items', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
     // Sandbox-Felder für den JavaScript-Tab (Phase B) nachrüsten.
     ensureColumn(database, 'showcase_projects', 'sandbox_html', "TEXT NOT NULL DEFAULT ''");

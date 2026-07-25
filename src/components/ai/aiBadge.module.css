@@ -1,0 +1,28 @@
+/* „KI-Bild"-Badge — oben links auf dem Bild, gut lesbar über hellen wie dunklen
+   Motiven. Der Elternteil muss position: relative sein (setzen wir am Render-Ort). */
+.badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: rgba(4, 21, 31, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.badge svg {
+    width: 0.9em;
+    height: 0.9em;
+    flex-shrink: 0;
+}

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import AiBadge from "@/components/ai/AiBadge";
 import styles from "./styles.module.css";
 import { roboto, ranga } from "@/app/fonts";
 import { notFound } from "next/navigation";
@@ -46,7 +47,7 @@ export default async function Slug({ params }) {
     const { slug } = await params;
     const entry = getPostBySlug('blog', slug);
     if (!entry || !entry.is_active) notFound();
-    const { title, subline, image, teaser, body, author, published_at } = entry;
+    const { title, subline, image, teaser, body, author, published_at, ai_image } = entry;
     const isoDate = toIsoDate(published_at);
 
     return(
@@ -62,7 +63,8 @@ export default async function Slug({ params }) {
                 <section>
                     <div className="content-inner">
                         <div className="blog-single-entry row">
-                            <div className={`${styles.blogImage} col-lg-4`}>
+                            <div className={`${styles.blogImage} col-lg-4`} style={{ position: 'relative' }}>
+                                {ai_image ? <AiBadge /> : null}
                                 <Image src={imageSrc(image)} title={`${title}`} width={200} height={200} alt={`${title}`}  />
                             </div>
                             <div className="blog-headlines col-lg-8">

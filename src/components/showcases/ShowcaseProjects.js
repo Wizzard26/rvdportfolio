@@ -14,6 +14,7 @@ import Lottogenerator from "@/components/scripts/Lottogenerator";
 import Cartsystem from "@/components/scripts/Cartsystem";
 import Modalbox from "@/components/scripts/Modalbox";
 import Sandbox from "@/components/showcases/Sandbox";
+import AiBadge from "@/components/ai/AiBadge";
 
 // Whitelist interaktiver Komponenten-Slots (feste App-Komponenten).
 const COMPONENTS = { CallEvent, WebPage, Slider, Lottogenerator, Cartsystem, Modalbox };
@@ -44,8 +45,11 @@ function Media({ project }) {
     }
     if (media_type === 'image' && media) {
         return (
-            <Image className={styles.imageAuto} src={media} alt={name}
-                   width={500} height={500} unoptimized={isUpload(media)} />
+            <span style={{ position: 'relative', display: 'block' }}>
+                {project.ai_image ? <AiBadge /> : null}
+                <Image className={styles.imageAuto} src={media} alt={name}
+                       width={500} height={500} unoptimized={isUpload(media)} />
+            </span>
         );
     }
     if (media_type === 'sandbox') {
@@ -90,7 +94,8 @@ function FullProject({ project, index }) {
 function CompactCard({ project }) {
     return (
         <>
-            <div className={`${styles.imageRatio}`}>
+            <div className={`${styles.imageRatio}`} style={{ position: 'relative' }}>
+                {project.ai_image ? <AiBadge /> : null}
                 {project.media && (
                     <Image className={`${styles.imageAuto}`} src={project.media} alt={project.name}
                            width={500} height={500} unoptimized={isUpload(project.media)} />
