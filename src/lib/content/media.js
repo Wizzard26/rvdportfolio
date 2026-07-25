@@ -45,6 +45,37 @@ export function listImages() {
     return out.sort((a, b) => a.label.localeCompare(b.label));
 }
 
+// Best-Effort-Hinweis, ob ein hochgeladenes Bild laut Metadaten mit KI erzeugt
+// wurde. Bewusst OHNE Zusatz-Abhängigkeit: scannt die Datei-Bytes (Anfang/Ende,
+// wo Metadaten liegen) nach eindeutigen Provenienz-Markern (IPTC „Digital Source
+// Type", C2PA/Content Credentials, bekannte KI-Tools). SynthID (Googles
+// Pixel-Wasserzeichen) ist damit NICHT lesbar — dafür gibt es keine offene API.
+// Deshalb ist das nur ein Vorschlag; verbindlich bleibt der manuelle Schalter.
+// Bei Downscaling/Neukodierung sind solche Metadaten oft schon entfernt.
+const AI_MARKERS = [
+    'trainedAlgorithmicMedia',            // IPTC DigitalSourceType (KI-generiert)
+    'compositeWithTrainedAlgorithmicMedia',
+    'algorithmicMedia',
+    'contentcredentials', 'content credentials', 'c2pa.assertions', 'c2pa.actions',
+    'Made with Google AI', 'Made with Google', 'Google DeepMind', 'SynthID',
+    'Gemini', 'Imagen', 'Midjourney', 'Stable Diffusion', 'DALL-E', 'DALL·E',
+    'Adobe Firefly',
+];
+
+export async function imageAiHint(file) {
+    try {
+        if (!file || typeof file.arrayBuffer !== 'function' || !file.size) return false;
+        const buf = Buffer.from(await file.arrayBuffer());
+        const WIN = 262_144; // 256 KB an Anfang UND Ende scannen
+        const head = buf.subarray(0, Math.min(buf.length, WIN)).toString('latin1');
+        const tail = buf.length > WIN ? buf.subarray(buf.length - WIN).toString('latin1') : '';
+        const hay = head + tail;
+        return AI_MARKERS.some((m) => hay.includes(m));
+    } catch {
+        return false;
+    }
+}
+
 // Speichert ein hochgeladenes Bild ins Volume und gibt den Link zurück.
 export async function saveUploadedImage(file) {
     if (!file || typeof file.arrayBuffer !== 'function' || file.size === 0) return null;
