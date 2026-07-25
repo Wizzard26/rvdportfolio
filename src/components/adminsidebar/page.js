@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-    FiGrid, FiUsers, FiActivity, FiShare2, FiTarget, FiDatabase, FiFileText, FiLayers, FiDownload, FiBriefcase, FiInbox, FiEdit3,
+    FiGrid, FiUsers, FiActivity, FiShare2, FiTarget, FiDatabase, FiFileText, FiLayers, FiDownload, FiBriefcase, FiInbox, FiEdit3, FiCpu,
 } from "react-icons/fi";
 import { roboto_condensed } from "@/app/fonts";
 
@@ -16,6 +16,7 @@ const NAV_GROUPS = [
             { href: '/dashboard/behavior', label: 'Verhalten', icon: FiActivity },
             { href: '/dashboard/acquisition', label: 'Herkunft', icon: FiShare2 },
             { href: '/dashboard/goals', label: 'Ziele', icon: FiTarget },
+            { href: '/dashboard/bots', label: 'KI & Bots', icon: FiCpu },
             { href: '/dashboard/events', label: 'Ereignisse', icon: FiDatabase },
         ],
     },

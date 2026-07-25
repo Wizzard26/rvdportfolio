@@ -1,32 +1,60 @@
 import { NextResponse } from 'next/server';
 import { SESSION_COOKIE, verifySessionToken } from '@/lib/auth';
+import { detectBot } from '@/lib/analytics/bots';
 
-// Schützt den Admin-Bereich. Läuft vor jedem Request auf die unten im
-// `matcher` genannten Pfade — in der Edge-Runtime, deshalb nutzt die
-// Session-Prüfung Web Crypto (siehe lib/auth.js).
+// Läuft vor jedem Seiten-Request (siehe `matcher`) in der Edge-Runtime. Zwei
+// Aufgaben:
+//   1) Serverseitiges Bot-/Crawler-Logging (anonym, ohne IP) — erkennt den
+//      User-Agent und reicht Treffer an die Node-Route /api/botlog weiter, weil
+//      in der Edge-Runtime kein SQLite möglich ist. Fire-and-forget, verzögert
+//      die Antwort nicht.
+//   2) Admin-Schutz — NUR für /dashboard. Ohne gültiges Session-Cookie Redirect
+//      auf /login (Session-Prüfung via Web Crypto, siehe lib/auth.js).
 //
-// "Proxy" ist ab Next.js 16 der neue Name für die frühere "Middleware"-
-// Konvention (Datei src/proxy.js, Funktion `proxy`) — Funktionsweise
-// unverändert. Als optimistischer Auth-Check (Cookie prüfen, sonst zum Login
-// umleiten) ist das genau der von Next empfohlene Einsatz.
-//
-// Ohne gültiges Session-Cookie: Redirect auf /login, mit dem ursprünglich
-// angefragten Pfad als `from`, damit nach dem Login dorthin zurückgeführt wird.
+// "Proxy" ist ab Next.js 16 der neue Name der früheren "Middleware"-Konvention
+// (Datei src/proxy.js, Funktion `proxy`).
 export async function proxy(request) {
-    const token = request.cookies.get(SESSION_COOKIE)?.value;
+    const { pathname } = request.nextUrl;
+    const ua = request.headers.get('user-agent') || '';
 
-    if (await verifySessionToken(token)) {
-        return NextResponse.next();
+    // 1) Bot-Zugriffe auf ÖFFENTLICHE Seiten protokollieren (jeder erkannte
+    //    Crawler, jede Kategorie). Admin/Login bleiben außen vor, damit sie die
+    //    Crawler-Statistik („Top-Seiten") nicht verfälschen.
+    const isAdminPath = pathname === '/dashboard' || pathname.startsWith('/dashboard/') || pathname === '/login';
+    if (!isAdminPath && detectBot(ua)) {
+        try {
+            // Nicht awaiten: Der laufende Node-Serverprozess führt den fetch zu
+            // Ende, ohne die Bot-Antwort zu verzögern.
+            fetch(new URL('/api/botlog', request.url), {
+                method: 'POST',
+                headers: { 'content-type': 'application/json', 'x-forwarded-bot': '1' },
+                body: JSON.stringify({ ua, path: pathname }),
+            }).catch(() => {});
+        } catch {
+            // Logging darf den Seitenaufruf nie stören.
+        }
     }
 
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('from', request.nextUrl.pathname);
-    return NextResponse.redirect(loginUrl);
+    // 2) Admin-Schutz ausschließlich für /dashboard (der Matcher deckt jetzt alle
+    //    Seiten ab, deshalb hier explizit eingrenzen — sonst würde die ganze
+    //    Seite auf /login umgeleitet).
+    if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
+        const token = request.cookies.get(SESSION_COOKIE)?.value;
+        if (!(await verifySessionToken(token))) {
+            const loginUrl = new URL('/login', request.url);
+            loginUrl.searchParams.set('from', pathname);
+            return NextResponse.redirect(loginUrl);
+        }
+    }
+
+    return NextResponse.next();
 }
 
-// Nur der Admin-Bereich ist geschützt. /login liegt außerhalb (keine
-// Redirect-Schleife), der öffentliche Portfolio-Teil bleibt frei zugänglich.
-// Kommen später weitere Admin-Routen dazu, hier ergänzen.
+// Läuft auf allen Seiten-Requests (für das Bot-Logging), ausgenommen interne
+// Next-Pfade, die API (u. a. /api/botlog selbst → keine Schleife), statische
+// Dateien und die SEO-Dateien.
 export const config = {
-    matcher: ['/dashboard', '/dashboard/:path*'],
+    matcher: [
+        '/((?!_next/|api/|favicon.ico|robots.txt|sitemap.xml|llms.txt|llms-full.txt|.*\\.[\\w]+$).*)',
+    ],
 };

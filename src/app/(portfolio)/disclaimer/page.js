@@ -82,6 +82,7 @@ export default function Disclaimer() {
                             <li><strong>Rechtsgrundlage:</strong> Berechtigte Interessen (Art. 6 Abs. 1 S. 1 lit. f DSGVO). Da keine Cookies gesetzt und keine personenbezogenen Daten gespeichert werden, ist hierfür keine Einwilligung erforderlich.</li>
                             <li><strong>Speicherdauer:</strong> die anonymen Ereignisdaten werden nach spätestens 12 Monaten gelöscht.</li>
                         </ul>
+                        <p><strong>Zugriffe automatisierter Programme (Bots/Crawler):</strong> Zusätzlich werden Zugriffe von Bots und Crawlern – etwa Suchmaschinen (z.&nbsp;B. Googlebot) sowie KI-Diensten (z.&nbsp;B. GPTBot, ClaudeBot, PerplexityBot) – <strong>serverseitig anhand der technischen Programm-Kennung (User-Agent) anonym gezählt</strong>, zu Sicherheits- und Statistikzwecken. Gespeichert werden dabei ausschließlich die Bezeichnung des Programms, die aufgerufene Seite und der Zeitpunkt. Es werden <strong>keine Cookies</strong> gesetzt, <strong>keine IP-Adressen gespeichert</strong> und <strong>keine Daten an Dritte</strong> weitergegeben. Bots sind keine natürlichen Personen; personenbezogene Daten werden hierbei nicht verarbeitet.</p>
                     </div>
                 </section>
 
