@@ -32,7 +32,7 @@ export default async function EditShare({ params }) {
             <div className="an-edit-grid">
                 <div className="an-edit-main">
                     <ShareReactions share={share} />
-                    <section className="an-card an-card-form">
+                    <section className="an-card an-card-form an-card-wide">
                         <ShareForm action={updateShareAction} share={share} documents={documents} />
                     </section>
                 </div>
