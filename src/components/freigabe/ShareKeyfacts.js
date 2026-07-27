@@ -6,7 +6,7 @@ import styles from './keyfacts.module.css';
 // Scannbare „Auf einen Blick“-Karte für die Freigabe-Seite. Zeigt nur, was
 // tatsächlich gepflegt ist – leere Angaben fallen weg (buildKeyfacts liefert null,
 // wenn gar nichts vorhanden ist, dann rendert die Karte nicht).
-export default function ShareKeyfacts({ share }) {
+export default function ShareKeyfacts({ share, inBand = false }) {
     const f = buildKeyfacts(share);
     if (!f) return null;
 
@@ -19,7 +19,7 @@ export default function ShareKeyfacts({ share }) {
     ].filter(Boolean);
 
     return (
-        <div className={styles.wrap}>
+        <div className={inBand ? styles.bandFill : styles.wrap}>
         <aside className={styles.card} aria-label="Eckdaten auf einen Blick">
             <h2 className={styles.title}>Auf einen Blick</h2>
 

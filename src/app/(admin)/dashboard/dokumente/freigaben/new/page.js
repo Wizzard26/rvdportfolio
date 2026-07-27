@@ -3,11 +3,13 @@ import { FiArrowLeft } from 'react-icons/fi';
 import ShareForm from '@/components/analytics/ShareForm';
 import { createShareAction } from '@/lib/content/sharesActions';
 import { getDocuments } from '@/lib/content/documentsStore';
+import { getActiveTestimonials } from '@/lib/content/testimonialsStore';
 
 export const dynamic = 'force-dynamic';
 
 export default function NewShare() {
     const documents = getDocuments();
+    const testimonials = getActiveTestimonials();
     return (
         <div className="an-dashboard">
             <div className="an-head">
@@ -17,7 +19,7 @@ export default function NewShare() {
                 </div>
             </div>
             <section className="an-card an-card-form">
-                <ShareForm action={createShareAction} documents={documents} />
+                <ShareForm action={createShareAction} documents={documents} testimonials={testimonials} />
             </section>
         </div>
     );

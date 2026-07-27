@@ -4,6 +4,9 @@ import JsonLd from "@/components/seo/JsonLd";
 import { breadcrumbSchema, pageMetadata, showcaseSchema, siteConfig } from "@/lib/seo";
 import { getProjects } from "@/lib/content/showcaseStore";
 import { getGalleryItems } from "@/lib/content/galleryStore";
+import Testimonials from "@/components/testimonials/Testimonials";
+import { getActiveTestimonials, SHOWCASE_KEY } from "@/lib/content/testimonialsStore";
+import { getSetting } from "@/lib/content/settingsStore";
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +41,7 @@ export default function ShowCase() {
     const reactProjects = projects.filter((p) => p.category === 'react');
     const codejsProjects = projects.filter((p) => p.category === 'codejs');
     const galleryItems = getGalleryItems({ publicOnly: true });
+    const testimonials = getSetting(SHOWCASE_KEY) === '1' ? getActiveTestimonials() : [];
 
     return(
         <>
@@ -58,6 +62,13 @@ export default function ShowCase() {
                 codejsProjects={codejsProjects}
                 galleryItems={galleryItems}
             />
+            {testimonials.length > 0 && (
+                <section>
+                    <div className="content-inner">
+                        <Testimonials items={testimonials} heading="Das sagen andere" />
+                    </div>
+                </section>
+            )}
         </>
     )
 }

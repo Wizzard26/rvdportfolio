@@ -46,6 +46,8 @@ function parse(formData) {
         motivation: g('motivation'),
         mobility: g('mobility'),
         job_ref: g('job_ref'),
+        show_showcase_cta: formData.get('show_showcase_cta') ? 1 : 0,
+        testimonialIds: formData.getAll('testimonial_ids').map((v) => Number(v)).filter(Boolean),
         email: g('email'),
         website: g('website'),
         access_code: g('access_code'),

@@ -43,6 +43,18 @@ function setItems(db, shareId, documentIds) {
     })();
 }
 
+// Welche Referenzen/Stimmen dieser Freigabe zugeordnet sind (Reihenfolge = Slider-Reihenfolge).
+function setTestimonials(db, shareId, testimonialIds) {
+    const del = db.prepare('DELETE FROM share_testimonials WHERE share_id = ?');
+    const ins = db.prepare('INSERT INTO share_testimonials (share_id, testimonial_id, sort_order) VALUES (?, ?, ?)');
+    const known = new Set(db.prepare('SELECT id FROM testimonials').all().map((r) => r.id));
+    db.transaction(() => {
+        del.run(shareId);
+        (testimonialIds || []).map(Number).filter((id) => known.has(id))
+            .forEach((id, i) => ins.run(shareId, id, i));
+    })();
+}
+
 const PURPOSES = ['bewerbung', 'initiativ', 'sonstiges'];
 
 function fields(data) {
@@ -72,6 +84,7 @@ function fields(data) {
         motivation: (data.motivation || '').trim(),
         mobility: (data.mobility || '').trim(),
         job_ref: (data.job_ref || '').trim(),
+        show_showcase_cta: data.show_showcase_cta ? 1 : 0,
         email: (data.email || '').trim(),
         website: (data.website || '').trim(),
         access_code: (data.access_code || '').trim(),
@@ -96,6 +109,7 @@ const COLS = `title=@title, message=@message, purpose=@purpose, company=@company
     availability=@availability, salary_amount=@salary_amount, salary_period=@salary_period,
     salary_hours=@salary_hours, salary_public=@salary_public,
     skills=@skills, highlights=@highlights, motivation=@motivation, mobility=@mobility, job_ref=@job_ref,
+    show_showcase_cta=@show_showcase_cta,
     email=@email, website=@website, access_code=@access_code,
     sent_at=@sent_at, expires_at=@expires_at, status=@status, interview_at=@interview_at,
     interview_contact=@interview_contact, interview_people=@interview_people, decision_date=@decision_date,
@@ -111,6 +125,7 @@ export function createShare(data) {
         VALUES (@token, ${Object.keys(f).filter((k) => k !== 'now').map((k) => '@' + k).join(', ')}, @now, @now)
     `).run({ token, ...f }).lastInsertRowid;
     setItems(db, id, data.documentIds);
+    setTestimonials(db, id, data.testimonialIds);
     logEvent(db, id, 'created');
     if (f.sent_at) logEvent(db, id, 'sent', f.sent_at);
     if (f.status !== 'offen') logEvent(db, id, 'status', f.status);
@@ -123,6 +138,7 @@ export function updateShare(id, data) {
     const f = fields(data);
     db.prepare(`UPDATE shares SET ${COLS} WHERE id=@id`).run({ id, ...f });
     setItems(db, id, data.documentIds);
+    setTestimonials(db, id, data.testimonialIds);
     // Verlauf: Statuswechsel und erstmaliges Zustelldatum protokollieren.
     if (before && before.status !== f.status) logEvent(db, id, 'status', f.status);
     if (f.sent_at && (!before || !before.sent_at)) logEvent(db, id, 'sent', f.sent_at);
@@ -154,6 +170,7 @@ export function deleteShare(id) {
     db.transaction(() => {
         db.prepare('DELETE FROM share_events WHERE share_id = ?').run(id);
         db.prepare('DELETE FROM share_items WHERE share_id = ?').run(id);
+        db.prepare('DELETE FROM share_testimonials WHERE share_id = ?').run(id);
         db.prepare('DELETE FROM shares WHERE id = ?').run(id);
     })();
 }
@@ -171,7 +188,9 @@ export function getShare(id) {
     if (!share) return null;
     const documentIds = db.prepare('SELECT document_id FROM share_items WHERE share_id = ? ORDER BY sort_order, id')
         .all(id).map((r) => r.document_id);
-    return { ...share, documentIds };
+    const testimonialIds = db.prepare('SELECT testimonial_id FROM share_testimonials WHERE share_id = ? ORDER BY sort_order, id')
+        .all(id).map((r) => r.testimonial_id);
+    return { ...share, documentIds, testimonialIds };
 }
 
 export function getShareRawByToken(token) {
@@ -190,7 +209,13 @@ export function getShareByToken(token) {
         FROM share_items si JOIN documents d ON d.id = si.document_id
         WHERE si.share_id = ? ORDER BY si.sort_order, si.id
     `).all(share.id);
-    return { ...share, documents };
+    // Zugeordnete Referenzen/Stimmen (nur aktive), in der gewählten Reihenfolge.
+    const testimonials = db.prepare(`
+        SELECT t.id, t.author, t.role, t.company, t.quote
+        FROM share_testimonials st JOIN testimonials t ON t.id = st.testimonial_id
+        WHERE st.share_id = ? AND t.is_active = 1 ORDER BY st.sort_order, st.id
+    `).all(share.id);
+    return { ...share, documents, testimonials };
 }
 
 // Aufruf protokollieren (gedrosselt: max. 1× / 20 min).

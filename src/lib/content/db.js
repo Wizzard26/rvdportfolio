@@ -132,6 +132,19 @@ function migrate(database) {
             svalue TEXT NOT NULL DEFAULT ''
         );
 
+        CREATE TABLE IF NOT EXISTS testimonials (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            author      TEXT    NOT NULL DEFAULT '',
+            role        TEXT    NOT NULL DEFAULT '',
+            company     TEXT    NOT NULL DEFAULT '',
+            quote       TEXT    NOT NULL DEFAULT '',
+            is_active   INTEGER NOT NULL DEFAULT 1,
+            sort_order  INTEGER NOT NULL DEFAULT 0,
+            created_at  INTEGER NOT NULL DEFAULT 0,
+            updated_at  INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_testimonials_sort ON testimonials (sort_order);
+
         CREATE TABLE IF NOT EXISTS shares (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             token       TEXT    NOT NULL UNIQUE,
@@ -157,6 +170,14 @@ function migrate(database) {
             sort_order  INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_share_items ON share_items (share_id, sort_order);
+
+        CREATE TABLE IF NOT EXISTS share_testimonials (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            share_id       INTEGER NOT NULL,
+            testimonial_id INTEGER NOT NULL,
+            sort_order     INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_share_testimonials ON share_testimonials (share_id, sort_order);
 
         CREATE TABLE IF NOT EXISTS share_events (
             id       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -363,6 +384,9 @@ function migrate(database) {
     ensureColumn(database, 'shares', 'motivation', "TEXT NOT NULL DEFAULT ''");       // „Warum ihr" (1 Satz) → Fließtext
     ensureColumn(database, 'shares', 'mobility', "TEXT NOT NULL DEFAULT ''");         // Standort & Bereitschaft (optional)
     ensureColumn(database, 'shares', 'job_ref', "TEXT NOT NULL DEFAULT ''");          // Fundort/Referenz der Stelle (optional)
+    // Optionale Zusatz-Elemente auf der Freigabe-Seite (je Freigabe an/aus).
+    // Welche Stimmen erscheinen, wird pro Freigabe einzeln zugeordnet (Tabelle share_testimonials).
+    ensureColumn(database, 'shares', 'show_showcase_cta', 'INTEGER NOT NULL DEFAULT 0');    // CTA zur Showcase zeigen
     // Bestehende Freigaben ohne Erstelldatum auf updated_at setzen (idempotent).
     database.prepare('UPDATE shares SET created_at = updated_at WHERE created_at = 0').run();
 }

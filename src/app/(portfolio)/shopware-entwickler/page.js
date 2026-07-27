@@ -5,8 +5,15 @@ import { roboto, ranga } from "@/app/fonts";
 import Button from "@/components/button/Button";
 import ServiceBox from "@/components/service/ServiceBox";
 import JsonLd from "@/components/seo/JsonLd";
+import Testimonials from "@/components/testimonials/Testimonials";
+import { getActiveTestimonials, SHOPWARE_KEY } from "@/lib/content/testimonialsStore";
+import { getSetting } from "@/lib/content/settingsStore";
 import { pageMetadata, breadcrumbSchema, ogImageUrl, siteConfig } from "@/lib/seo";
 import styles from "./landing.module.css";
+
+// Dynamisch, damit der (optionale) Stimmen-Schalter zur Request-Zeit aus der DB
+// gelesen wird. Rendert weiterhin vollständiges SSR-HTML (SEO unverändert).
+export const dynamic = 'force-dynamic';
 
 export const metadata = pageMetadata({
     title: 'Shopware-Entwickler & Web-Entwickler (Raum Hamburg)',
@@ -53,6 +60,7 @@ const stack = [
 ];
 
 export default function ShopwareEntwickler() {
+    const testimonials = getSetting(SHOPWARE_KEY) === '1' ? getActiveTestimonials() : [];
     return (
         <>
             <JsonLd data={[profileSchema, breadcrumbSchema([{ name: 'Shopware-Entwickler', path: '/shopware-entwickler' }])]} />
@@ -142,6 +150,16 @@ export default function ShopwareEntwickler() {
                         </div>
                     </div>
                 </section>
+
+                {/* Social Proof (optional) – direkt vor dem CTA: erst Vertrauen, dann Handlung. */}
+                {testimonials.length > 0 && (
+                    <section>
+                        <div className="content-inner">
+                            <h2 className={`${roboto.className} is--centered`}>Das sagen andere</h2>
+                            <Testimonials items={testimonials} heading="" centered />
+                        </div>
+                    </section>
+                )}
 
                 {/* CTA */}
                 <section>

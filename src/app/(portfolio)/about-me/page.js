@@ -7,6 +7,9 @@ import Button from "@/components/button/Button";
 import Skillset from "@/components/skillset/Skillset";
 import BlockqoutesClient from "@/components/blockqoutes/BlockqoutesClient";
 import ActivitySection from "@/components/activity/ActivitySection";
+import Testimonials from "@/components/testimonials/Testimonials";
+import { getActiveTestimonials, ABOUT_KEY } from "@/lib/content/testimonialsStore";
+import { getSetting } from "@/lib/content/settingsStore";
 import JsonLd from "@/components/seo/JsonLd";
 import { breadcrumbSchema, pageMetadata, siteConfig } from "@/lib/seo";
 
@@ -41,6 +44,7 @@ export default async function AboutMe() {
     const pageName = "AboutMe";
     //const { author, quote } = await getQuoteData();
     const quoteData = await getQuoteData();
+    const testimonials = getSetting(ABOUT_KEY) === '1' ? getActiveTestimonials() : [];
 
     return (
         <>
@@ -99,6 +103,15 @@ export default async function AboutMe() {
                     </div>
                 </div>
             </section>
+
+            {testimonials.length > 0 && (
+                <section className="secondary--bg">
+                    <div className="content-inner">
+                        <h2 className={`${roboto.className} is--centered`}>Das sagen andere</h2>
+                        <Testimonials items={testimonials} heading="" />
+                    </div>
+                </section>
+            )}
         </>
     )
 }

@@ -8,6 +8,7 @@ import {
 } from '@/lib/shareTemplate';
 import { STATUS_LABELS, STATUS_ORDER } from '@/lib/applicationStatus';
 import ShareDocumentPicker from '@/components/analytics/ShareDocumentPicker';
+import ShareTestimonialPicker from '@/components/analytics/ShareTestimonialPicker';
 
 function todayPlus(days) {
     const d = new Date();
@@ -15,7 +16,7 @@ function todayPlus(days) {
     return d.toISOString().slice(0, 10);
 }
 
-export default function ShareForm({ action, share, documents = [] }) {
+export default function ShareForm({ action, share, documents = [], testimonials = [] }) {
     const [state, formAction, pending] = useActionState(action, { error: null, values: null });
     const v = state.values || share || {};
 
@@ -227,6 +228,16 @@ export default function ShareForm({ action, share, documents = [] }) {
 
             <label className="an-field"><span>Interne Notizen (nur im Admin)</span>
                 <textarea name="notes" rows={3} defaultValue={v.notes || ''} placeholder="z. B. Recruiter angerufen, …" /></label>
+
+            <ShareTestimonialPicker testimonials={testimonials} initialIds={v.testimonialIds || []} />
+
+            <fieldset className="an-field an-checkgroup">
+                <legend>Zusätzliche Elemente auf der Seite <span className="an-muted">(optional)</span></legend>
+                <label className="an-check">
+                    <input type="checkbox" name="show_showcase_cta" defaultChecked={!!v.show_showcase_cta} />
+                    <span>Button „Meine Referenzprojekte ansehen" (zur Showcase, öffnet neuen Tab)</span>
+                </label>
+            </fieldset>
 
             <ShareDocumentPicker documents={documents} initialIds={v.documentIds || []} />
 
