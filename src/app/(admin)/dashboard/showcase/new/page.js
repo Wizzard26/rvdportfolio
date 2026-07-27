@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
-import ProjectForm from '@/components/analytics/ProjectForm';
+import ProjectEditor from '@/components/analytics/ProjectEditor';
 import { createProjectAction } from '@/lib/content/showcaseActions';
 import { listImages } from '@/lib/content/media';
 
@@ -16,9 +16,7 @@ export default function NewProject() {
                     <h1>Neues Projekt</h1>
                 </div>
             </div>
-            <section className="an-card an-card-form">
-                <ProjectForm action={createProjectAction} images={images} />
-            </section>
+            <ProjectEditor action={createProjectAction} images={images} />
         </div>
     );
 }

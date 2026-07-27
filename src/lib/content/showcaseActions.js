@@ -19,6 +19,14 @@ function revalidate() {
     revalidatePath('/dashboard/showcase');
 }
 
+// Nach dem Speichern: Bei Galerie/Slider auf der Edit-Seite bleiben (dort liegt
+// der Bild-Manager), sonst zurück zur Übersicht.
+function afterSaveTarget(id, mediaType) {
+    return (mediaType === 'gallery' || mediaType === 'slider') && id
+        ? `/dashboard/showcase/${id}`
+        : '/dashboard/showcase';
+}
+
 // KI-Kennzeichnung für Projektbilder: manueller Haken ODER (bei neuem Upload)
 // Metadaten-Hinweis. Nur relevant, wenn das Medium ein Bild ist.
 async function resolveAiImage(formData, mediaType) {
@@ -76,9 +84,9 @@ export async function createProjectAction(prevState, formData) {
     let media;
     try { media = await resolveMedia(formData, data.media_type); } catch (e) { return { error: e.message, values: data }; }
     const ai_image = await resolveAiImage(formData, data.media_type);
-    createProject({ ...data, media, ai_image });
+    const id = createProject({ ...data, media, ai_image });
     revalidate();
-    redirect('/dashboard/showcase');
+    redirect(afterSaveTarget(Number(id), data.media_type));
 }
 
 export async function updateProjectAction(prevState, formData) {
@@ -94,7 +102,7 @@ export async function updateProjectAction(prevState, formData) {
     const ai_image = await resolveAiImage(formData, data.media_type);
     updateProject(id, { ...data, media, ai_image });
     revalidate();
-    redirect('/dashboard/showcase');
+    redirect(afterSaveTarget(id, data.media_type));
 }
 
 export async function deleteProjectAction(formData) {

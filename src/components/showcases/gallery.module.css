@@ -1,0 +1,78 @@
+.gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+/* gemeinsame Bild-Kachel (Hero + Thumb): festes Verhältnis, sauber beschnitten */
+.hero,
+.thumb {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    cursor: zoom-in;
+    background: var(--dark-light, #e9eef1);
+    box-shadow: 0 1px 3px rgba(4, 21, 31, 0.08);
+    transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+/* Zähl-Indikator oben rechts auf dem Hero, wenn mehr Bilder existieren als im
+   Raster sichtbar sind. Bewusst als Pille (UI-Chip, wie der KI-Badge) — die
+   Bilder selbst bleiben eckig. */
+.count {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1;
+    color: #fff;
+    background: rgba(4, 21, 31, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    pointer-events: none;
+}
+.count svg { width: 0.9em; height: 0.9em; flex-shrink: 0; }
+.hero { aspect-ratio: 16 / 10; }
+.hero:hover,
+.thumb:hover { box-shadow: 0 10px 26px rgba(4, 21, 31, 0.16); }
+
+.img { transition: transform 300ms ease; }
+.hero:hover .img,
+.thumb:hover .img { transform: scale(1.03); }
+
+/* Thumbnail-Reihe: 2 nebeneinander (je ~50%). */
+.thumbs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+.thumb { aspect-ratio: 16 / 10; }
+
+/* Ab >2 Thumbs: horizontale, gleitende Reihe (Snap), 2 sichtbar. */
+.thumbsScroll {
+    display: flex;
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+}
+.thumbsScroll .thumb {
+    flex: 0 0 calc(50% - 5px);
+    scroll-snap-align: start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero, .thumb, .img { transition: none; }
+    .hero:hover .img, .thumb:hover .img { transform: none; }
+}
