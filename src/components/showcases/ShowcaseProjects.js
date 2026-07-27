@@ -15,6 +15,8 @@ import Cartsystem from "@/components/scripts/Cartsystem";
 import Modalbox from "@/components/scripts/Modalbox";
 import Sandbox from "@/components/showcases/Sandbox";
 import AiBadge from "@/components/ai/AiBadge";
+import ProjectGallery from "@/components/showcases/ProjectGallery";
+import ProjectSlider from "@/components/showcases/ProjectSlider";
 
 // Whitelist interaktiver Komponenten-Slots (feste App-Komponenten).
 const COMPONENTS = { CallEvent, WebPage, Slider, Lottogenerator, Cartsystem, Modalbox };
@@ -51,6 +53,12 @@ function Media({ project }) {
                        width={500} height={500} unoptimized={isUpload(media)} />
             </span>
         );
+    }
+    if (media_type === 'gallery') {
+        return <ProjectGallery images={project.images || []} name={name} />;
+    }
+    if (media_type === 'slider') {
+        return <ProjectSlider images={project.images || []} name={name} />;
     }
     if (media_type === 'sandbox') {
         return (

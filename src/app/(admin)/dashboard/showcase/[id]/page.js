@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FiArrowLeft } from 'react-icons/fi';
-import ProjectForm from '@/components/analytics/ProjectForm';
+import ProjectEditor from '@/components/analytics/ProjectEditor';
 import { updateProjectAction } from '@/lib/content/showcaseActions';
 import { getProject } from '@/lib/content/showcaseStore';
 import { listImages } from '@/lib/content/media';
@@ -23,9 +23,7 @@ export default async function EditProject({ params }) {
                     <p>{project.name}</p>
                 </div>
             </div>
-            <section className="an-card an-card-form">
-                <ProjectForm action={updateProjectAction} project={project} images={images} />
-            </section>
+            <ProjectEditor action={updateProjectAction} project={project} images={images} />
         </div>
     );
 }

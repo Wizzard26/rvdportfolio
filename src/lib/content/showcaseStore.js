@@ -1,5 +1,6 @@
 import { getContentDb } from './db';
 import { showcaseProjects } from '@/lib/showcaseProjects';
+import { getProjectImages } from './showcaseImagesStore';
 
 // Datenzugriff für die Showcase-Projekte (Case Studies).
 //
@@ -24,6 +25,8 @@ function hydrate(row) {
         introList: toArrayParagraphs(row.intro),
         featureList: toArrayLines(row.features),
         techList: toArrayCsv(row.tech),
+        // Bilder für media_type 'gallery'/'slider' (leer bei Einzelbild/Video/…).
+        images: getProjectImages(row.id),
     };
 }
 
@@ -134,8 +137,7 @@ function fields(data) {
 export function createProject(data) {
     const db = getContentDb();
     const f = fields(data);
-    const max = db.prepare('SELECT COALESCE(MAX(sort_order), -1) AS m FROM showcase_projects WHERE category = ?').get(f.category).m;
-    return db.prepare(`
+    const insert = db.prepare(`
         INSERT INTO showcase_projects
             (category, variant, name, headline, intro, features, tech, media_type, media,
              schema_type, application_category, sandbox_html, sandbox_css, sandbox_js,
@@ -144,7 +146,13 @@ export function createProject(data) {
             (@category, @variant, @name, @headline, @intro, @features, @tech, @media_type, @media,
              @schema_type, @application_category, @sandbox_html, @sandbox_css, @sandbox_js,
              @is_active, @ai_image, @sort_order, @updated_at)
-    `).run({ ...f, sort_order: max + 1 }).lastInsertRowid;
+    `);
+    // Neu = neueste Arbeit → oben einsortieren: Bestand der Kategorie nach unten
+    // schieben und das neue Projekt an sort_order 0 setzen.
+    return db.transaction(() => {
+        db.prepare('UPDATE showcase_projects SET sort_order = sort_order + 1 WHERE category = ?').run(f.category);
+        return insert.run({ ...f, sort_order: 0 }).lastInsertRowid;
+    })();
 }
 
 export function updateProject(id, data) {

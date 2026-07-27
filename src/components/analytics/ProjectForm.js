@@ -1,15 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { useActionState } from 'react';
 import Link from 'next/link';
 
 // Formular zum Anlegen/Bearbeiten eines Showcase-Projekts. `images` = Auswahl-
 // liste vorhandener/ hochgeladener Bilder. Das Medienfeld wechselt je nach Typ.
-export default function ProjectForm({ action, project, images }) {
+// `mediaType`/`onMediaType` werden vom ProjectEditor-Wrapper gesteuert, damit
+// der Bild-Manager bei Galerie/Slider sofort (ohne Speichern) erscheinen kann.
+export default function ProjectForm({ action, project, images, mediaType, onMediaType }) {
     const [state, formAction, pending] = useActionState(action, { error: null, values: null });
     const v = state.values || project || {};
-    const [mediaType, setMediaType] = useState(v.media_type || 'image');
 
     return (
         <form action={formAction} className="an-form an-projectform">
@@ -36,58 +36,64 @@ export default function ProjectForm({ action, project, images }) {
                 </label>
             </div>
 
-            <label className="an-field">
-                <span>Titel *</span>
-                <input name="name" defaultValue={v.name || ''} required />
-            </label>
+            <div className="an-field-row">
+                <label className="an-field">
+                    <span>Titel *</span>
+                    <input name="name" defaultValue={v.name || ''} required />
+                </label>
+                <label className="an-field">
+                    <span>Untertitel (h3)</span>
+                    <input name="headline" defaultValue={v.headline || ''} />
+                </label>
+            </div>
 
-            <label className="an-field">
-                <span>Untertitel (h3)</span>
-                <input name="headline" defaultValue={v.headline || ''} />
-            </label>
+            <div className="an-field-row">
+                <label className="an-field">
+                    <span>Beschreibung (Absätze durch Leerzeile trennen)</span>
+                    <textarea name="intro" rows={9} defaultValue={v.intro || ''} />
+                </label>
+                <label className="an-field">
+                    <span>Feature-Liste (ein Punkt pro Zeile)</span>
+                    <textarea name="features" rows={9} defaultValue={v.features || ''} />
+                </label>
+            </div>
 
-            <label className="an-field">
-                <span>Beschreibung (Absätze durch Leerzeile trennen)</span>
-                <textarea name="intro" rows={8} defaultValue={v.intro || ''} />
-            </label>
-
-            <label className="an-field">
-                <span>Feature-Liste (ein Punkt pro Zeile)</span>
-                <textarea name="features" rows={6} defaultValue={v.features || ''} />
-            </label>
-
-            <label className="an-field">
-                <span>Tech-Tags (kommagetrennt)</span>
-                <input name="tech" defaultValue={v.tech || ''} placeholder="Shopware 6, PHP, Vue.js" />
-            </label>
-
-            {/* Medium */}
-            <label className="an-field">
-                <span>Medium</span>
-                <select name="media_type" value={mediaType} onChange={(e) => setMediaType(e.target.value)}>
-                    <option value="image">Bild</option>
-                    <option value="video">Video (Pfad)</option>
-                    <option value="component">Interaktive Komponente</option>
-                    <option value="sandbox">Sandbox (HTML/CSS/JS)</option>
-                    <option value="none">Kein Medium</option>
-                </select>
-            </label>
+            <div className="an-field-row">
+                <label className="an-field">
+                    <span>Tech-Tags (kommagetrennt)</span>
+                    <input name="tech" defaultValue={v.tech || ''} placeholder="Shopware 6, PHP, Vue.js" />
+                </label>
+                <label className="an-field">
+                    <span>Medium</span>
+                    <select name="media_type" value={mediaType} onChange={(e) => onMediaType(e.target.value)}>
+                        <option value="image">Bild (einzeln)</option>
+                        <option value="gallery">Galerie (Raster + Lightbox)</option>
+                        <option value="slider">Slider (rotierendes Bild)</option>
+                        <option value="video">Video (Pfad)</option>
+                        <option value="component">Interaktive Komponente</option>
+                        <option value="sandbox">Sandbox (HTML/CSS/JS)</option>
+                        <option value="none">Kein Medium</option>
+                    </select>
+                </label>
+            </div>
 
             {mediaType === 'image' && (
                 <div className="an-pdf-field">
-                    <label className="an-field">
-                        <span>Vorhandenes Bild wählen</span>
-                        <select name="image_select" defaultValue={v.media_type === 'image' ? (v.media || '') : ''}>
-                            <option value="">— keins / behalten —</option>
-                            {images.map((im) => (
-                                <option key={im.link} value={im.link}>{im.label}{im.source === 'upload' ? ' (hochgeladen)' : ''}</option>
-                            ))}
-                        </select>
-                    </label>
-                    <label className="an-field">
-                        <span>oder neues Bild hochladen (überschreibt die Auswahl)</span>
-                        <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" />
-                    </label>
+                    <div className="an-field-row">
+                        <label className="an-field">
+                            <span>Vorhandenes Bild wählen</span>
+                            <select name="image_select" defaultValue={v.media_type === 'image' ? (v.media || '') : ''}>
+                                <option value="">— keins / behalten —</option>
+                                {images.map((im) => (
+                                    <option key={im.link} value={im.link}>{im.label}{im.source === 'upload' ? ' (hochgeladen)' : ''}</option>
+                                ))}
+                            </select>
+                        </label>
+                        <label className="an-field">
+                            <span>oder neues Bild hochladen (überschreibt die Auswahl)</span>
+                            <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" />
+                        </label>
+                    </div>
                     <label className="an-check">
                         <input type="checkbox" name="ai_image" defaultChecked={!!v.ai_image} />
                         <span>Projektbild mit KI erstellt – zeigt einen „KI-Bild"-Badge</span>

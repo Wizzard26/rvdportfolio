@@ -12,6 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { FiMove, FiEdit2, FiTrash2, FiImage, FiVideo, FiBox } from 'react-icons/fi';
 import { reorderProjectsAction, deleteProjectAction, toggleProjectAction } from '@/lib/content/showcaseActions';
 import StatusToggle from '@/components/analytics/StatusToggle';
+import AdminPager from '@/components/analytics/AdminPager';
 
 const MEDIA_ICON = { image: FiImage, video: FiVideo, component: FiBox };
 
@@ -63,32 +64,18 @@ function SortableProject({ project }) {
     );
 }
 
-function CategoryGroup({ label, items, mounted }) {
-    return (
-        <div className="an-catgroup">
-            <h2 className="an-catgroup-title">{label} <span className="an-muted">· {items.length}</span></h2>
-            {items.length === 0 ? (
-                <p className="an-empty">Keine Projekte</p>
-            ) : !mounted ? (
-                <ul className="an-stationlist">
-                    {items.map((p) => <StaticProject key={p.id} project={p} />)}
-                </ul>
-            ) : (
-                <SortableContext items={items.map((p) => p.id)} strategy={verticalListSortingStrategy}>
-                    <ul className="an-stationlist">
-                        {items.map((p) => <SortableProject key={p.id} project={p} />)}
-                    </ul>
-                </SortableContext>
-            )}
-        </div>
-    );
-}
+const CATS = [
+    { key: 'shopware', label: 'Shopware' },
+    { key: 'react', label: 'NextJs / React' },
+    { key: 'codejs', label: 'JavaScript' },
+];
+const PAGE_SIZE = 8;
 
-// Reihenfolge per Drag & Drop. Der DnD-Baum wird erst nach dem Mount aktiviert:
-// @dnd-kit vergibt modul-globale IDs, die serverseitig über Requests hochzählen
-// und sonst einen SSR-Hydration-Mismatch erzeugen. Ein gemeinsamer DndContext
-// für beide Kategorien (zwei parallele erzeugen ebenfalls ID-Konflikte); Reorder
-// bleibt pro Kategorie.
+// Kategorie-Unter-Tabs + Pagination, damit die Liste auch bei vielen Projekten
+// übersichtlich bleibt. Reorder per Drag & Drop läuft pro Kategorie über die
+// volle Liste (die aktuelle Seite ist nur der sichtbare Ausschnitt). Der DnD-Baum
+// wird erst nach dem Mount aktiviert (sonst SSR-Hydration-Mismatch durch die
+// modul-globalen @dnd-kit-IDs).
 export default function ShowcaseProjectList({ projects }) {
     const split = (list) => ({
         shopware: list.filter((p) => p.category === 'shopware'),
@@ -101,43 +88,65 @@ export default function ShowcaseProjectList({ projects }) {
     const [mounted, setMounted] = useState(false);
     useEffect(() => { setMounted(true); }, []);
 
+    const [activeCat, setActiveCat] = useState('shopware');
+    const [page, setPage] = useState(1);
+    const selectCat = (c) => { setActiveCat(c); setPage(1); };
+
     const [, startTransition] = useTransition();
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
     );
 
-    const categoryOf = (id) =>
-        ['shopware', 'react', 'codejs'].find((c) => lists[c].some((p) => p.id === id));
+    const full = lists[activeCat] || [];
+    const totalPages = Math.max(1, Math.ceil(full.length / PAGE_SIZE));
+    const current = Math.min(page, totalPages);
+    const pageItems = full.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
+    // Reorder innerhalb der aktiven Kategorie über die VOLLE Liste (beide Items
+    // sind auf der sichtbaren Seite; ihre Indizes in `full` werden getauscht).
     const onDragEnd = ({ active, over }) => {
         if (!over || active.id === over.id) return;
-        const cat = categoryOf(active.id);
-        if (!cat || categoryOf(over.id) !== cat) return; // nicht über Kategoriegrenze sortieren
-        const arr = lists[cat];
-        const oldIndex = arr.findIndex((p) => p.id === active.id);
-        const newIndex = arr.findIndex((p) => p.id === over.id);
+        const oldIndex = full.findIndex((p) => p.id === active.id);
+        const newIndex = full.findIndex((p) => p.id === over.id);
         if (oldIndex < 0 || newIndex < 0) return;
-        const next = arrayMove(arr, oldIndex, newIndex);
-        setLists((prev) => ({ ...prev, [cat]: next }));
-        startTransition(() => reorderProjectsAction(cat, next.map((p) => p.id)));
+        const next = arrayMove(full, oldIndex, newIndex);
+        setLists((prev) => ({ ...prev, [activeCat]: next }));
+        startTransition(() => reorderProjectsAction(activeCat, next.map((p) => p.id)));
     };
 
-    if (!mounted) {
-        return (
-            <>
-                <CategoryGroup label="Shopware" items={lists.shopware} mounted={false} />
-                <CategoryGroup label="NextJs / React" items={lists.react} mounted={false} />
-                <CategoryGroup label="JavaScript" items={lists.codejs} mounted={false} />
-            </>
-        );
-    }
+    const listMarkup = pageItems.length === 0 ? (
+        <p className="an-empty">Keine Projekte in dieser Kategorie</p>
+    ) : !mounted ? (
+        <ul className="an-stationlist">
+            {pageItems.map((p) => <StaticProject key={p.id} project={p} />)}
+        </ul>
+    ) : (
+        <SortableContext items={pageItems.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+            <ul className="an-stationlist">
+                {pageItems.map((p) => <SortableProject key={p.id} project={p} />)}
+            </ul>
+        </SortableContext>
+    );
 
     return (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-            <CategoryGroup label="Shopware" items={lists.shopware} mounted />
-            <CategoryGroup label="NextJs / React" items={lists.react} mounted />
-            <CategoryGroup label="JavaScript" items={lists.codejs} mounted />
-        </DndContext>
+        <>
+            <div className="an-tabs">
+                {CATS.map((c) => (
+                    <button key={c.key} type="button" onClick={() => selectCat(c.key)}
+                            className={`an-tab${activeCat === c.key ? ' is-active' : ''}`}>
+                        {c.label} <span className="an-muted">· {lists[c.key]?.length || 0}</span>
+                    </button>
+                ))}
+            </div>
+
+            {mounted ? (
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                    {listMarkup}
+                </DndContext>
+            ) : listMarkup}
+
+            {totalPages > 1 && <AdminPager page={current} totalPages={totalPages} onChange={setPage} />}
+        </>
     );
 }

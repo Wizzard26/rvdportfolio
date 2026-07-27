@@ -304,6 +304,20 @@ fieldset.an-field { border: none; padding: 0; margin: 0; }
 .an-tab { padding: 7px 16px; border-radius: 6px; font-size: 14px; color: var(--adm-ink-soft); text-decoration: none; }
 .an-tab:hover { background: #e0e8ec; }
 .an-tab.is-active { background: var(--adm-accent); color: #fff; }
+/* Tabs als Buttons (z. B. Kategorie-Unter-Tabs) — Browser-Default zurücksetzen. */
+button.an-tab { border: none; background: transparent; cursor: pointer; font-family: inherit; }
+button.an-tab.is-active:hover { background: var(--adm-accent); }
+
+/* Pagination (Admin-Listen) */
+.an-pager { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 18px; }
+.an-pager button {
+    min-width: 34px; height: 34px; padding: 0 9px; font-family: inherit; font-size: 14px;
+    border: 1px solid var(--adm-border); background: #fff; color: var(--adm-ink);
+    border-radius: 6px; cursor: pointer;
+}
+.an-pager button:hover:not(:disabled) { border-color: var(--adm-accent); }
+.an-pager button.is-active { background: var(--adm-accent); color: #fff; border-color: var(--adm-accent); }
+.an-pager button:disabled { opacity: 0.4; cursor: default; }
 
 /* ── Persönliche Daten: Bereiche & Einträge ───────────────────────────── */
 .an-newarea { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--adm-border); }
@@ -341,7 +355,13 @@ fieldset.an-field { border: none; padding: 0; margin: 0; }
 .an-catgroup { margin-bottom: 22px; }
 .an-catgroup-title { font-size: 15px; color: var(--adm-accent); margin: 0 0 8px; }
 .an-media-badge { display: inline-flex; align-items: center; color: var(--adm-ink-muted); }
-.an-projectform { max-width: 760px; }
+/* Showcase-Formular nutzt (in einer .an-card-wide-Karte) die volle Breite mit
+   zweispaltigem Feld-Layout und etwas mehr Luft zwischen den Elementen. */
+.an-projectform { max-width: none; gap: 22px; }
+/* Feld-Paare brechen auf schmalen Screens einspaltig um. */
+@media (max-width: 860px) {
+    .an-field-row { grid-template-columns: 1fr; }
+}
 .an-thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; flex: 0 0 auto; background: var(--adm-surface-2, rgba(0,0,0,0.06)); }
 
 /* Status-Badge / Umschalter (Aktiv ⇄ Entwurf) */

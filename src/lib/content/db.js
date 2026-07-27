@@ -103,6 +103,18 @@ function migrate(database) {
         );
         CREATE INDEX IF NOT EXISTS idx_gallery_sort ON gallery_items (gallery, sort_order);
 
+        -- Mehrere Bilder je Showcase-Projekt (für media_type 'gallery'/'slider').
+        -- KI-Kennzeichnung pro Bild (ein Screenshot kann echt, ein anderer KI sein).
+        CREATE TABLE IF NOT EXISTS showcase_images (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id  INTEGER NOT NULL,
+            image       TEXT    NOT NULL DEFAULT '',
+            ai_image    INTEGER NOT NULL DEFAULT 0,
+            sort_order  INTEGER NOT NULL DEFAULT 0,
+            updated_at  INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_showcase_images_project ON showcase_images (project_id, sort_order);
+
         CREATE TABLE IF NOT EXISTS documents (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             title       TEXT    NOT NULL DEFAULT '',

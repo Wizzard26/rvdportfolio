@@ -13,6 +13,7 @@ import { FiMove, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { reorderGalleryItemsAction, deleteGalleryItemAction, toggleGalleryItemAction } from '@/lib/content/galleryActions';
 import { GALLERIES, GALLERY_LABELS } from '@/lib/galleryItems';
 import StatusToggle from '@/components/analytics/StatusToggle';
+import AdminPager from '@/components/analytics/AdminPager';
 
 function Row({ item }) {
     return (
@@ -58,30 +59,12 @@ function SortableItem({ item }) {
     );
 }
 
-function GalleryGroup({ label, items, mounted }) {
-    return (
-        <div className="an-catgroup">
-            <h2 className="an-catgroup-title">{label} <span className="an-muted">· {items.length}</span></h2>
-            {items.length === 0 ? (
-                <p className="an-empty">Keine Einträge</p>
-            ) : !mounted ? (
-                <ul className="an-stationlist">
-                    {items.map((it) => <StaticItem key={it.id} item={it} />)}
-                </ul>
-            ) : (
-                <SortableContext items={items.map((it) => it.id)} strategy={verticalListSortingStrategy}>
-                    <ul className="an-stationlist">
-                        {items.map((it) => <SortableItem key={it.id} item={it} />)}
-                    </ul>
-                </SortableContext>
-            )}
-        </div>
-    );
-}
+const PAGE_SIZE = 8;
 
-// Ein gemeinsamer DndContext über alle vier Galerien; Reorder bleibt pro Galerie.
-// Der DnD-Baum mountet erst clientseitig (mounted-Flag) — sonst SSR-Hydration-
-// Mismatch durch @dnd-kit-interne IDs (wie bei den Showcase-Projekten).
+// Galerie-Unter-Tabs + Pagination (wie bei den Showcase-Projekten). Reorder per
+// Drag & Drop läuft pro Galerie über die volle Liste; die aktuelle Seite ist der
+// sichtbare Ausschnitt. Der DnD-Baum mountet erst clientseitig (mounted-Flag) —
+// sonst SSR-Hydration-Mismatch durch die modul-globalen @dnd-kit-IDs.
 export default function GalleryItemList({ items }) {
     const split = (list) => {
         const map = {};
@@ -95,36 +78,63 @@ export default function GalleryItemList({ items }) {
     const [mounted, setMounted] = useState(false);
     useEffect(() => { setMounted(true); }, []);
 
+    const [activeGallery, setActiveGallery] = useState(GALLERIES[0]);
+    const [page, setPage] = useState(1);
+    const selectGallery = (g) => { setActiveGallery(g); setPage(1); };
+
     const [, startTransition] = useTransition();
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
     );
 
-    const galleryOf = (id) => GALLERIES.find((g) => groups[g]?.some((it) => it.id === id));
+    const full = groups[activeGallery] || [];
+    const totalPages = Math.max(1, Math.ceil(full.length / PAGE_SIZE));
+    const current = Math.min(page, totalPages);
+    const pageItems = full.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
     const onDragEnd = ({ active, over }) => {
         if (!over || active.id === over.id) return;
-        const g = galleryOf(active.id);
-        if (!g || galleryOf(over.id) !== g) return; // nicht über Galeriegrenze
-        const arr = groups[g];
-        const oldIndex = arr.findIndex((it) => it.id === active.id);
-        const newIndex = arr.findIndex((it) => it.id === over.id);
+        const oldIndex = full.findIndex((it) => it.id === active.id);
+        const newIndex = full.findIndex((it) => it.id === over.id);
         if (oldIndex < 0 || newIndex < 0) return;
-        const next = arrayMove(arr, oldIndex, newIndex);
-        setGroups((prev) => ({ ...prev, [g]: next }));
-        startTransition(() => reorderGalleryItemsAction(g, next.map((it) => it.id)));
+        const next = arrayMove(full, oldIndex, newIndex);
+        setGroups((prev) => ({ ...prev, [activeGallery]: next }));
+        startTransition(() => reorderGalleryItemsAction(activeGallery, next.map((it) => it.id)));
     };
 
-    const render = (mnt) => GALLERIES.map((g) => (
-        <GalleryGroup key={g} label={GALLERY_LABELS[g]} items={groups[g] || []} mounted={mnt} />
-    ));
-
-    if (!mounted) return <>{render(false)}</>;
+    const listMarkup = pageItems.length === 0 ? (
+        <p className="an-empty">Keine Einträge in dieser Galerie</p>
+    ) : !mounted ? (
+        <ul className="an-stationlist">
+            {pageItems.map((it) => <StaticItem key={it.id} item={it} />)}
+        </ul>
+    ) : (
+        <SortableContext items={pageItems.map((it) => it.id)} strategy={verticalListSortingStrategy}>
+            <ul className="an-stationlist">
+                {pageItems.map((it) => <SortableItem key={it.id} item={it} />)}
+            </ul>
+        </SortableContext>
+    );
 
     return (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-            {render(true)}
-        </DndContext>
+        <>
+            <div className="an-tabs">
+                {GALLERIES.map((g) => (
+                    <button key={g} type="button" onClick={() => selectGallery(g)}
+                            className={`an-tab${activeGallery === g ? ' is-active' : ''}`}>
+                        {GALLERY_LABELS[g]} <span className="an-muted">· {groups[g]?.length || 0}</span>
+                    </button>
+                ))}
+            </div>
+
+            {mounted ? (
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                    {listMarkup}
+                </DndContext>
+            ) : listMarkup}
+
+            {totalPages > 1 && <AdminPager page={current} totalPages={totalPages} onChange={setPage} />}
+        </>
     );
 }
