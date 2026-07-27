@@ -1,0 +1,62 @@
+/* Die ganze Stimmen-Einheit (Überschrift + Slide + Navigation) ist EINE Box –
+   wie „Auf einen Blick“, damit die Oberkanten beider Elemente fluchten. */
+.wrap {
+    min-width: 0;
+    padding: 22px 24px;
+    border: 1px solid var(--dark-light);
+    border-radius: 12px;
+    background: var(--light);
+}
+.title {
+    font-size: 1.05rem;
+    margin: 0 0 16px;
+    color: var(--dark);
+}
+
+.card {
+    position: relative;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.mark { font-size: 18px; color: var(--primary); opacity: 0.55; }
+.quote { margin: 0; line-height: 1.6; color: var(--dark); font-style: italic; }
+.cite { display: flex; flex-direction: column; gap: 2px; }
+.author { font-weight: 700; color: var(--dark); }
+.meta { font-size: 0.9rem; color: var(--dark-6); }
+
+/* Manuelle Navigation (nur bei mehreren Stimmen) */
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 12px;
+}
+.arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--dark-light);
+    border-radius: 50%;
+    background: var(--light);
+    color: var(--dark);
+    cursor: pointer;
+    transition: border-color .15s ease, color .15s ease;
+}
+.arrow:hover { border-color: var(--primary); color: var(--primary); }
+.dots { display: flex; align-items: center; gap: 8px; }
+.dot, .dotOn {
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--dark-light);
+    cursor: pointer;
+    transition: background .15s ease, transform .15s ease;
+}
+.dotOn { background: var(--primary); transform: scale(1.15); }

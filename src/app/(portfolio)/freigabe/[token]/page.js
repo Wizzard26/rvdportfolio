@@ -1,13 +1,14 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { TbFileTypePdf } from "react-icons/tb";
-import { FiDownload, FiLock, FiCheckCircle, FiArchive } from "react-icons/fi";
+import { FiDownload, FiLock, FiCheckCircle, FiArchive, FiLayers } from "react-icons/fi";
 import { roboto_condensed } from "@/app/fonts";
 import { getShareByToken, getShareRawByToken, shareCookieName, recordView, getConversation } from "@/lib/content/sharesStore";
 import { unlockShareAction } from "@/lib/content/sharesActions";
 import { SESSION_COOKIE } from "@/lib/auth";
 import ShareResponse from "@/components/freigabe/ShareResponse";
 import ShareKeyfacts from "@/components/freigabe/ShareKeyfacts";
+import ShareVoices from "@/components/freigabe/ShareVoices";
 import styles from "./styles.module.css";
 
 const SENT_MSG = {
@@ -51,6 +52,8 @@ function GateView({ token, title, error }) {
 
 function ShareView({ share, sent, conversation, rated }) {
     const many = share.documents.length > 1;
+    const voices = share.testimonials || [];
+    const hasVoices = voices.length > 0;
     return (
         <main className="main-content">
             <section>
@@ -66,7 +69,10 @@ function ShareView({ share, sent, conversation, rated }) {
                                 {share.message && <p className={styles.message}>{share.message}</p>}
                             </header>
 
-                            <ShareKeyfacts share={share} />
+                            <div className={`${styles.topBand} ${hasVoices ? styles.topBandTwo : ''}`}>
+                                <ShareKeyfacts share={share} inBand={hasVoices} />
+                                {hasVoices && <ShareVoices items={voices} />}
+                            </div>
 
                             {share.documents.length === 0 ? (
                                 <p>Für diese Freigabe sind derzeit keine Dokumente hinterlegt.</p>
@@ -91,6 +97,14 @@ function ShareView({ share, sent, conversation, rated }) {
                                     )}
                                 </>
                             )}
+
+                            {share.show_showcase_cta ? (
+                                <div className={styles.actions}>
+                                    <a href="/showcase" target="_blank" rel="noopener noreferrer" className={styles.allBtn}>
+                                        <FiLayers aria-hidden="true" /> Meine Referenzprojekte ansehen
+                                    </a>
+                                </div>
+                            ) : null}
 
                             <p className={styles.note}>Diese Dokumente wurden privat über einen persönlichen Link mit Ihnen geteilt.</p>
                         </div>

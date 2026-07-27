@@ -4,7 +4,10 @@
     background: rgba(63,157,90,0.12); border: 1px solid rgba(63,157,90,0.35);
     color: #1c7a43; font-weight: 600;
 }
-/* 2-Spalten: Unterlagen links, Gespräch/Termine rechts (mobil darunter) */
+/* 2-Spalten: Unterlagen links, Gespräch/Termine rechts. Erst ab echtem Desktop
+   (>1200px), sonst quetscht die 420px-Antwortspalte die Hauptspalte (v. a. auf
+   Tablet Landscape) und der Keyfacts-/Stimmen-Band wird zu eng. Darunter: Antwort
+   unter den Inhalt. */
 .shareGrid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 420px;
@@ -13,7 +16,7 @@
 }
 .shareMain { min-width: 0; }
 .shareSide { min-width: 0; }
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
     .shareGrid { grid-template-columns: 1fr; gap: 28px; }
 }
 
@@ -30,6 +33,19 @@
 .message {
     white-space: pre-line;
     line-height: 1.6;
+}
+
+/* „Auf einen Blick" + Stimmen nebeneinander (bei zugeordneten Stimmen). Ohne
+   Stimmen rendert die Keyfacts-Karte ihre eigene Breite/Abstände (kein topBand-Grid). */
+.topBandTwo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 22px;
+    align-items: start;
+    margin: 30px 0 34px;
+}
+@media (max-width: 720px) {
+    .topBandTwo { grid-template-columns: 1fr; gap: 20px; }
 }
 
 /* Download-Kacheln */
