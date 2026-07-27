@@ -2,8 +2,12 @@
 
 import { useActionState, useRef, useState } from 'react';
 import Link from 'next/link';
-import { buildShareText, PURPOSE_LABELS } from '@/lib/shareTemplate';
+import {
+    buildShareText, PURPOSE_LABELS, CONTACT_GENDER_LABELS,
+    EMPLOYMENT_LABELS, WORK_MODEL_LABELS, SALARY_PERIOD_LABELS,
+} from '@/lib/shareTemplate';
 import { STATUS_LABELS, STATUS_ORDER } from '@/lib/applicationStatus';
+import ShareDocumentPicker from '@/components/analytics/ShareDocumentPicker';
 
 function todayPlus(days) {
     const d = new Date();
@@ -14,21 +18,26 @@ function todayPlus(days) {
 export default function ShareForm({ action, share, documents = [] }) {
     const [state, formAction, pending] = useActionState(action, { error: null, values: null });
     const v = state.values || share || {};
-    const selected = new Set((v.documentIds || []).map(Number));
 
     const formRef = useRef(null);
     const messageRef = useRef(null);
+    const availabilityRef = useRef(null);
     const expiresRef = useRef(null);
     const [status, setStatus] = useState(v.status || 'offen');
+    const [empType, setEmpType] = useState(v.employment_type || '');
 
     const fillTemplate = () => {
         const el = formRef.current?.elements;
         if (!el || !messageRef.current) return;
         messageRef.current.value = buildShareText({
             purpose: el.purpose?.value, company: el.company?.value,
-            contact: el.contact?.value, position: el.position?.value,
+            contact: el.contact?.value, contact_gender: el.contact_gender?.value,
+            position: el.position?.value, motivation: el.motivation?.value,
+            job_ref: el.job_ref?.value,
         });
     };
+
+    const setAvailability = (text) => { if (availabilityRef.current) availabilityRef.current.value = text; };
 
     const setExpiryDays = () => {
         const el = formRef.current?.elements;
@@ -63,9 +72,13 @@ export default function ShareForm({ action, share, documents = [] }) {
                 <div className="an-field-row">
                     <label className="an-field"><span>Firmenname</span>
                         <input name="company" defaultValue={v.company || ''} placeholder="Musterfirma GmbH" /></label>
-                    <label className="an-field"><span>Ansprechpartner:in</span>
-                        <input name="contact" defaultValue={v.contact || ''} placeholder="Frau Muster" /></label>
+                    <label className="an-field"><span>Anrede <span className="an-muted">(steuert „Sehr geehrte…“)</span></span>
+                        <select name="contact_gender" defaultValue={v.contact_gender || ''}>
+                            {Object.entries(CONTACT_GENDER_LABELS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+                        </select></label>
                 </div>
+                <label className="an-field"><span>Name des Ansprechpartners <span className="an-muted">(Nachname genügt, z. B. Muster)</span></span>
+                    <input name="contact" defaultValue={v.contact || ''} placeholder="Muster" /></label>
                 <label className="an-field"><span>Straße &amp; Nr.</span>
                     <input name="street" defaultValue={v.street || ''} placeholder="Musterstraße 1" /></label>
                 <div className="an-field-row">
@@ -83,6 +96,73 @@ export default function ShareForm({ action, share, documents = [] }) {
                 <label className="an-field"><span>Stelle / Position</span>
                     <input name="position" defaultValue={v.position || ''} placeholder="Web-Developer (m/w/d)" /></label>
             </fieldset>
+
+            <fieldset className="an-field an-checkgroup">
+                <legend>Keyfacts <span className="an-muted">(scannbare Übersichts-Karte auf der Seite)</span></legend>
+                <div className="an-field-row">
+                    <label className="an-field"><span>Arbeitsmodell</span>
+                        <select name="work_model" defaultValue={v.work_model || ''}>
+                            <option value="">— keine Angabe —</option>
+                            {Object.entries(WORK_MODEL_LABELS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+                        </select></label>
+                    <label className="an-field"><span>Umfang</span>
+                        <select name="employment_type" value={empType} onChange={(e) => setEmpType(e.target.value)}>
+                            <option value="">— keine Angabe —</option>
+                            {Object.entries(EMPLOYMENT_LABELS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+                        </select></label>
+                </div>
+                {(empType === 'teilzeit' || empType === 'beides') && (
+                    <div className="an-field-row">
+                        <label className="an-field"><span>Stunden/Woche von</span>
+                            <input type="number" name="hours_from" min="0" max="60" defaultValue={v.hours_from || ''} placeholder="20" /></label>
+                        <label className="an-field"><span>Stunden/Woche bis</span>
+                            <input type="number" name="hours_to" min="0" max="60" defaultValue={v.hours_to || ''} placeholder="30" /></label>
+                    </div>
+                )}
+
+                <label className="an-field"><span>Verfügbar ab</span>
+                    <input name="availability" ref={availabilityRef} defaultValue={v.availability || ''}
+                           placeholder="sofort / ab 01.09.2026 / nach Absprache" /></label>
+                <div className="an-inline-days">
+                    <button type="button" className="an-btn-secondary an-btn-small" onClick={() => setAvailability('sofort')}>sofort</button>
+                    <button type="button" className="an-btn-secondary an-btn-small" onClick={() => setAvailability('zum nächstmöglichen Zeitpunkt')}>nächstmöglich</button>
+                    <button type="button" className="an-btn-secondary an-btn-small" onClick={() => setAvailability('nach Absprache')}>nach Absprache</button>
+                </div>
+
+                <div className="an-field-row">
+                    <label className="an-field"><span>Gehaltswunsch <span className="an-muted">(Betrag)</span></span>
+                        <input name="salary_amount" defaultValue={v.salary_amount || ''} placeholder="55.000–60.000" /></label>
+                    <label className="an-field"><span>Zeitraum</span>
+                        <select name="salary_period" defaultValue={v.salary_period || ''}>
+                            <option value="">— keine Angabe —</option>
+                            {Object.entries(SALARY_PERIOD_LABELS).map(([k, label]) => <option key={k} value={k}>{label.replace('/ ', 'pro ')}</option>)}
+                        </select></label>
+                </div>
+                <label className="an-field"><span>Gehalt bezogen auf <span className="an-muted">(Std./Woche – optional, v. a. bei Teilzeit → „… bei 24 Std./Woche“)</span></span>
+                    <input type="number" name="salary_hours" min="0" max="60" defaultValue={v.salary_hours || ''} placeholder="24" className="an-days-input" /></label>
+                <label className="an-check">
+                    <input type="checkbox" name="salary_public" defaultChecked={!!v.salary_public} />
+                    <span>Gehaltswunsch auf der Seite anzeigen <span className="an-muted">— sonst nur intern sichtbar</span></span>
+                </label>
+
+                <label className="an-field"><span>Kern-Skills <span className="an-muted">(eine pro Zeile oder komma­getrennt → Chips)</span></span>
+                    <textarea name="skills" rows={3} defaultValue={v.skills || ''} placeholder={"Shopware 6\nNext.js / React\nPHP, JavaScript, SQL"} /></label>
+                <label className="an-field"><span>Besonderheiten <span className="an-muted">(eine pro Zeile → Stichpunkte)</span></span>
+                    <textarea name="highlights" rows={3} defaultValue={v.highlights || ''} placeholder={"8 Jahre E-Commerce-Erfahrung\nEigene Plugins im Shopware Store"} /></label>
+
+                <div className="an-field-row">
+                    <label className="an-field"><span>Standort &amp; Mobilität <span className="an-muted">(optional)</span></span>
+                        <input name="mobility" defaultValue={v.mobility || ''} placeholder="Raum Musterstadt · pendel-/umzugsbereit" /></label>
+                    <label className="an-field"><span>Fundort der Stelle <span className="an-muted">(bei Stellen-Bewerbung)</span></span>
+                        <input name="job_ref" defaultValue={v.job_ref || ''} placeholder="Ihre Anzeige auf LinkedIn vom 20.07." /></label>
+                </div>
+            </fieldset>
+
+            <label className="an-field">
+                <span>„Warum ihr“ – Passung in 1–2 Sätzen <span className="an-muted">(macht das Anschreiben individuell)</span></span>
+                <textarea name="motivation" rows={3} defaultValue={v.motivation || ''}
+                          placeholder="Ihr Fokus auf saubere Shopware-Architektur passt genau zu dem, wofür ich brenne …" />
+            </label>
 
             <fieldset className="an-field an-checkgroup">
                 <legend>Zeitlicher Ablauf</legend>
@@ -148,17 +228,7 @@ export default function ShareForm({ action, share, documents = [] }) {
             <label className="an-field"><span>Interne Notizen (nur im Admin)</span>
                 <textarea name="notes" rows={3} defaultValue={v.notes || ''} placeholder="z. B. Recruiter angerufen, …" /></label>
 
-            <fieldset className="an-field an-checkgroup">
-                <legend>Dokumente in dieser Freigabe *</legend>
-                {documents.length === 0 ? (
-                    <p className="an-muted">Noch keine Dokumente vorhanden – lege zuerst welche unter „Dokumente" an.</p>
-                ) : documents.map((d) => (
-                    <label key={d.id} className="an-check">
-                        <input type="checkbox" name="document_ids" value={d.id} defaultChecked={selected.has(d.id)} />
-                        <span>{d.title}{d.is_active ? '' : ' — Entwurf (nicht öffentlich gelistet)'}</span>
-                    </label>
-                ))}
-            </fieldset>
+            <ShareDocumentPicker documents={documents} initialIds={v.documentIds || []} />
 
             <label className="an-check">
                 <input type="checkbox" name="is_active" defaultChecked={share ? !!v.is_active : true} />

@@ -400,6 +400,21 @@ button.an-tab.is-active:hover { background: var(--adm-accent); }
 .an-checkgroup .an-check { display: flex; gap: 8px; margin: 6px 0; }
 .an-checkgroup .an-field-row { margin-bottom: 4px; }
 
+/* Dynamische Dokumentenauswahl in Freigaben (Add-Document statt Checkbox-Wand) */
+.an-doclist { list-style: none; margin: 4px 0 12px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.an-docitem {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border: 1px solid var(--adm-border, rgba(0,0,0,0.12));
+    border-radius: 8px; background: var(--adm-surface);
+}
+.an-docicon { color: var(--adm-accent); flex: 0 0 auto; }
+.an-docname { flex: 1 1 auto; min-width: 0; font-size: 14px; color: var(--adm-ink); }
+.an-doc-actions { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.an-doc-actions .an-icon-btn:disabled { opacity: .35; cursor: default; }
+.an-docadd { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.an-docadd select { flex: 1 1 220px; min-width: 0; }
+.an-docadd .an-btn-small { margin-top: 0; white-space: nowrap; }
+
 .an-btn-small { align-self: flex-start; padding: 6px 12px; font-size: 13px; margin-top: 6px; }
 .an-inline-days { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
 .an-inline-days .an-days-input { width: 90px; }

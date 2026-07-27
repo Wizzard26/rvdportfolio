@@ -347,6 +347,22 @@ function migrate(database) {
     ensureColumn(database, 'shares', 'rating_process', 'INTEGER NOT NULL DEFAULT 0');
     // Zeitpunkt einer (auch prozessunabhängig) abgegebenen Sternebewertung.
     ensureColumn(database, 'shares', 'rated_at', 'INTEGER NOT NULL DEFAULT 0');
+    // Keyfacts + Anschreiben-Bausteine für die Freigabe-Seite (Bewerbung → Arbeitgeber).
+    ensureColumn(database, 'shares', 'contact_gender', "TEXT NOT NULL DEFAULT ''");   // '', herr, frau, divers, team
+    ensureColumn(database, 'shares', 'employment_type', "TEXT NOT NULL DEFAULT ''");  // '', vollzeit, teilzeit, beides
+    ensureColumn(database, 'shares', 'hours_from', 'INTEGER NOT NULL DEFAULT 0');     // Teilzeit-Stunden von
+    ensureColumn(database, 'shares', 'hours_to', 'INTEGER NOT NULL DEFAULT 0');       // Teilzeit-Stunden bis
+    ensureColumn(database, 'shares', 'work_model', "TEXT NOT NULL DEFAULT ''");       // '', vor_ort, hybrid, remote, flexibel
+    ensureColumn(database, 'shares', 'availability', "TEXT NOT NULL DEFAULT ''");     // Start: sofort / ab Datum / nach Absprache
+    ensureColumn(database, 'shares', 'salary_amount', "TEXT NOT NULL DEFAULT ''");    // z. B. „55.000–60.000"
+    ensureColumn(database, 'shares', 'salary_period', "TEXT NOT NULL DEFAULT ''");    // '', jahr, monat, stunde
+    ensureColumn(database, 'shares', 'salary_hours', 'INTEGER NOT NULL DEFAULT 0');   // Bezug: Gehalt „bei X Std./Woche" (Teilzeit)
+    ensureColumn(database, 'shares', 'salary_public', 'INTEGER NOT NULL DEFAULT 0');  // Gehalt auf der Seite zeigen?
+    ensureColumn(database, 'shares', 'skills', "TEXT NOT NULL DEFAULT ''");           // Kern-Skills (Zeilen/Komma) → Chips
+    ensureColumn(database, 'shares', 'highlights', "TEXT NOT NULL DEFAULT ''");       // Besonderheiten (Zeilen) → Bullets
+    ensureColumn(database, 'shares', 'motivation', "TEXT NOT NULL DEFAULT ''");       // „Warum ihr" (1 Satz) → Fließtext
+    ensureColumn(database, 'shares', 'mobility', "TEXT NOT NULL DEFAULT ''");         // Standort & Bereitschaft (optional)
+    ensureColumn(database, 'shares', 'job_ref', "TEXT NOT NULL DEFAULT ''");          // Fundort/Referenz der Stelle (optional)
     // Bestehende Freigaben ohne Erstelldatum auf updated_at setzen (idempotent).
     database.prepare('UPDATE shares SET created_at = updated_at WHERE created_at = 0').run();
 }

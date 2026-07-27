@@ -7,6 +7,7 @@ import { getShareByToken, getShareRawByToken, shareCookieName, recordView, getCo
 import { unlockShareAction } from "@/lib/content/sharesActions";
 import { SESSION_COOKIE } from "@/lib/auth";
 import ShareResponse from "@/components/freigabe/ShareResponse";
+import ShareKeyfacts from "@/components/freigabe/ShareKeyfacts";
 import styles from "./styles.module.css";
 
 const SENT_MSG = {
@@ -64,6 +65,8 @@ function ShareView({ share, sent, conversation, rated }) {
                                 {share.company && <p className={styles.forWhom}>Zusammengestellt für {share.company}</p>}
                                 {share.message && <p className={styles.message}>{share.message}</p>}
                             </header>
+
+                            <ShareKeyfacts share={share} />
 
                             {share.documents.length === 0 ? (
                                 <p>Für diese Freigabe sind derzeit keine Dokumente hinterlegt.</p>
