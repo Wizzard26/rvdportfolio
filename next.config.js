@@ -9,13 +9,13 @@ const nextConfig = {
     // - geoip-lite lädt seine Länder-Datendateien (.dat) per __dirname
     // Beim Bündeln würden die Pfade brechen (ENOENT auf die .dat-Datei).
     serverExternalPackages: ['better-sqlite3', 'geoip-lite'],
-    // Server Actions (u. a. der Galerie-Bild-Upload) laufen als multipart-Request.
-    // Next begrenzt diese standardmäßig auf 1 MB – beim Hochladen mehrerer Bilder
-    // auf einmal brach der Upload dadurch ab. Auf 25 MB angehoben (Einzelbild bleibt
-    // bei max. 5 MB, siehe media.js), damit auch größere Galerien in einem Rutsch gehen.
+    // Server Actions (Galerie-Uploads) laufen als multipart-Request. Next begrenzt
+    // die standardmäßig auf 1 MB – beim Hochladen mehrerer Bilder/eines Videos brach
+    // der Upload ab. Auf 30 MB angehoben, damit auch ein Video (max. 25 MB, siehe
+    // media.js) samt Overhead und größere Bild-Galerien in einem Rutsch durchgehen.
     experimental: {
         serverActions: {
-            bodySizeLimit: '25mb',
+            bodySizeLimit: '30mb',
         },
     },
     async headers() {

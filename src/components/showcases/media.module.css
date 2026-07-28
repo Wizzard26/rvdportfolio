@@ -1,0 +1,82 @@
+/* Füllt die (relative, formatgebundene) Eltern-Box — für <video>/<img>-Vorschau,
+   analog zu next/image fill. */
+.fill {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Play-Overlay auf Video-/Embed-Vorschauen */
+.playOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 2;
+}
+.playOverlay svg {
+    width: 58px;
+    height: 58px;
+    padding: 15px;
+    border-radius: 50%;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* Provider-Label (YouTube/Vimeo) oben links */
+.provider {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+/* Fallback-Kachel für Embeds ohne Vorschaubild (z. B. Vimeo) */
+.embedTile {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1c2b33, #0f1a20);
+}
+
+/* Vollansicht in der Lightbox. WICHTIG: innerhalb der Figur bleiben (die
+   Lightbox ist ein Flex-Row Pfeil·Figur·Pfeil) – sonst überlagert das iframe
+   die Navigationspfeile und schluckt deren Klicks. Daher width 100% (= Figur),
+   Höhe über 16:9 bzw. max-height begrenzt. */
+.lightWrap {
+    position: relative;
+    display: inline-flex;
+    max-width: 100%;
+}
+.lightVideo {
+    max-width: 100%;
+    max-height: 82vh;
+    width: auto;
+    height: auto;
+    background: #000;
+}
+.lightEmbed {
+    position: relative;
+    width: min(100%, 146vh); /* 146vh ≈ 82vh · 16/9 → deckelt die Höhe */
+    aspect-ratio: 16 / 9;
+    margin: auto;
+}
+.lightEmbed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}

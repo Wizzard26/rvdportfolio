@@ -11,20 +11,47 @@ export function getProjectImages(projectId) {
         .all(id);
 }
 
-export function addProjectImage({ project_id, image, ai_image = 0 }) {
+const KINDS = new Set(['image', 'video', 'embed']);
+
+export function addProjectImage({ project_id, image, ai_image = 0, kind = 'image', autoplay = 1 }) {
     const db = getContentDb();
     const pid = Number(project_id) || 0;
     const clean = (image || '').trim();
     if (!pid || !clean) return null;
+    const k = KINDS.has(kind) ? kind : 'image';
     const max = db.prepare('SELECT COALESCE(MAX(sort_order), -1) AS m FROM showcase_images WHERE project_id = ?').get(pid).m;
     return db.prepare(
-        'INSERT INTO showcase_images (project_id, image, ai_image, sort_order, updated_at) VALUES (?, ?, ?, ?, ?)',
-    ).run(pid, clean, ai_image ? 1 : 0, max + 1, Date.now()).lastInsertRowid;
+        'INSERT INTO showcase_images (project_id, image, ai_image, kind, autoplay, sort_order, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    ).run(pid, clean, ai_image ? 1 : 0, k, autoplay ? 1 : 0, max + 1, Date.now()).lastInsertRowid;
+}
+
+export function getProjectImage(id) {
+    return getContentDb().prepare('SELECT * FROM showcase_images WHERE id = ?').get(Number(id)) || null;
+}
+
+// Einzelnes Item bearbeiten (nur übergebene Felder ändern).
+export function updateProjectImage(id, { image, ai_image, kind, autoplay } = {}) {
+    const db = getContentDb();
+    const row = db.prepare('SELECT * FROM showcase_images WHERE id = ?').get(Number(id));
+    if (!row) return;
+    const next = {
+        image: image != null && String(image).trim() ? String(image).trim() : row.image,
+        ai_image: ai_image != null ? (ai_image ? 1 : 0) : row.ai_image,
+        kind: kind && KINDS.has(kind) ? kind : row.kind,
+        autoplay: autoplay != null ? (autoplay ? 1 : 0) : row.autoplay,
+    };
+    db.prepare('UPDATE showcase_images SET image=?, ai_image=?, kind=?, autoplay=?, updated_at=? WHERE id=?')
+        .run(next.image, next.ai_image, next.kind, next.autoplay, Date.now(), Number(id));
 }
 
 export function setImageAi(id, ai) {
     getContentDb().prepare('UPDATE showcase_images SET ai_image = ?, updated_at = ? WHERE id = ?')
         .run(ai ? 1 : 0, Date.now(), Number(id));
+}
+
+export function setImageAutoplay(id, on) {
+    getContentDb().prepare('UPDATE showcase_images SET autoplay = ?, updated_at = ? WHERE id = ?')
+        .run(on ? 1 : 0, Date.now(), Number(id));
 }
 
 export function deleteProjectImage(id) {
