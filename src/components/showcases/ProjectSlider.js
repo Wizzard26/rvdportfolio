@@ -1,18 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import AiBadge from '@/components/ai/AiBadge';
+import MediaThumb from './MediaThumb';
 import Lightbox from './Lightbox';
 import styles from './slider.module.css';
 
-function isUpload(src) {
-    return typeof src === 'string' && src.startsWith('/media/');
-}
-
-// Rotierendes Bild-Element, aber MANUELL (kein Autoplay — nervt ohne Video).
-// Pfeile + Punkte; Klick aufs Bild öffnet die Lightbox an aktueller Stelle.
+// Rotierendes Element, aber MANUELL (kein Autoplay). Pfeile + Punkte; Klick öffnet
+// die Lightbox an aktueller Stelle. Items: Bild, Video oder Embed (MediaThumb).
 export default function ProjectSlider({ images = [], name = '' }) {
     const [i, setI] = useState(0);
     const [open, setOpen] = useState(false);
@@ -25,24 +20,15 @@ export default function ProjectSlider({ images = [], name = '' }) {
     return (
         <div className={styles.slider}>
             <div className={styles.stage}>
-                {cur.ai_image ? <AiBadge /> : null}
-                <button type="button" className={styles.imgBtn} onClick={() => setOpen(true)} aria-label={`${name}: Bild vergrößern`}>
-                    <Image
-                        className={styles.img}
-                        src={cur.image}
-                        alt={name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 45vw"
-                        style={{ objectFit: 'cover' }}
-                        unoptimized={isUpload(cur.image)}
-                    />
+                <button type="button" className={styles.imgBtn} onClick={() => setOpen(true)} aria-label={`${name}: Medium vergrößern`}>
+                    <MediaThumb item={cur} name={name} sizes="(max-width: 768px) 100vw, 45vw" />
                 </button>
                 {count > 1 && (
                     <>
-                        <button type="button" className={`${styles.nav} ${styles.prev}`} onClick={() => go(-1)} aria-label="Vorheriges Bild">
+                        <button type="button" className={`${styles.nav} ${styles.prev}`} onClick={() => go(-1)} aria-label="Vorheriges Medium">
                             <FiChevronLeft aria-hidden="true" />
                         </button>
-                        <button type="button" className={`${styles.nav} ${styles.next}`} onClick={() => go(1)} aria-label="Nächstes Bild">
+                        <button type="button" className={`${styles.nav} ${styles.next}`} onClick={() => go(1)} aria-label="Nächstes Medium">
                             <FiChevronRight aria-hidden="true" />
                         </button>
                     </>
@@ -50,14 +36,14 @@ export default function ProjectSlider({ images = [], name = '' }) {
             </div>
 
             {count > 1 && (
-                <div className={styles.dots} role="tablist" aria-label="Bildauswahl">
+                <div className={styles.dots} role="tablist" aria-label="Medienauswahl">
                     {images.map((img, d) => (
                         <button
                             key={img.id}
                             type="button"
                             className={`${styles.dot}${d === i ? ' ' + styles.dotOn : ''}`}
                             onClick={() => setI(d)}
-                            aria-label={`Bild ${d + 1}`}
+                            aria-label={`Medium ${d + 1}`}
                             aria-current={d === i}
                         />
                     ))}

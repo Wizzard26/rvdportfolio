@@ -317,6 +317,12 @@ function migrate(database) {
     ensureColumn(database, 'showcase_projects', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
     // KI-Kennzeichnung: markiert ein mit KI erzeugtes Projektbild.
     ensureColumn(database, 'showcase_projects', 'ai_image', 'INTEGER NOT NULL DEFAULT 0');
+    // Gemischte Galerien/Slider: ein Item ist Bild, hochgeladenes Video oder Embed.
+    // 'image' | 'video' (MP4 im /media-Volume) | 'embed' (youtube:ID / vimeo:ID).
+    // Die vorhandene image-Spalte hält jeweils die Quelle (Pfad bzw. Embed-Kennung).
+    ensureColumn(database, 'showcase_images', 'kind', "TEXT NOT NULL DEFAULT 'image'");
+    // Autoplay je Video-/Embed-Item (startet immer stumm; Ton erst bei aktivem Start).
+    ensureColumn(database, 'showcase_images', 'autoplay', 'INTEGER NOT NULL DEFAULT 1');
     ensureColumn(database, 'gallery_items', 'is_active', 'INTEGER NOT NULL DEFAULT 1');
     // Sandbox-Felder für den JavaScript-Tab (Phase B) nachrüsten.
     ensureColumn(database, 'showcase_projects', 'sandbox_html', "TEXT NOT NULL DEFAULT ''");

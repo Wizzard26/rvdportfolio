@@ -400,6 +400,18 @@ button.an-tab.is-active:hover { background: var(--adm-accent); }
 .an-checkgroup .an-check { display: flex; gap: 8px; margin: 6px 0; }
 .an-checkgroup .an-field-row { margin-bottom: 4px; }
 
+/* Showcase-Medien: Item-Zeile (an-station) + ausklappbares Bearbeiten-Panel */
+.an-imgitem { list-style: none; }
+.an-imgitem:last-child .an-station { border-bottom: none; }
+.an-imgeditor {
+    padding: 12px 14px 16px 44px;
+    background: var(--adm-surface-2, rgba(0, 0, 0, 0.03));
+    border-bottom: 1px solid var(--adm-border, rgba(0, 0, 0, 0.12));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 /* Dynamische Dokumentenauswahl in Freigaben (Add-Document statt Checkbox-Wand) */
 .an-doclist { list-style: none; margin: 4px 0 12px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .an-docitem {
