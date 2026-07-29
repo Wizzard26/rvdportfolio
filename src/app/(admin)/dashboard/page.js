@@ -11,7 +11,7 @@ import DonutChart from '@/components/analytics/charts/DonutChart';
 export const dynamic = 'force-dynamic';
 
 export default async function Overview({ searchParams }) {
-    const { days, range } = await resolveRange(searchParams);
+    const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const d = getOverviewData(range);
     const o = d.overview;
     const total = d.newVsReturning.neu + d.newVsReturning.returning;
@@ -25,7 +25,7 @@ export default async function Overview({ searchParams }) {
 
     return (
         <div className="an-dashboard">
-            <AnHead title="Überblick" subtitle={`Cookiefreie, anonyme First-Party-Auswertung · letzte ${days} Tage`} days={days} basePath="/dashboard" />
+            <AnHead title="Überblick" subtitle={`Cookiefreie, anonyme First-Party-Auswertung · ${phrase}`} active={rangeKey} basePath="/dashboard" />
 
             <div className="an-tiles">
                 <StatTile label="Besucher" value={formatNumber(o.visitors)} hint="eindeutig (anonym)" />

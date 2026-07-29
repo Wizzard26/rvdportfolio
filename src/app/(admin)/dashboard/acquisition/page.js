@@ -8,7 +8,7 @@ import DonutChart from '@/components/analytics/charts/DonutChart';
 export const dynamic = 'force-dynamic';
 
 export default async function Acquisition({ searchParams }) {
-    const { days, range } = await resolveRange(searchParams);
+    const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const d = getAcquisitionData(range);
 
     const sourceDonut = d.referrerSources.map((r) => ({
@@ -17,7 +17,7 @@ export default async function Acquisition({ searchParams }) {
 
     return (
         <div className="an-dashboard">
-            <AnHead title="Herkunft" subtitle={`Woher die Besucher kommen · letzte ${days} Tage`} days={days} basePath="/dashboard/acquisition" />
+            <AnHead title="Herkunft" subtitle={`Woher die Besucher kommen · ${phrase}`} active={rangeKey} basePath="/dashboard/acquisition" />
 
             <div className="an-grid-2">
                 <section className="an-card">

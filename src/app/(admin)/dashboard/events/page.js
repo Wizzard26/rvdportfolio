@@ -4,6 +4,9 @@ import { resolveRange } from '@/lib/analytics/range';
 import { formatNumber } from '@/lib/analytics/format';
 import { formatBerlinDateTime } from '@/lib/dateFormat';
 import AnHead from '@/components/analytics/AnHead';
+import DataResetCard from '@/components/analytics/DataResetCard';
+import { countEvents } from '@/lib/analytics/adminData';
+import { resetVisitorDataAction } from '@/lib/analytics/analyticsAdminActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +21,7 @@ function timeLabel(ts) {
 }
 
 export default async function Events({ searchParams }) {
-    const { days, range, params } = await resolveRange(searchParams);
+    const { range, rangeKey, phrase, params } = await resolveRange(searchParams);
     const type = typeof params.type === 'string' ? params.type : '';
     const size = PAGE_SIZES.includes(Number(params.size)) ? Number(params.size) : DEFAULT_SIZE;
     const page = Math.max(1, Number(params.page) || 1);
@@ -28,10 +31,13 @@ export default async function Events({ searchParams }) {
     const typeCounts = getEventTypeCounts(range);
     const pages = Math.max(1, Math.ceil(total / size));
 
+    // Datenverwaltung: Reset betrifft den GESAMTEN Bestand, nicht nur den Zeitraum.
+    const eventsAllTime = countEvents();
+
     // Links behalten Zeitraum, Typ, Seitengröße bei (nur `page`/geänderter Wert variiert).
     const linkFor = ({ t = type, p = page, s = size } = {}) => {
         const q = new URLSearchParams();
-        q.set('range', String(days));
+        q.set('range', String(rangeKey));
         if (t) q.set('type', t);
         if (s !== DEFAULT_SIZE) q.set('size', String(s));
         if (p && p > 1) q.set('page', String(p));
@@ -40,7 +46,7 @@ export default async function Events({ searchParams }) {
 
     return (
         <div className="an-dashboard">
-            <AnHead title="Ereignisse" subtitle={`Roh-Explorer · ${formatNumber(total)} Ereignisse · letzte ${days} Tage`} days={days} basePath="/dashboard/events" />
+            <AnHead title="Ereignisse" subtitle={`Roh-Explorer · ${formatNumber(total)} Ereignisse · ${phrase}`} active={rangeKey} basePath="/dashboard/events" />
 
             <section className="an-card">
                 <div className="an-filters">
@@ -95,6 +101,15 @@ export default async function Events({ searchParams }) {
                     </span>
                 </div>
             </section>
+
+            {/* Datenverwaltung: Besucher-Analytics sichern / zurücksetzen */}
+            <DataResetCard
+                title="Besucher-Daten verwalten"
+                description={`Betrifft alle Besucher-Auswertungen gemeinsam (Überblick, Zielgruppe, Verhalten, Herkunft, Ziele, Ereignisse) — ${formatNumber(eventsAllTime)} Ereignisse insgesamt. Lade bei Bedarf ein Backup herunter und setze die Daten für einen sauberen Neustart zurück. Das Bot-Log bleibt davon unberührt.`}
+                count={eventsAllTime}
+                backupHref="/api/admin/analytics-backup?scope=events"
+                action={resetVisitorDataAction}
+            />
         </div>
     );
 }

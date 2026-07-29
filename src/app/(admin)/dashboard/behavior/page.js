@@ -10,12 +10,12 @@ import BarChartH from '@/components/analytics/charts/BarChartH';
 export const dynamic = 'force-dynamic';
 
 export default async function Behavior({ searchParams }) {
-    const { days, range } = await resolveRange(searchParams);
+    const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const d = getBehaviorData(range);
 
     return (
         <div className="an-dashboard">
-            <AnHead title="Verhalten" subtitle={`Wie Besucher sich bewegen · letzte ${days} Tage`} days={days} basePath="/dashboard/behavior" />
+            <AnHead title="Verhalten" subtitle={`Wie Besucher sich bewegen · ${phrase}`} active={rangeKey} basePath="/dashboard/behavior" />
 
             <div className="an-grid-2">
                 <section className="an-card">

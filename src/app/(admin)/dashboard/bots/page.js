@@ -5,23 +5,48 @@ import { formatBerlinDateTime } from '@/lib/dateFormat';
 import { resolveRange } from '@/lib/analytics/range';
 import AnHead from '@/components/analytics/AnHead';
 import StatTile from '@/components/analytics/StatTile';
+import PagerLinks from '@/components/analytics/PagerLinks';
+import DataResetCard from '@/components/analytics/DataResetCard';
+import { countBotHits } from '@/lib/analytics/adminData';
+import { resetBotLogAction } from '@/lib/analytics/analyticsAdminActions';
 
 export const dynamic = 'force-dynamic';
 
 const CAT_ORDER = ['ai', 'search', 'seo', 'other'];
+const BOT_PAGE_SIZE = 20;
+const RECENT_PAGE_SIZE = 25;
 
 export default async function BotsPage({ searchParams }) {
-    const { days } = await resolveRange(searchParams);
-    const { total, byCategory, byBot, topPaths, recent } = getBotStats({ days });
+    const { days, rangeKey, phrase, params } = await resolveRange(searchParams);
+
+    const botPage = Math.max(1, Number(params.bp) || 1);
+    const recentPage = Math.max(1, Number(params.rp) || 1);
+
+    const { total, byCategory, byBot, botTotal, topPaths, recent, recentTotal } = getBotStats({
+        days,
+        botPage,
+        botPageSize: BOT_PAGE_SIZE,
+        recentPage,
+        recentPageSize: RECENT_PAGE_SIZE,
+    });
 
     const catMap = Object.fromEntries(byCategory.map((c) => [c.category, c]));
+
+    const botPages = Math.max(1, Math.ceil(botTotal / BOT_PAGE_SIZE));
+    const recentPages = Math.max(1, Math.ceil(recentTotal / RECENT_PAGE_SIZE));
+
+    // Für die Datenverwaltung zählt der gesamte Bestand (unabhängig vom Zeitraum).
+    const botAllTime = countBotHits();
+
+    // Zeitraum in den Pager-Links erhalten (Default 30 bleibt außen vor).
+    const rangeParam = rangeKey === 30 ? undefined : rangeKey;
 
     return (
         <div className="an-dashboard">
             <AnHead
                 title="KI & Bots"
-                subtitle={`Serverseitiges Crawler-Log · ${formatNumber(total)} Zugriffe · letzte ${days} Tage`}
-                days={days}
+                subtitle={`Serverseitiges Crawler-Log · ${formatNumber(total)} Zugriffe · ${phrase}`}
+                active={rangeKey}
                 basePath="/dashboard/bots"
             />
 
@@ -47,26 +72,36 @@ export default async function BotsPage({ searchParams }) {
             </div>
 
             {/* Bots im Detail */}
-            <section className="an-card an-full">
-                <h2>Bots im Detail</h2>
+            <section className="an-card an-full" id="bots-detail">
+                <h2>Bots im Detail{botTotal ? ` · ${formatNumber(botTotal)}` : ''}</h2>
                 {byBot.length ? (
-                    <div className="an-table-wrap">
-                        <table className="an-table">
-                            <thead>
-                                <tr><th>Bot</th><th>Kategorie</th><th>Zugriffe</th><th>Zuletzt</th></tr>
-                            </thead>
-                            <tbody>
-                                {byBot.map((b) => (
-                                    <tr key={b.name}>
-                                        <td>{b.name}</td>
-                                        <td><span className="an-badge">{BOT_CATEGORIES[b.category] || b.category}</span></td>
-                                        <td>{formatNumber(b.hits)}</td>
-                                        <td>{formatBerlinDateTime(b.last_ts)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <>
+                        <div className="an-table-wrap">
+                            <table className="an-table">
+                                <thead>
+                                    <tr><th>Bot</th><th>Kategorie</th><th>Zugriffe</th><th>Zuletzt</th></tr>
+                                </thead>
+                                <tbody>
+                                    {byBot.map((b) => (
+                                        <tr key={b.name}>
+                                            <td>{b.name}</td>
+                                            <td><span className="an-badge">{BOT_CATEGORIES[b.category] || b.category}</span></td>
+                                            <td>{formatNumber(b.hits)}</td>
+                                            <td>{formatBerlinDateTime(b.last_ts)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <PagerLinks
+                            basePath="/dashboard/bots"
+                            param="bp"
+                            page={botPage}
+                            totalPages={botPages}
+                            params={{ range: rangeParam, rp: recentPage > 1 ? recentPage : undefined }}
+                            anchor="#bots-detail"
+                        />
+                    </>
                 ) : (
                     <p className="an-card-note">Im gewählten Zeitraum wurden noch keine Bot-Zugriffe erfasst.</p>
                 )}
@@ -91,8 +126,8 @@ export default async function BotsPage({ searchParams }) {
 
             {/* Jüngste Zugriffe */}
             {recent.length ? (
-                <section className="an-card an-full">
-                    <h2>Jüngste Zugriffe</h2>
+                <section className="an-card an-full" id="bots-recent">
+                    <h2>Jüngste Zugriffe{recentTotal ? ` · ${formatNumber(recentTotal)}` : ''}</h2>
                     <div className="an-table-wrap">
                         <table className="an-table">
                             <thead><tr><th>Zeit</th><th>Bot</th><th>Kategorie</th><th>Seite</th></tr></thead>
@@ -108,8 +143,25 @@ export default async function BotsPage({ searchParams }) {
                             </tbody>
                         </table>
                     </div>
+                    <PagerLinks
+                        basePath="/dashboard/bots"
+                        param="rp"
+                        page={recentPage}
+                        totalPages={recentPages}
+                        params={{ range: rangeParam, bp: botPage > 1 ? botPage : undefined }}
+                        anchor="#bots-recent"
+                    />
                 </section>
             ) : null}
+
+            {/* Datenverwaltung: Bot-Log sichern / zurücksetzen */}
+            <DataResetCard
+                title="Bot-Log verwalten"
+                description={`Serverseitiges Crawler-Log (${formatNumber(botAllTime)} Einträge insgesamt). Lade bei Bedarf ein Backup herunter und setze das Log für einen sauberen Neustart zurück. Die Besucher-Analytics bleiben davon unberührt.`}
+                count={botAllTime}
+                backupHref="/api/admin/analytics-backup?scope=bots"
+                action={resetBotLogAction}
+            />
         </div>
     );
 }

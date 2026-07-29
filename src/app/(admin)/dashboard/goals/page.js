@@ -9,12 +9,12 @@ import Funnel from '@/components/analytics/Funnel';
 export const dynamic = 'force-dynamic';
 
 export default async function Goals({ searchParams }) {
-    const { days, range } = await resolveRange(searchParams);
+    const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const d = getGoalsData(range);
 
     return (
         <div className="an-dashboard">
-            <AnHead title="Ziele" subtitle={`Was Besucher tun, das zählt · letzte ${days} Tage`} days={days} basePath="/dashboard/goals" />
+            <AnHead title="Ziele" subtitle={`Was Besucher tun, das zählt · ${phrase}`} active={rangeKey} basePath="/dashboard/goals" />
 
             <div className="an-tiles">
                 <StatTile label="Conversions" value={formatNumber(d.overview.conversions)} hint="Kontaktanfragen" />
