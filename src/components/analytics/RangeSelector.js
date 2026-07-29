@@ -1,12 +1,13 @@
 import Link from 'next/link';
 
-// Zeitraum-Auswahl über einen Query-Parameter (?range=7|30|90). Als Links
+// Zeitraum-Auswahl über einen Query-Parameter (?range=7|30|90|all). Als Links
 // umgesetzt, damit die Server-Component die Daten für den Zeitraum frisch lädt —
-// kein Client-State nötig.
+// kein Client-State nötig. `all` = gesamter Zeitraum (ohne Tages-Begrenzung).
 const OPTIONS = [
-    { days: 7, label: '7 Tage' },
-    { days: 30, label: '30 Tage' },
-    { days: 90, label: '90 Tage' },
+    { key: 7, label: '7 Tage' },
+    { key: 30, label: '30 Tage' },
+    { key: 90, label: '90 Tage' },
+    { key: 'all', label: 'Gesamt' },
 ];
 
 export default function RangeSelector({ active, basePath = '/dashboard' }) {
@@ -14,9 +15,9 @@ export default function RangeSelector({ active, basePath = '/dashboard' }) {
         <div className="an-range">
             {OPTIONS.map((opt) => (
                 <Link
-                    key={opt.days}
-                    href={`${basePath}?range=${opt.days}`}
-                    className={`an-range-btn${active === opt.days ? ' is-active' : ''}`}
+                    key={opt.key}
+                    href={`${basePath}?range=${opt.key}`}
+                    className={`an-range-btn${active === opt.key ? ' is-active' : ''}`}
                 >
                     {opt.label}
                 </Link>

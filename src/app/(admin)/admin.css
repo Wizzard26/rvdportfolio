@@ -240,6 +240,23 @@ body {
 }
 .an-btn-secondary:hover { background: #eef3f5; }
 
+.an-btn-danger {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px; border: 1px solid #d8b3ae; cursor: pointer;
+    background: #fff; color: #b3261e; font: inherit; font-size: 14px; text-decoration: none;
+    transition: background 150ms, color 150ms;
+}
+.an-btn-danger:hover:not(:disabled) { background: #b3261e; color: #fff; border-color: #b3261e; }
+.an-btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Datenverwaltung / Reset-Karte */
+.an-danger-card { border: 1px solid #ecd6d3; }
+.an-data-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
+.an-confirm { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.an-confirm > span { color: #b3261e; font-size: 14px; font-weight: 600; }
+.an-note-ok { margin-top: 12px; color: #1f7a44; font-size: 14px; }
+.an-note-err { margin-top: 12px; color: #b3261e; font-size: 14px; }
+
 .an-back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--adm-ink-muted); text-decoration: none; margin-bottom: 6px; }
 .an-back:hover { color: var(--adm-accent); }
 

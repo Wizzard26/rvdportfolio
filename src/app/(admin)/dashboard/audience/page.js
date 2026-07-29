@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 const VITAL_UNIT = { LCP: 'ms', INP: 'ms', FCP: 'ms', TTFB: 'ms', CLS: '' };
 
 export default async function Audience({ searchParams }) {
-    const { days, range } = await resolveRange(searchParams);
+    const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const d = getAudienceData(range);
     const total = d.newVsReturning.neu + d.newVsReturning.returning;
 
@@ -28,7 +28,7 @@ export default async function Audience({ searchParams }) {
 
     return (
         <div className="an-dashboard">
-            <AnHead title="Zielgruppe" subtitle={`Wer besucht die Seite · letzte ${days} Tage`} days={days} basePath="/dashboard/audience" />
+            <AnHead title="Zielgruppe" subtitle={`Wer besucht die Seite · ${phrase}`} active={rangeKey} basePath="/dashboard/audience" />
 
             <div className="an-grid-2">
                 <section className="an-card">
