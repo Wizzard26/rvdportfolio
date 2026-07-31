@@ -75,7 +75,7 @@ function Media({ project }) {
 function FullProject({ project, index }) {
     const even = index % 2 === 0;
     return (
-        <section className={even ? 'secondary--bg' : ''}>
+        <section className={even ? 'secondary--bg' : ''} id={`project-${project.id}`} style={{ scrollMarginTop: '90px' }}>
             <div className="content-inner">
                 <SectionView as="h2" name={project.name} className={`${roboto.className}`}>{project.name}</SectionView>
                 <div className={even ? 'row' : 'row row-reverse'}>

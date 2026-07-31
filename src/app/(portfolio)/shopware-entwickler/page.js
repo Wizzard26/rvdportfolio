@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { FiMapPin, FiMonitor, FiBriefcase, FiLayers } from "react-icons/fi";
+import { FiMapPin, FiMonitor, FiBriefcase, FiLayers, FiClock } from "react-icons/fi";
 import { roboto, ranga } from "@/app/fonts";
 import Button from "@/components/button/Button";
 import ServiceBox from "@/components/service/ServiceBox";
@@ -98,7 +98,7 @@ export default function ShopwareEntwickler() {
                 </section>
 
                 {/* Was ich mitbringe */}
-                <section className="secondary--bg">
+                <section className="secondary--bg" id="mitbringen" style={{ scrollMarginTop: '90px' }}>
                     <div className="content-inner">
                         <h2 className={`${roboto.className} is--centered`}>Was ich mitbringe</h2>
                         <div className="row my-todos">
@@ -110,7 +110,7 @@ export default function ShopwareEntwickler() {
                 </section>
 
                 {/* Verfügbarkeit auf einen Blick */}
-                <section>
+                <section id="verfuegbarkeit" style={{ scrollMarginTop: '90px' }}>
                     <div className="content-inner">
                         <h2 className={`${roboto.className} is--centered`}>Verfügbarkeit auf einen Blick</h2>
                         <div className={styles.facts}>
@@ -124,6 +124,10 @@ export default function ShopwareEntwickler() {
                                     </div>
                                 );
                             })}
+                        </div>
+                        <div className={styles.availabilityNow}>
+                            <FiClock aria-hidden="true" />
+                            <span>Verfügbar ab <strong>sofort</strong></span>
                         </div>
                     </div>
                 </section>

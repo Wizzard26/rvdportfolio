@@ -53,6 +53,8 @@ export default async function Vita() {
                                 <Reveal
                                     delay={Math.min(i * 0.06, 0.3)}
                                     className={`${styles.vitaEntry}`}
+                                    id={`vita-${vita.id}`}
+                                    style={{ scrollMarginTop: '90px' }}
                                     key={vita.id}>
                                     <div className={`${styles.vitaHeadline}`}>
                                         <h2 className={`${roboto_condensed.className} ${styles.vitaTitle} col-12 col-xl-9`}>{vita.title}</h2>
