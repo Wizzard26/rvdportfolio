@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const ContactBtn = styled(Link)`
     border: none;
-    background: rgba(206, 71, 96, 1);
+    background: rgba(189, 51, 80, 1); /* Marken-Rot (#bd3350): weißer Text darauf = 5.6:1 → WCAG-AA */
     color: #ffffff;
     text-transform: uppercase;
     padding: 10px 15px;

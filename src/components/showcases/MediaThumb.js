@@ -19,7 +19,9 @@ export default function MediaThumb({ item, name = '', sizes = '45vw' }) {
     if (kind === 'video') {
         return (
             <>
-                {item.ai_image ? <AiBadge label="KI-Video" /> : null}
+                {/* aria-hidden: Overlay auf einem Thumbnail im „vergrößern"-Button; die
+                    KI-Kennzeichnung wird beim Öffnen in der Lightbox angesagt (WCAG 2.5.3). */}
+                {item.ai_image ? <span aria-hidden="true"><AiBadge label="KI-Video" /></span> : null}
                 {/* #t=0.1 → Browser zeigt das erste Frame als Vorschau; abgespielt in der Lightbox. */}
                 <video className={styles.fill} src={`${item.image}#t=0.1`} muted playsInline preload="metadata" tabIndex={-1} />
                 <span className={styles.playOverlay}><FiPlay aria-hidden="true" /></span>
@@ -34,8 +36,8 @@ export default function MediaThumb({ item, name = '', sizes = '45vw' }) {
         // das eigentliche iframe lädt erst beim Klick (Facade).
         return (
             <>
-                {item.ai_image ? <AiBadge label="KI-Video" /> : null}
-                <span className={styles.provider}>{info?.provider || 'Video'}</span>
+                {item.ai_image ? <span aria-hidden="true"><AiBadge label="KI-Video" /></span> : null}
+                <span className={styles.provider} aria-hidden="true">{info?.provider || 'Video'}</span>
                 {info?.id ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img className={styles.fill} src={`/api/embedthumb?p=${p}&id=${info.id}`} alt="" loading="lazy" />
@@ -50,7 +52,7 @@ export default function MediaThumb({ item, name = '', sizes = '45vw' }) {
     // Bild (Standard, inkl. Alt-Datensätze ohne kind)
     return (
         <>
-            {item.ai_image ? <AiBadge /> : null}
+            {item.ai_image ? <span aria-hidden="true"><AiBadge /></span> : null}
             <Image
                 src={item.image}
                 alt={name}
