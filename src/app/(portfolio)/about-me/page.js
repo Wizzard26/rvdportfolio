@@ -58,12 +58,8 @@ export default async function AboutMe() {
             <Teaser
                 className="main--teaser"
                 pageName={pageName}
+                afterText={<ProfileTerminal />}
             />
-            <section>
-                <div className="content-inner">
-                    <ProfileTerminal />
-                </div>
-            </section>
             <BlockqoutesClient quoteData={quoteData}  />
             <section className="secondary--bg">
                 <div className="content-inner">
