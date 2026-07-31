@@ -51,37 +51,37 @@ export default function Footer() {
                             <div className="col-12 col-md-6 col-xl-4 columns">
                                 <h3 className={roboto_condensed.className}>Webdevelopment</h3>
                                 <TecIcons>
-                                    <DiHtml5 />
-                                    <DiCss3 />
-                                    <DiJavascript />
-                                    <DiNpm />
-                                    <DiNodejsSmall />
-                                    <DiReact />
-                                    <DiPhp />
-                                    <DiLess />
-                                    <DiSass />
-                                    <BiLogoDocker />
-                                    <DiGithubBadge />
-                                    <PiGitlabLogo />
+                                    <DiHtml5 title="HTML5" role="img" />
+                                    <DiCss3 title="CSS3" role="img" />
+                                    <DiJavascript title="JavaScript" role="img" />
+                                    <DiNpm title="npm" role="img" />
+                                    <DiNodejsSmall title="Node.js" role="img" />
+                                    <DiReact title="React" role="img" />
+                                    <DiPhp title="PHP" role="img" />
+                                    <DiLess title="Less" role="img" />
+                                    <DiSass title="Sass" role="img" />
+                                    <BiLogoDocker title="Docker" role="img" />
+                                    <DiGithubBadge title="GitHub" role="img" />
+                                    <PiGitlabLogo title="GitLab" role="img" />
                                 </TecIcons>
                                 <h3 className={roboto_condensed.className}>CMS & Frameworks</h3>
                                 <TecIcons>
-                                    <SiSymfony />
-                                    <SiNextdotjs />
-                                    <SiContao />
-                                    <SiWordpress />
-                                    <SiShopware />
+                                    <SiSymfony title="Symfony" role="img" />
+                                    <SiNextdotjs title="Next.js" role="img" />
+                                    <SiContao title="Contao" role="img" />
+                                    <SiWordpress title="WordPress" role="img" />
+                                    <SiShopware title="Shopware" role="img" />
                                 </TecIcons>
                             </div>
                             <div className="col-12 col-md-6 col-xl-4 columns">
                                 <h3 className={roboto_condensed.className}>Software</h3>
                                 <TecIcons>
-                                    <TbBrandAdobePhotoshop />
-                                    <TbBrandAdobeIllustrator />
-                                    <TbBrandAdobeIndesign />
-                                    <TbBrandAdobeXd />
-                                    <SiPhpstorm />
-                                    <SiWebstorm />
+                                    <TbBrandAdobePhotoshop title="Adobe Photoshop" role="img" />
+                                    <TbBrandAdobeIllustrator title="Adobe Illustrator" role="img" />
+                                    <TbBrandAdobeIndesign title="Adobe InDesign" role="img" />
+                                    <TbBrandAdobeXd title="Adobe XD" role="img" />
+                                    <SiPhpstorm title="PhpStorm" role="img" />
+                                    <SiWebstorm title="WebStorm" role="img" />
                                 </TecIcons>
                                 <h3 className={roboto_condensed.className}>Social Media</h3>
                                 <SocialIcons>
@@ -111,7 +111,7 @@ export default function Footer() {
 
                     </div>
                     <StyledEndLine>
-                        <AiOutlineCopyrightCircle style={{position:'relative',top:'3px'}} /> Copyright {yearStart} - {yearNow} | Design, Code and Content by Rene van Dinter | all rights reserved
+                        <AiOutlineCopyrightCircle aria-hidden="true" style={{position:'relative',top:'3px'}} /> Copyright {yearStart} - {yearNow} | Design, Code and Content by Rene van Dinter | all rights reserved
                     </StyledEndLine>
                 </StyledFooter>
             </StyledComponentsRegistry>
