@@ -302,6 +302,8 @@ function migrate(database) {
             description TEXT    NOT NULL DEFAULT '',
             tech        TEXT    NOT NULL DEFAULT '',    -- Komma/Zeilen → Chips
             status      TEXT    NOT NULL DEFAULT 'live',-- 'live' | 'in_entwicklung'
+            link        TEXT    NOT NULL DEFAULT '',    -- optionaler Live-Link (Shop/Store/Website)
+            link_label  TEXT    NOT NULL DEFAULT '',    -- Beschriftung des Links
             is_active   INTEGER NOT NULL DEFAULT 1,
             sort_order  INTEGER NOT NULL DEFAULT 0,
             created_at  INTEGER NOT NULL DEFAULT 0,
@@ -434,6 +436,10 @@ function migrate(database) {
     ensureColumn(database, 'shares', 'show_showcase_cta', 'INTEGER NOT NULL DEFAULT 0');    // CTA zur Showcase zeigen
     // Bestehende Freigaben ohne Erstelldatum auf updated_at setzen (idempotent).
     database.prepare('UPDATE shares SET created_at = updated_at WHERE created_at = 0').run();
+
+    // Optionaler Live-Link je vertraulicher Referenz (nachgerüstet für bestehende DBs).
+    ensureColumn(database, 'private_refs', 'link', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'private_refs', 'link_label', "TEXT NOT NULL DEFAULT ''");
 }
 
 export function getContentDb() {

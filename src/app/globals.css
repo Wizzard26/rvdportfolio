@@ -45,7 +45,11 @@
 html,
 body {
   max-width: 100vw;
+  /* `clip` verhindert horizontales Scrollen wie `hidden`, erzeugt aber KEINEN
+     Scroll-Container – sonst funktioniert `position: sticky` nirgends (z. B.
+     die Freigabe-Sidebar). `hidden` bleibt als Fallback für alte Browser. */
   overflow-x: hidden;
+  overflow-x: clip;
   color: var(--grey);
 }
 

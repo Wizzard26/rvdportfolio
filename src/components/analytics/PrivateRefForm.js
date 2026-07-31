@@ -34,6 +34,15 @@ export default function PrivateRefForm({ action, item }) {
                     <option value="in_entwicklung">in Entwicklung (noch nicht angekündigt)</option>
                 </select></label>
 
+            <div className="an-field-row">
+                <label className="an-field"><span>Live-Link <span className="an-muted">(optional)</span></span>
+                    <input name="link" type="url" defaultValue={v.link || ''} placeholder="https://store.shopware.com/… oder https://kundenshop.de" /></label>
+                <label className="an-field"><span>Link-Beschriftung</span>
+                    <input name="link_label" defaultValue={v.link_label || ''} placeholder="Im Shopware Store ansehen" /></label>
+            </div>
+            <p className="an-card-note" style={{ marginTop: -4 }}>Zeigt ein Live-Ergebnis (Shopware-Store-Plugin,
+                Kundenshop, Website). Öffnet in einem neuen Tab. Leer lassen, wenn kein öffentlicher Link existiert.</p>
+
             <label className="an-check">
                 <input type="checkbox" name="is_active" defaultChecked={item ? !!v.is_active : true} />
                 <span>Aktiv – kann Freigaben zugeordnet werden (ohne Haken: Entwurf, nirgends sichtbar)</span>

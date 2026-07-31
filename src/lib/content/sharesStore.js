@@ -234,7 +234,7 @@ export function getShareByToken(token) {
     `).all(share.id);
     // Vertrauliche Referenzen (nur aktive) inkl. ihrer Screenshots, in Anzeigereihenfolge.
     const refs = db.prepare(`
-        SELECT r.id, r.title, r.context, r.description, r.tech, r.status
+        SELECT r.id, r.title, r.context, r.description, r.tech, r.status, r.link, r.link_label
         FROM share_private_refs sr JOIN private_refs r ON r.id = sr.ref_id
         WHERE sr.share_id = ? AND r.is_active = 1 ORDER BY sr.sort_order, sr.id
     `).all(share.id);

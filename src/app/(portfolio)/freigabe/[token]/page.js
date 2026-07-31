@@ -102,10 +102,6 @@ function ShareView({ share, sent, conversation, rated }) {
                                 </>
                             )}
 
-                            {privateRefs.length > 0 && (
-                                <SharePrivateRefs items={privateRefs} company={share.company} stamp={stamp} />
-                            )}
-
                             {share.show_showcase_cta ? (
                                 <div className={styles.actions}>
                                     <a href="/showcase" target="_blank" rel="noopener noreferrer" className={styles.allBtn}>
@@ -113,6 +109,10 @@ function ShareView({ share, sent, conversation, rated }) {
                                     </a>
                                 </div>
                             ) : null}
+
+                            {privateRefs.length > 0 && (
+                                <SharePrivateRefs items={privateRefs} company={share.company} stamp={stamp} />
+                            )}
 
                             <p className={styles.note}>Diese Dokumente wurden privat über einen persönlichen Link mit Ihnen geteilt.</p>
                         </div>

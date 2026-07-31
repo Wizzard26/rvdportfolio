@@ -26,6 +26,8 @@ function parse(formData) {
         description: (formData.get('description') || '').toString().trim(),
         tech: (formData.get('tech') || '').toString().trim(),
         status: (formData.get('status') || 'live').toString(),
+        link: (formData.get('link') || '').toString().trim(),
+        link_label: (formData.get('link_label') || '').toString().trim(),
         is_active: formData.get('is_active') ? 1 : 0,
     };
 }

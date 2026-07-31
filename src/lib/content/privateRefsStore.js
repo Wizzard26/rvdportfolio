@@ -17,6 +17,8 @@ function fields(data) {
         description: (data.description || '').trim(),
         tech: (data.tech || '').trim(),
         status,
+        link: (data.link || '').trim(),
+        link_label: (data.link_label || '').trim(),
         is_active: data.is_active ? 1 : 0,
         now: Date.now(),
     };
@@ -52,8 +54,8 @@ export function createPrivateRef(data) {
     const create = db.transaction(() => {
         db.prepare('UPDATE private_refs SET sort_order = sort_order + 1').run();
         return db.prepare(`
-            INSERT INTO private_refs (title, context, description, tech, status, is_active, sort_order, created_at, updated_at)
-            VALUES (@title, @context, @description, @tech, @status, @is_active, 0, @now, @now)
+            INSERT INTO private_refs (title, context, description, tech, status, link, link_label, is_active, sort_order, created_at, updated_at)
+            VALUES (@title, @context, @description, @tech, @status, @link, @link_label, @is_active, 0, @now, @now)
         `).run(f).lastInsertRowid;
     });
     return create();
@@ -63,7 +65,8 @@ export function updatePrivateRef(id, data) {
     const f = fields(data);
     getContentDb().prepare(`
         UPDATE private_refs SET title=@title, context=@context, description=@description,
-        tech=@tech, status=@status, is_active=@is_active, updated_at=@now WHERE id=@id
+        tech=@tech, status=@status, link=@link, link_label=@link_label,
+        is_active=@is_active, updated_at=@now WHERE id=@id
     `).run({ id: Number(id), ...f });
 }
 
