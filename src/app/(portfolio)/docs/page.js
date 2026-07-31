@@ -28,6 +28,9 @@ export default function DocsOverview() {
             <section>
                 <div className="content-inner">
                     <h1 className={roboto.className}>Dokumentation</h1>
+                    {/* Zwischenüberschrift (nur für SR/Struktur): sonst springt die
+                        Überschriften-Folge von h1 direkt auf den Footer-h3. */}
+                    <h2 className="visually-hidden">Verfügbare Dokumentationsbereiche</h2>
                     {spaces.length === 0 ? (
                         <p>Hier entstehen die Dokumentationen. Aktuell ist noch nichts veröffentlicht.</p>
                     ) : (

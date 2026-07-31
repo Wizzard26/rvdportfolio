@@ -50,6 +50,7 @@ export default async function AboutMe() {
     return (
         <>
             <JsonLd data={[profileSchema, breadcrumbSchema([{ name: 'Über mich', path: '/about-me' }])]} />
+            <main className="main-content">
             <HeroContent
                 className={`hero-container`}
                 pageName={pageName}
@@ -114,6 +115,7 @@ export default async function AboutMe() {
                     </div>
                 </section>
             )}
+            </main>
         </>
     )
 }
