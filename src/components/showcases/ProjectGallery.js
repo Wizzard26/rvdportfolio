@@ -21,7 +21,7 @@ export default function ProjectGallery({ images = [], name = '' }) {
             <button type="button" className={styles.hero} onClick={() => setOpen(0)}
                     aria-label={images.length > 1 ? `${name}: alle ${images.length} Medien ansehen` : `${name}: Medium vergrößern`}>
                 {images.length > 3 && (
-                    <span className={styles.count} title={`Alle ${images.length} Medien ansehen`}>
+                    <span className={styles.count} aria-hidden="true" title={`Alle ${images.length} Medien ansehen`}>
                         <FiImage aria-hidden="true" /> +{images.length - 3}
                     </span>
                 )}
