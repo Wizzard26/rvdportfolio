@@ -72,7 +72,7 @@ const GENERIC = new Set(
 const FRAMING = new Set(
     ('erfahrung erfahrungen berufserfahrung werdegang projekt projekte referenz referenzen case study '
         + 'skill skills kenntnisse faehigkeit faehigkeiten stack arbeiten arbeitest arbeitet entwickeln '
-        + 'entwickelt entwicklung gebaut gemacht machst umgehen umgang beherrschst beherrscht nutzt nutzen '
+        + 'entwickelt entwicklung gebaut gemacht macht machen machst umgehen umgang beherrschst beherrscht nutzt nutzen '
         + 'verwendest einsetzt tun themen thema koenntest kennt kennst kennen kenne weiss '
         + 'erstellen erstellt erstellung erstelle bauen baust code programmierst').split(' '),
 );

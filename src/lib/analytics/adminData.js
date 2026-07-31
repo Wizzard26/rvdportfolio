@@ -44,3 +44,23 @@ export function clearBotHits() {
     })();
     return n;
 }
+
+// ─── CV-KI-Assistent (Teilmenge von events, type='assistant') ─────────────
+// Liegt in derselben Tabelle wie die Besucher-Analytics; deshalb NUR die
+// Assistent-Zeilen zählen/exportieren/leeren und den AUTOINCREMENT-Zähler in
+// Ruhe lassen (die übrigen Events bleiben ja bestehen).
+
+export function countAssistantEvents() {
+    return getDb().prepare("SELECT COUNT(*) AS n FROM events WHERE type = 'assistant'").get().n;
+}
+
+export function exportAssistantEvents() {
+    return getDb().prepare("SELECT * FROM events WHERE type = 'assistant' ORDER BY ts").all();
+}
+
+export function clearAssistantEvents() {
+    const db = getDb();
+    const n = countAssistantEvents();
+    db.prepare("DELETE FROM events WHERE type = 'assistant'").run();
+    return n;
+}

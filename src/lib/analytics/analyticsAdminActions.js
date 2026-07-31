@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { SESSION_COOKIE, verifySessionToken } from '@/lib/auth';
-import { clearEvents, clearBotHits } from './adminData';
+import { clearEvents, clearBotHits, clearAssistantEvents } from './adminData';
 
 // Server Actions zum Zurücksetzen der Analytics-Daten. Der Proxy schützt bereits
 // alle /dashboard-Requests; zusätzlich prüfen wir hier die Session explizit
@@ -27,6 +27,7 @@ export async function resetVisitorDataAction() {
         '/dashboard/acquisition',
         '/dashboard/goals',
         '/dashboard/events',
+        '/dashboard/assistant',
     ]) {
         revalidatePath(p);
     }
@@ -38,5 +39,14 @@ export async function resetBotLogAction() {
     await requireAdmin();
     const deleted = clearBotHits();
     revalidatePath('/dashboard/bots');
+    return { ok: true, deleted };
+}
+
+// Nur das Nutzungs-Log des KI-Assistenten löschen (events mit type='assistant').
+// Die übrige Besucher-Analytik bleibt unberührt.
+export async function resetAssistantLogAction() {
+    await requireAdmin();
+    const deleted = clearAssistantEvents();
+    revalidatePath('/dashboard/assistant');
     return { ok: true, deleted };
 }
