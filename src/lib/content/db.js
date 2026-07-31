@@ -289,6 +289,45 @@ function migrate(database) {
             updated_at  INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_spaces_sort ON doc_spaces (sort_order);
+
+        -- Vertrauliche Referenzen: Arbeitsproben, die NICHT in den öffentlichen
+        -- Showcase dürfen (Rechte am Produkt, nicht am Code; oder noch nicht
+        -- öffentlich angekündigt). Bewusst eine EIGENE Tabelle statt eines Flags am
+        -- Showcase, damit sie physisch nie über eine öffentliche Route ausgeliefert
+        -- werden. Zuordnung pro Freigabe über share_private_refs.
+        CREATE TABLE IF NOT EXISTS private_refs (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            title       TEXT    NOT NULL DEFAULT '',
+            context     TEXT    NOT NULL DEFAULT '',   -- z. B. „bei TC-Innovations"
+            description TEXT    NOT NULL DEFAULT '',
+            tech        TEXT    NOT NULL DEFAULT '',    -- Komma/Zeilen → Chips
+            status      TEXT    NOT NULL DEFAULT 'live',-- 'live' | 'in_entwicklung'
+            is_active   INTEGER NOT NULL DEFAULT 1,
+            sort_order  INTEGER NOT NULL DEFAULT 0,
+            created_at  INTEGER NOT NULL DEFAULT 0,
+            updated_at  INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_private_refs_sort ON private_refs (sort_order);
+
+        -- Screenshots je vertraulicher Referenz (nur Bilder), inkl. KI-Kennzeichnung.
+        CREATE TABLE IF NOT EXISTS private_ref_images (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            ref_id      INTEGER NOT NULL,
+            image       TEXT    NOT NULL DEFAULT '',
+            ai_image    INTEGER NOT NULL DEFAULT 0,
+            sort_order  INTEGER NOT NULL DEFAULT 0,
+            updated_at  INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_private_ref_images_ref ON private_ref_images (ref_id, sort_order);
+
+        -- Zuordnung vertraulicher Referenzen zu einer Freigabe (Reihenfolge = Anzeige).
+        CREATE TABLE IF NOT EXISTS share_private_refs (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            share_id   INTEGER NOT NULL,
+            ref_id     INTEGER NOT NULL,
+            sort_order INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_share_private_refs ON share_private_refs (share_id, sort_order);
     `);
 
     // Doku-Seiten einem Bereich zuordnen (Mehr-Doku-Fähigkeit nachgerüstet).

@@ -55,6 +55,18 @@ function setTestimonials(db, shareId, testimonialIds) {
     })();
 }
 
+// Welche vertraulichen Referenzen dieser Freigabe zugeordnet sind (Reihenfolge = Anzeige).
+function setPrivateRefs(db, shareId, refIds) {
+    const del = db.prepare('DELETE FROM share_private_refs WHERE share_id = ?');
+    const ins = db.prepare('INSERT INTO share_private_refs (share_id, ref_id, sort_order) VALUES (?, ?, ?)');
+    const known = new Set(db.prepare('SELECT id FROM private_refs').all().map((r) => r.id));
+    db.transaction(() => {
+        del.run(shareId);
+        (refIds || []).map(Number).filter((id) => known.has(id))
+            .forEach((id, i) => ins.run(shareId, id, i));
+    })();
+}
+
 const PURPOSES = ['bewerbung', 'initiativ', 'sonstiges'];
 
 function fields(data) {
@@ -126,6 +138,7 @@ export function createShare(data) {
     `).run({ token, ...f }).lastInsertRowid;
     setItems(db, id, data.documentIds);
     setTestimonials(db, id, data.testimonialIds);
+    setPrivateRefs(db, id, data.privateRefIds);
     logEvent(db, id, 'created');
     if (f.sent_at) logEvent(db, id, 'sent', f.sent_at);
     if (f.status !== 'offen') logEvent(db, id, 'status', f.status);
@@ -139,6 +152,7 @@ export function updateShare(id, data) {
     db.prepare(`UPDATE shares SET ${COLS} WHERE id=@id`).run({ id, ...f });
     setItems(db, id, data.documentIds);
     setTestimonials(db, id, data.testimonialIds);
+    setPrivateRefs(db, id, data.privateRefIds);
     // Verlauf: Statuswechsel und erstmaliges Zustelldatum protokollieren.
     if (before && before.status !== f.status) logEvent(db, id, 'status', f.status);
     if (f.sent_at && (!before || !before.sent_at)) logEvent(db, id, 'sent', f.sent_at);
@@ -171,6 +185,7 @@ export function deleteShare(id) {
         db.prepare('DELETE FROM share_events WHERE share_id = ?').run(id);
         db.prepare('DELETE FROM share_items WHERE share_id = ?').run(id);
         db.prepare('DELETE FROM share_testimonials WHERE share_id = ?').run(id);
+        db.prepare('DELETE FROM share_private_refs WHERE share_id = ?').run(id);
         db.prepare('DELETE FROM shares WHERE id = ?').run(id);
     })();
 }
@@ -190,7 +205,9 @@ export function getShare(id) {
         .all(id).map((r) => r.document_id);
     const testimonialIds = db.prepare('SELECT testimonial_id FROM share_testimonials WHERE share_id = ? ORDER BY sort_order, id')
         .all(id).map((r) => r.testimonial_id);
-    return { ...share, documentIds, testimonialIds };
+    const privateRefIds = db.prepare('SELECT ref_id FROM share_private_refs WHERE share_id = ? ORDER BY sort_order, id')
+        .all(id).map((r) => r.ref_id);
+    return { ...share, documentIds, testimonialIds, privateRefIds };
 }
 
 export function getShareRawByToken(token) {
@@ -215,7 +232,15 @@ export function getShareByToken(token) {
         FROM share_testimonials st JOIN testimonials t ON t.id = st.testimonial_id
         WHERE st.share_id = ? AND t.is_active = 1 ORDER BY st.sort_order, st.id
     `).all(share.id);
-    return { ...share, documents, testimonials };
+    // Vertrauliche Referenzen (nur aktive) inkl. ihrer Screenshots, in Anzeigereihenfolge.
+    const refs = db.prepare(`
+        SELECT r.id, r.title, r.context, r.description, r.tech, r.status
+        FROM share_private_refs sr JOIN private_refs r ON r.id = sr.ref_id
+        WHERE sr.share_id = ? AND r.is_active = 1 ORDER BY sr.sort_order, sr.id
+    `).all(share.id);
+    const imgStmt = db.prepare('SELECT id, image, ai_image FROM private_ref_images WHERE ref_id = ? ORDER BY sort_order, id');
+    const privateRefs = refs.map((r) => ({ ...r, images: imgStmt.all(r.id) }));
+    return { ...share, documents, testimonials, privateRefs };
 }
 
 // Aufruf protokollieren (gedrosselt: max. 1× / 20 min).
