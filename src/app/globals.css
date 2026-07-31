@@ -53,6 +53,20 @@ body {
   color: var(--grey);
 }
 
+/* Nur für Screenreader/Suchmaschinen sichtbar – visuell entfernt, aber im DOM.
+   Für beschreibenden Zusatztext (z. B. Artikeltitel hinter „Weiterlesen"). */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ── Barrierefreiheit ─────────────────────────────────────────────────── */
 /* Sichtbarer Fokus-Ring für Tastatur-Navigation (WCAG 2.4.7). :focus-visible
    greift nur bei Tastatur, nicht bei Maus-Klick – stört also die Optik nicht. */
