@@ -7,6 +7,9 @@ import Button from "@/components/button/Button";
 import ServiceBox from "@/components/service/ServiceBox";
 import ContactBox from "@/components/contact/ContactBox";
 import KnowledgeSection from "@/components/home/KnowledgeSection";
+import HomeWow from "@/components/home/HomeWow";
+import { getProjects } from "@/lib/content/showcaseStore";
+import { getPosts } from "@/lib/content/postsStore";
 import { pageMetadata, siteConfig } from "@/lib/seo";
 
 // Dynamisch rendern: Die Startseite zeigt die neuesten Blog-Beiträge (mit ihren
@@ -41,6 +44,10 @@ export default function Home() {
     const todoData= todos.cards;
     const moreinfoData= moreinfo.boxes;
 
+    // Echte Kennzahlen für die Wow-Sektion (öffentliche Inhalte aus content.db).
+    const projectCount = getProjects({ publicOnly: true }).length;
+    const articleCount = getPosts({ type: 'blog', publicOnly: true }).length
+        + getPosts({ type: 'doc', publicOnly: true }).length;
 
     return (
         <>
@@ -57,6 +64,7 @@ export default function Home() {
                     pageName={pageName}
                     asMainHeading={true}
                 />
+                <HomeWow years={15} projects={projectCount} articles={articleCount} />
                 <Teaser
                     className="main--teaser"
                     pageName={pageName}
