@@ -6,6 +6,7 @@ import { updateShareAction, addOwnerMessageAction } from '@/lib/content/sharesAc
 import { getShare, getShareEvents, getConversation } from '@/lib/content/sharesStore';
 import { getDocuments } from '@/lib/content/documentsStore';
 import { getActiveTestimonials } from '@/lib/content/testimonialsStore';
+import { getActivePrivateRefs } from '@/lib/content/privateRefsStore';
 import ShareLink from '@/components/analytics/ShareLink';
 import ShareTimeline from '@/components/analytics/ShareTimeline';
 import ShareReactions from '@/components/analytics/ShareReactions';
@@ -19,6 +20,7 @@ export default async function EditShare({ params }) {
     if (!share) notFound();
     const documents = getDocuments();
     const testimonials = getActiveTestimonials();
+    const privateRefs = getActivePrivateRefs();
     const events = getShareEvents(share.id);
     const conversation = getConversation(share.id);
 
@@ -35,7 +37,7 @@ export default async function EditShare({ params }) {
                 <div className="an-edit-main">
                     <ShareReactions share={share} />
                     <section className="an-card an-card-form an-card-wide">
-                        <ShareForm action={updateShareAction} share={share} documents={documents} testimonials={testimonials} />
+                        <ShareForm action={updateShareAction} share={share} documents={documents} testimonials={testimonials} privateRefs={privateRefs} />
                     </section>
                 </div>
                 <aside className="an-edit-side">

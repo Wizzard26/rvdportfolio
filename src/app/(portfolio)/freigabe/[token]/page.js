@@ -9,6 +9,7 @@ import { SESSION_COOKIE } from "@/lib/auth";
 import ShareResponse from "@/components/freigabe/ShareResponse";
 import ShareKeyfacts from "@/components/freigabe/ShareKeyfacts";
 import ShareVoices from "@/components/freigabe/ShareVoices";
+import SharePrivateRefs from "@/components/freigabe/SharePrivateRefs";
 import styles from "./styles.module.css";
 
 const SENT_MSG = {
@@ -54,6 +55,9 @@ function ShareView({ share, sent, conversation, rated }) {
     const many = share.documents.length > 1;
     const voices = share.testimonials || [];
     const hasVoices = voices.length > 0;
+    const privateRefs = share.privateRefs || [];
+    // Datum fürs Wasserzeichen (serverseitig, force-dynamic → frisch pro Aufruf).
+    const stamp = new Date().toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' });
     return (
         <main className="main-content">
             <section>
@@ -105,6 +109,10 @@ function ShareView({ share, sent, conversation, rated }) {
                                     </a>
                                 </div>
                             ) : null}
+
+                            {privateRefs.length > 0 && (
+                                <SharePrivateRefs items={privateRefs} company={share.company} stamp={stamp} />
+                            )}
 
                             <p className={styles.note}>Diese Dokumente wurden privat über einen persönlichen Link mit Ihnen geteilt.</p>
                         </div>

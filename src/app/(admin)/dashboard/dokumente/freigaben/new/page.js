@@ -4,12 +4,14 @@ import ShareForm from '@/components/analytics/ShareForm';
 import { createShareAction } from '@/lib/content/sharesActions';
 import { getDocuments } from '@/lib/content/documentsStore';
 import { getActiveTestimonials } from '@/lib/content/testimonialsStore';
+import { getActivePrivateRefs } from '@/lib/content/privateRefsStore';
 
 export const dynamic = 'force-dynamic';
 
 export default function NewShare() {
     const documents = getDocuments();
     const testimonials = getActiveTestimonials();
+    const privateRefs = getActivePrivateRefs();
     return (
         <div className="an-dashboard">
             <div className="an-head">
@@ -19,7 +21,7 @@ export default function NewShare() {
                 </div>
             </div>
             <section className="an-card an-card-form">
-                <ShareForm action={createShareAction} documents={documents} testimonials={testimonials} />
+                <ShareForm action={createShareAction} documents={documents} testimonials={testimonials} privateRefs={privateRefs} />
             </section>
         </div>
     );

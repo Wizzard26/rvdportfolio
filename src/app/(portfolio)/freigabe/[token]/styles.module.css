@@ -15,9 +15,16 @@
     align-items: start;
 }
 .shareMain { min-width: 0; }
-.shareSide { min-width: 0; }
+/* Antwort-Spalte bleibt beim Scrollen im Blick (Grid hat align-items:start). */
+.shareSide {
+    min-width: 0;
+    position: sticky;
+    top: 24px;
+    align-self: start;
+}
 @media (max-width: 1200px) {
     .shareGrid { grid-template-columns: 1fr; gap: 28px; }
+    .shareSide { position: static; }
 }
 
 /* Teaser */

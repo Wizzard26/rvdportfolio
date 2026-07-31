@@ -9,6 +9,7 @@ import {
 import { STATUS_LABELS, STATUS_ORDER } from '@/lib/applicationStatus';
 import ShareDocumentPicker from '@/components/analytics/ShareDocumentPicker';
 import ShareTestimonialPicker from '@/components/analytics/ShareTestimonialPicker';
+import SharePrivateRefPicker from '@/components/analytics/SharePrivateRefPicker';
 
 function todayPlus(days) {
     const d = new Date();
@@ -16,7 +17,7 @@ function todayPlus(days) {
     return d.toISOString().slice(0, 10);
 }
 
-export default function ShareForm({ action, share, documents = [], testimonials = [] }) {
+export default function ShareForm({ action, share, documents = [], testimonials = [], privateRefs = [] }) {
     const [state, formAction, pending] = useActionState(action, { error: null, values: null });
     const v = state.values || share || {};
 
@@ -230,6 +231,8 @@ export default function ShareForm({ action, share, documents = [], testimonials 
                 <textarea name="notes" rows={3} defaultValue={v.notes || ''} placeholder="z. B. Recruiter angerufen, …" /></label>
 
             <ShareTestimonialPicker testimonials={testimonials} initialIds={v.testimonialIds || []} />
+
+            <SharePrivateRefPicker refs={privateRefs} initialIds={v.privateRefIds || []} />
 
             <fieldset className="an-field an-checkgroup">
                 <legend>Zusätzliche Elemente auf der Seite <span className="an-muted">(optional)</span></legend>
