@@ -26,9 +26,11 @@ const SYNONYMS = {
     teamleiter: ['teamleitung', 'teamlead', 'leitung'],
     teamlead: ['teamleitung', 'teamleiter'],
     team: ['teamleitung', 'teamleiter'],
+    teams: ['teamleitung', 'teamleiter'],
     lead: ['teamleitung', 'teamleiter'],
     leitung: ['teamleitung'],
     geleitet: ['teamleitung', 'leitung'],
+    gefuehrt: ['teamleitung', 'leitung'], // „Teams geführt?" (ü→ue normalisiert)
     leiten: ['teamleitung', 'leitung'],
     fuehrung: ['teamleitung'],
     teamfuehrung: ['teamleitung'],
@@ -45,6 +47,7 @@ const STOPWORDS = new Set(
         + 'wie was wer wo wann warum welche welcher welches welchen welchem womit worin wieviel wieviele '
         + 'ich mir mich uns bei als auch noch nur schon mal bitte kannst kann koennen habt seid denn dass ob '
         + 'um es am zum zur den dem gut mal etwa eigentlich vor nach ueber sieht aussieht steht '
+        + 'js '  // nacktes „js" ist Rauschen (steckt in Next.js/React.js überall) – „javascript" bleibt Thema
         + 'nicht kein keine keinen keiner keins nie niemals geht gehts').split(' '),
 );
 
@@ -71,8 +74,8 @@ const GENERIC = new Set(
 // vorkommt, wird verneint — auch wenn „Erfahrung" viele Chunks berührt.
 const FRAMING = new Set(
     ('erfahrung erfahrungen berufserfahrung werdegang projekt projekte referenz referenzen case study '
-        + 'skill skills kenntnisse faehigkeit faehigkeiten stack arbeiten arbeitest arbeitet entwickeln '
-        + 'entwickelt entwicklung gebaut gemacht macht machen machst umgehen umgang beherrschst beherrscht nutzt nutzen '
+        + 'skill skills kenntnisse faehigkeit faehigkeiten stack arbeiten arbeitest arbeitet gearbeitet entwickeln '
+        + 'entwickelt entwickelst entwicklung gebaut gemacht macht machen machst umgehen umgang beherrschst beherrscht nutzt nutzen '
         + 'verwendest einsetzt tun themen thema koenntest kennt kennst kennen kenne weiss '
         + 'erstellen erstellt erstellung erstelle bauen baust code programmierst').split(' '),
 );
