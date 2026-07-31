@@ -7,6 +7,7 @@ import Button from "@/components/button/Button";
 import Skillset from "@/components/skillset/Skillset";
 import BlockqoutesClient from "@/components/blockqoutes/BlockqoutesClient";
 import ActivitySection from "@/components/activity/ActivitySection";
+import RoleTyper from "@/components/about/RoleTyper";
 import Testimonials from "@/components/testimonials/Testimonials";
 import { getActiveTestimonials, ABOUT_KEY } from "@/lib/content/testimonialsStore";
 import { getSetting } from "@/lib/content/settingsStore";
@@ -57,6 +58,7 @@ export default async function AboutMe() {
             <Teaser
                 className="main--teaser"
                 pageName={pageName}
+                afterText={<RoleTyper />}
             />
             <BlockqoutesClient quoteData={quoteData}  />
             <section className="secondary--bg">

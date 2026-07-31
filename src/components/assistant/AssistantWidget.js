@@ -42,6 +42,14 @@ export default function AssistantWidget() {
         return () => window.removeEventListener('keydown', onKey);
     }, [open]);
 
+    // Von außen öffnbar (z. B. Hero-CTA „Fragen Sie meinen KI-Assistenten"):
+    // ein entkoppeltes Custom-Event statt globalem State.
+    useEffect(() => {
+        const onOpen = () => setOpen(true);
+        window.addEventListener('assistant:open', onOpen);
+        return () => window.removeEventListener('assistant:open', onOpen);
+    }, []);
+
     // Anonymes „geöffnet"-Signal (cookiefrei) – zeigt im Dashboard, wie oft der
     // Assistent überhaupt aufgeklappt wird. Kein Frage-Inhalt, kein Cookie.
     useEffect(() => {
