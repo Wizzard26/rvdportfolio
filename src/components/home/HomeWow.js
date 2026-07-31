@@ -73,7 +73,7 @@ export default function HomeWow({ years = 15, projects = 0, articles = 0 }) {
                     <div className={styles.stats}>
                         <Stat value={years} suffix="+" label="Jahre Erfahrung" run={run} />
                         <Stat value={projects} suffix="" label="Projekte im Showcase" run={run} />
-                        <Stat value={articles} suffix="" label="Blog- & Doku-Artikel" run={run} />
+                        <Stat value={articles} suffix="" label="Blog-Artikel & Doku-Bereiche" run={run} />
                     </div>
 
                     {/* KI-Assistent-Aufhänger */}
