@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from './role-typer.module.css';
 
 // Kompakte Typewriter-Zeile: tippt Rollen durch (schreiben → Pause → löschen →
@@ -19,6 +19,8 @@ const ROLES = [
 export default function RoleTyper() {
     const [text, setText] = useState('');
     const [reduce, setReduce] = useState(false);
+    const ref = useRef(null);
+    const pos = useRef({ roleIdx: 0, charIdx: 0, deleting: false });
 
     useEffect(() => {
         if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
@@ -26,30 +28,34 @@ export default function RoleTyper() {
             setText(ROLES[0]);
             return;
         }
-        let roleIdx = 0;
-        let charIdx = 0;
-        let deleting = false;
         let timer;
+        let active = false;
         const tick = () => {
-            const role = ROLES[roleIdx];
-            if (!deleting) {
-                charIdx += 1;
-                setText(role.slice(0, charIdx));
-                if (charIdx === role.length) { deleting = true; timer = setTimeout(tick, 1500); return; }
+            const s = pos.current;
+            const role = ROLES[s.roleIdx];
+            if (!s.deleting) {
+                s.charIdx += 1;
+                setText(role.slice(0, s.charIdx));
+                if (s.charIdx === role.length) { s.deleting = true; timer = setTimeout(tick, 1500); return; }
                 timer = setTimeout(tick, 62);
             } else {
-                charIdx -= 1;
-                setText(role.slice(0, charIdx));
-                if (charIdx === 0) { deleting = false; roleIdx = (roleIdx + 1) % ROLES.length; timer = setTimeout(tick, 320); return; }
+                s.charIdx -= 1;
+                setText(role.slice(0, s.charIdx));
+                if (s.charIdx === 0) { s.deleting = false; s.roleIdx = (s.roleIdx + 1) % ROLES.length; timer = setTimeout(tick, 320); return; }
                 timer = setTimeout(tick, 30);
             }
         };
-        timer = setTimeout(tick, 450);
-        return () => clearTimeout(timer);
+        // Nur animieren, solange die Zeile im Sichtbereich ist (spart Timer/Main-Thread).
+        const io = new IntersectionObserver(([e]) => {
+            if (e.isIntersecting && !active) { active = true; timer = setTimeout(tick, 450); }
+            else if (!e.isIntersecting) { active = false; clearTimeout(timer); }
+        }, { threshold: 0 });
+        if (ref.current) io.observe(ref.current);
+        return () => { io.disconnect(); clearTimeout(timer); };
     }, []);
 
     return (
-        <p className={styles.wrap}>
+        <p className={styles.wrap} ref={ref}>
             <span className={styles.srOnly}>Rollen: {ROLES.join(', ')}.</span>
             <span aria-hidden="true">
                 <span className={styles.prefix}>›</span>
