@@ -7,8 +7,8 @@ import Reveal from "@/components/reveal/Reveal";
 // (Default) oder auf <h2> rückt. Auf 2 setzen, wenn die Seite ihre <h1> bereits
 // woanders hat — z. B. auf der Startseite, wo die Hero-Headline die <h1> stellt.
 // `afterText` ist ein optionaler Slot, der in der linken Spalte UNTER dem
-// Fließtext (also neben dem Bild) gerendert wird — z. B. das Profil-Terminal auf
-// /about-me. Andere Seiten übergeben ihn nicht und bleiben unverändert.
+// Fließtext gerendert wird — z. B. die Rollen-Typewriter-Zeile auf /about-me.
+// Andere Seiten übergeben ihn nicht und bleiben unverändert.
 export default function Teaser({pageName, className, headingLevel = 1, afterText = null}) {
     const pageComp = pageContent.find((page) => page.sitename === pageName);
     const teaser = pageComp.section.find((section) => section.name === "teaser");

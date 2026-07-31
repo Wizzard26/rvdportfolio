@@ -1,0 +1,36 @@
+.wrap {
+    margin: 14px 0 4px;
+    min-height: 1.7em;
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--dark);
+    line-height: 1.5;
+}
+.prefix { color: var(--primary); font-weight: 700; margin-right: 9px; }
+.role { color: var(--dark); }
+
+.cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.05em;
+    margin-left: 3px;
+    background: var(--primary);
+    vertical-align: text-bottom;
+    transform: translateY(2px);
+}
+.blink { animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    .blink { animation: none; }
+}
+
+.srOnly {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
