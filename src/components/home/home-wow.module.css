@@ -66,6 +66,10 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    /* Bricht der Button um (Tablet/Mobile), landet er rechtsbündig statt links
+       unter dem Icon. Die erste Zeile (Icon + Text) füllt sich ohnehin, bleibt
+       also unverändert – Desktop sieht identisch aus. */
+    justify-content: flex-end;
     gap: 16px;
     padding: 22px 24px;
     border-radius: 16px;
