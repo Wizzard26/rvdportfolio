@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { getSessionId } from '@/lib/analytics/track';
 import styles from './assistant.module.css';
 
 const STARTERS = [
@@ -41,6 +42,20 @@ export default function AssistantWidget() {
         return () => window.removeEventListener('keydown', onKey);
     }, [open]);
 
+    // Anonymes „geöffnet"-Signal (cookiefrei) – zeigt im Dashboard, wie oft der
+    // Assistent überhaupt aufgeklappt wird. Kein Frage-Inhalt, kein Cookie.
+    useEffect(() => {
+        if (!open) return;
+        try {
+            fetch('/api/assistant', {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ event: 'open', sid: getSessionId(), path: window.location.pathname }),
+                keepalive: true,
+            }).catch(() => {});
+        } catch { /* Tracking darf nie stören */ }
+    }, [open]);
+
     const ask = async (question) => {
         const q = question.trim();
         if (!q || loading) return;
@@ -54,7 +69,7 @@ export default function AssistantWidget() {
                 fetch('/api/assistant', {
                     method: 'POST',
                     headers: { 'content-type': 'application/json' },
-                    body: JSON.stringify({ question: q }),
+                    body: JSON.stringify({ question: q, sid: getSessionId(), path: window.location.pathname }),
                 }),
                 sleep(650),
             ]);

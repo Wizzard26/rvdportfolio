@@ -2,6 +2,7 @@ import { buildKnowledge } from '@/lib/assistant/knowledge';
 import { buildSoftTopics } from '@/lib/assistant/topics';
 import { retrieve } from '@/lib/assistant/retrieve';
 import { buildAnswer } from '@/lib/assistant/answer';
+import { recordAssistantEvent } from '@/lib/analytics/assistant';
 
 // Öffentlicher CV-Assistent: beantwortet Besucherfragen ausschließlich aus den
 // echten Portfolio-Inhalten (keine externe API, keine Halluzination). Node-
@@ -14,6 +15,12 @@ export async function POST(request) {
         body = await request.json();
     } catch {
         return Response.json({ error: 'Ungültige Anfrage.' }, { status: 400 });
+    }
+
+    // Nutzungs-Signal „Widget geöffnet" (ohne Frage-Inhalt) – nur anonym zählen.
+    if (body?.event === 'open') {
+        recordAssistantEvent({ headers: request.headers, sid: body.sid, event: 'open', path: body.path });
+        return new Response(null, { status: 204 });
     }
 
     const question = (body?.question || '').toString().slice(0, 500).trim();
@@ -45,6 +52,16 @@ export async function POST(request) {
             soft = results.length > 0;
         }
         const { lead, items, grounded } = buildAnswer(results, { soft });
+        // Anonym protokollieren, WAS gefragt wurde und ob es einen Treffer gab
+        // (grounded/soft/keiner) – für die Auswertung unter /dashboard/assistant.
+        recordAssistantEvent({
+            headers: request.headers,
+            sid: body.sid,
+            event: 'ask',
+            question,
+            hit: !grounded ? 'none' : (soft ? 'soft' : 'grounded'),
+            path: body.path,
+        });
         return Response.json({ lead, items, grounded });
     } catch {
         // Fällt nie hart aus — der Assistent bleibt bedienbar.

@@ -1,11 +1,12 @@
 import { cookies } from 'next/headers';
 import { SESSION_COOKIE, verifySessionToken } from '@/lib/auth';
-import { exportEvents, exportBotHits } from '@/lib/analytics/adminData';
+import { exportEvents, exportBotHits, exportAssistantEvents } from '@/lib/analytics/adminData';
 
 // Backup-Download der Analytics-Rohdaten als JSON. Liegt unter /api und wird
 // deshalb NICHT vom Proxy geschützt → Session hier explizit prüfen.
-//   ?scope=events → Besucher-Analytics (Tabelle events)
-//   ?scope=bots   → Bot-/Crawler-Log (Tabelle bot_hits)
+//   ?scope=events    → Besucher-Analytics (Tabelle events)
+//   ?scope=bots      → Bot-/Crawler-Log (Tabelle bot_hits)
+//   ?scope=assistant → Nutzungs-Log des KI-Assistenten (events, type='assistant')
 export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
@@ -23,6 +24,9 @@ export async function GET(request) {
     } else if (scope === 'events') {
         table = 'events';
         rows = exportEvents();
+    } else if (scope === 'assistant') {
+        table = 'assistant';
+        rows = exportAssistantEvents();
     } else {
         return new Response('Unbekannter scope', { status: 400 });
     }

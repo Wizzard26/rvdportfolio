@@ -380,6 +380,72 @@ export function getEventTypeCounts(range) {
     `).all(range);
 }
 
+// ─── CV-KI-Assistent ─────────────────────────────────────────────────────
+
+// Nutzung des Assistenten: Öffnungen, Fragen, Antwortquote, Treffer-Verteilung
+// sowie Top-Fragen und die Fehlschuss-Liste (Fragen ohne Treffer = Lücken in den
+// Unterlagen). Assistent-Events liegen in `events` mit type='assistant'.
+export function getAssistantData(range) {
+    const db = getDb();
+    const scalar = (sql) => db.prepare(sql).get(range).n;
+
+    const opens = scalar(
+        `SELECT COUNT(*) AS n FROM events WHERE ${RANGE} AND type='assistant' AND name='open'`
+    );
+    const asks = scalar(
+        `SELECT COUNT(*) AS n FROM events WHERE ${RANGE} AND type='assistant' AND name='ask'`
+    );
+    const openSessions = scalar(
+        `SELECT COUNT(DISTINCT session_id) AS n FROM events
+         WHERE ${RANGE} AND type='assistant' AND name='open' AND session_id IS NOT NULL`
+    );
+
+    // Treffer-Verteilung der Fragen (grounded/soft/none).
+    const hitRows = db.prepare(`
+        SELECT COALESCE(json_extract(meta, '$.hit'), 'none') AS hit, COUNT(*) AS n
+        FROM events WHERE ${RANGE} AND type='assistant' AND name='ask'
+        GROUP BY hit
+    `).all(range);
+    const hitMap = Object.fromEntries(hitRows.map((r) => [r.hit, r.n]));
+    const grounded = hitMap.grounded || 0;
+    const soft = hitMap.soft || 0;
+    const none = hitMap.none || 0;
+
+    // Meistgestellte Fragen (case-insensitiv zusammengefasst).
+    const topQuestions = db.prepare(`
+        SELECT json_extract(meta, '$.q') AS q,
+               COALESCE(json_extract(meta, '$.hit'), 'none') AS hit,
+               COUNT(*) AS n
+        FROM events
+        WHERE ${RANGE} AND type='assistant' AND name='ask' AND json_extract(meta, '$.q') <> ''
+        GROUP BY lower(json_extract(meta, '$.q'))
+        ORDER BY n DESC, q ASC LIMIT @limit
+    `).all({ ...range, limit: 50 });
+
+    // Fehlschüsse: Fragen ohne Treffer = die Verbesserungsliste.
+    const misses = db.prepare(`
+        SELECT json_extract(meta, '$.q') AS q, COUNT(*) AS n
+        FROM events
+        WHERE ${RANGE} AND type='assistant' AND name='ask'
+          AND COALESCE(json_extract(meta, '$.hit'), 'none') = 'none'
+          AND json_extract(meta, '$.q') <> ''
+        GROUP BY lower(json_extract(meta, '$.q'))
+        ORDER BY n DESC, q ASC LIMIT @limit
+    `).all({ ...range, limit: 50 });
+
+    return {
+        opens,
+        asks,
+        openSessions,
+        grounded,
+        soft,
+        none,
+        answeredRate: asks ? Math.round(((grounded + soft) / asks) * 100) : 0,
+        topQuestions,
+        misses,
+    };
+}
+
 // ─── Aggregatoren je Dashboard-Bereich ───────────────────────────────────
 
 export function getOverviewData(range) {
