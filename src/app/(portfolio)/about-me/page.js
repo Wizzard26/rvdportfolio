@@ -55,15 +55,15 @@ export default async function AboutMe() {
                 pageName={pageName}
                 imgPos="top"
             />
+            <Teaser
+                className="main--teaser"
+                pageName={pageName}
+            />
             <section>
                 <div className="content-inner">
                     <ProfileTerminal />
                 </div>
             </section>
-            <Teaser
-                className="main--teaser"
-                pageName={pageName}
-            />
             <BlockqoutesClient quoteData={quoteData}  />
             <section className="secondary--bg">
                 <div className="content-inner">

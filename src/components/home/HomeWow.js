@@ -68,15 +68,6 @@ export default function HomeWow({ years = 15, projects = 0, articles = 0 }) {
     return (
         <section className={styles.wrap} aria-label="Auf einen Blick">
             <div className="content-inner">
-                {/* Beweisleiste */}
-                <ul className={styles.proofs}>
-                    {PROOFS.map((p) => (
-                        <li key={p.text} className={styles.proof}>
-                            <p.icon aria-hidden="true" /> <span>{p.text}</span>
-                        </li>
-                    ))}
-                </ul>
-
                 <div className={styles.grid} ref={ref}>
                     {/* Kennzahlen */}
                     <div className={styles.stats}>
@@ -100,6 +91,15 @@ export default function HomeWow({ years = 15, projects = 0, articles = 0 }) {
                         </button>
                     </div>
                 </div>
+
+                {/* Beweisleiste – unter Kennzahlen & KI-Aufhänger */}
+                <ul className={styles.proofs}>
+                    {PROOFS.map((p) => (
+                        <li key={p.text} className={styles.proof}>
+                            <p.icon aria-hidden="true" /> <span>{p.text}</span>
+                        </li>
+                    ))}
+                </ul>
             </div>
         </section>
     );
