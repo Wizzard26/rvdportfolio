@@ -66,6 +66,22 @@ function migrate(database) {
         CREATE INDEX IF NOT EXISTS idx_bothits_ts  ON bot_hits (ts);
         CREATE INDEX IF NOT EXISTS idx_bothits_day ON bot_hits (day);
         CREATE INDEX IF NOT EXISTS idx_bothits_cat ON bot_hits (category);
+
+        -- Admin-Login-Sicherheit: jeder Versuch (Erfolg/Fehlschlag/blockiert),
+        -- anonymisiert. IP nur als Hash (kein Klartext) — für Rate-Limiting und
+        -- zum Wiedererkennen wiederholter Versuche, ohne die IP zu speichern.
+        CREATE TABLE IF NOT EXISTS login_events (
+            id      INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts      INTEGER NOT NULL,
+            day     TEXT    NOT NULL,
+            outcome TEXT    NOT NULL,   -- 'success' | 'fail' | 'blocked'
+            ip_hash TEXT,
+            country TEXT,
+            browser TEXT,
+            os      TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_login_ts   ON login_events (ts);
+        CREATE INDEX IF NOT EXISTS idx_login_hash ON login_events (ip_hash, ts);
     `);
 
     // Fehlende Spalten nachziehen (für bestehende DBs aus der ersten Version).

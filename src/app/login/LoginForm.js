@@ -31,6 +31,11 @@ export default function LoginForm({ from }) {
                 <p className={styles.error} role="alert">{state.error}</p>
             )}
 
+            <label className={styles.remember}>
+                <input type="checkbox" name="remember" value="1" />
+                <span>Angemeldet bleiben (30 Tage)</span>
+            </label>
+
             <button type="submit" disabled={pending} className={styles.button}>
                 {pending ? 'Anmelden …' : 'Anmelden'}
             </button>
