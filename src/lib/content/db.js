@@ -330,6 +330,14 @@ function migrate(database) {
             sort_order INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_share_private_refs ON share_private_refs (share_id, sort_order);
+
+        -- Einzeln gelesene Admin-Benachrichtigungen (Glocke). nkey ist der stabile
+        -- Schlüssel eines Ereignisses ('e'<share_event.id>) bzw. Angebots ('o'<offer.id>).
+        -- „Alles als gelesen" setzt zusätzlich einen Wasserzeichen-Zeitstempel in settings.
+        CREATE TABLE IF NOT EXISTS notification_reads (
+            nkey    TEXT PRIMARY KEY,
+            read_at INTEGER NOT NULL DEFAULT 0
+        );
     `);
 
     // Doku-Seiten einem Bereich zuordnen (Mehr-Doku-Fähigkeit nachgerüstet).
