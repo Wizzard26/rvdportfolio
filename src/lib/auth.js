@@ -14,8 +14,10 @@
 const encoder = new TextEncoder();
 
 // Cookie-Name und Laufzeit. 8 Stunden = ein Arbeitstag; danach neu einloggen.
+// „Angemeldet bleiben" verlängert auf 30 Tage.
 export const SESSION_COOKIE = 'rvd_admin_session';
 export const MAX_AGE_SECONDS = 60 * 60 * 8;
+export const REMEMBER_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 
 function bytesToBase64Url(bytes) {
     let binary = '';
@@ -58,11 +60,11 @@ async function getKey() {
  * Erzeugt einen signierten Session-Token für den Admin.
  * Format: base64url(payload).base64url(signatur)
  */
-export async function createSessionToken() {
+export async function createSessionToken(maxAgeSeconds = MAX_AGE_SECONDS) {
     const payload = {
         sub: 'admin',
         iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + MAX_AGE_SECONDS,
+        exp: Math.floor(Date.now() / 1000) + maxAgeSeconds,
     };
     const payloadB64 = stringToBase64Url(JSON.stringify(payload));
     const key = await getKey();
