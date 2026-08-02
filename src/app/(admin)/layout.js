@@ -3,6 +3,7 @@ import './admin.css';
 import Link from "next/link";
 import { FiExternalLink } from "react-icons/fi";
 import AdminSidebar from "@/components/adminsidebar/page";
+import NotificationBell from "@/components/admin/NotificationBell";
 import { logout } from "@/lib/authActions";
 
 export const metadata = {
@@ -26,6 +27,7 @@ export default function DashboardLayout({ children }) {
             <div className="adm-main">
                 <header className="adm-topbar">
                     <div className="adm-topbar-actions">
+                        <NotificationBell />
                         <Link href="/" className="adm-topbar-link" target="_blank">
                             <FiExternalLink aria-hidden="true" /> Zur Website
                         </Link>
