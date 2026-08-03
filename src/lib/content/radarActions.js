@@ -6,9 +6,9 @@ import {
     createCompany, updateCompany, deleteCompany,
     createOpportunity, setOpportunityStatus, deleteOpportunity, rescoreOpportunity,
     addContact, deleteContact, addOutreachBlock, saveFingerprint, createShareFromOpportunity,
-    markArt14Sent,
+    markArt14Sent, getCompany, importCareerJobs,
 } from '@/lib/content/radarStore';
-import { fingerprintUrl } from '@/lib/content/radarFingerprint';
+import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 
 // Server Actions für das Bewerbungs-/Akquise-Radar. /dashboard ist per Proxy
 // geschützt; Freigabe-Seiten sind force-dynamic → keine Revalidierung nötig.
@@ -107,6 +107,19 @@ export async function deleteOpportunityAction(formData) {
     const companyId = Number(formData.get('company_id'));
     deleteOpportunity(Number(formData.get('id')));
     revalidatePath(`/dashboard/radar/${companyId}`);
+}
+
+// Phase 3A: Stellen von der Karriereseite der Firma ziehen und als Chancen anlegen.
+export async function scrapeCareerJobsAction(prevState, formData) {
+    const companyId = Number(formData.get('company_id'));
+    const company = getCompany(companyId);
+    if (!company) return { error: 'Firma nicht gefunden.' };
+    if (!company.karriere_url) return { error: 'Keine Karriere-URL hinterlegt — erst scannen oder in „Bearbeiten" setzen.' };
+    const res = await scrapeCareerJobs(company.karriere_url);
+    if (!res.ok) return { error: res.error };
+    const { added, skipped } = importCareerJobs(companyId, res.jobs);
+    revalidatePath(`/dashboard/radar/${companyId}`);
+    return { ok: true, found: res.jobs.length, added, skipped, source: res.source, widget: res.widget };
 }
 
 // One-Click: Chance → vorbefüllte Freigabe (Anschreiben + Token-Link) und direkt

@@ -155,6 +155,34 @@ export function getOpportunity(id) {
     return getContentDb().prepare('SELECT * FROM radar_opportunities WHERE id = ?').get(Number(id)) || null;
 }
 
+// Phase 3A: extrahierte Stellen einer Karriereseite als Chancen-Entwürfe anlegen.
+// Dedupe gegen bestehende Titel derselben Firma; Typ folgt dem Firmentyp (Agentur
+// → Agenturstelle, sonst Inhouse-Stelle) und ist danach je Chance änderbar.
+export function importCareerJobs(companyId, jobs) {
+    const db = getContentDb();
+    const c = db.prepare('SELECT typ FROM radar_companies WHERE id = ?').get(Number(companyId));
+    if (!c) return { added: 0, skipped: 0 };
+    const typ = c.typ === 'agentur' ? 'job_agentur' : 'job_inhouse';
+    const existing = new Set(
+        db.prepare('SELECT titel FROM radar_opportunities WHERE company_id = ?').all(Number(companyId))
+            .map((r) => (r.titel || '').toLowerCase().trim()),
+    );
+    let added = 0; let skipped = 0;
+    for (const j of (jobs || [])) {
+        const t = (j.titel || '').trim();
+        if (!t) { skipped += 1; continue; }
+        if (existing.has(t.toLowerCase())) { skipped += 1; continue; }
+        existing.add(t.toLowerCase());
+        const id = createOpportunity({
+            company_id: companyId, typ, titel: t,
+            quell_url: j.url || '', quelle: 'karriereseite', standort: j.standort || '',
+        });
+        rescoreOpportunity(id);
+        added += 1;
+    }
+    return { added, skipped };
+}
+
 // Remote-Angabe der Chance → Freigabe-Arbeitsmodell.
 function mapWorkModel(remote) {
     const s = (remote || '').toLowerCase();

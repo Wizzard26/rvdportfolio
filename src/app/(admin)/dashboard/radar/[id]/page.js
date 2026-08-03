@@ -7,6 +7,7 @@ import {
     addContactAction, deleteContactAction, deleteCompanyAction, createFreigabeFromOpportunityAction,
     markArt14SentAction,
 } from '@/lib/content/radarActions';
+import CareerScrapeButton from '@/components/analytics/CareerScrapeButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -117,6 +118,16 @@ export default async function RadarCompanyDetail({ params }) {
                     <strong> Festanstellung/Initiativbewerbung</strong> (Pipeline Bewerbung) als auch <strong>Freelance</strong>
                     {' '}(Pipeline Akquise) erfassen. Nur „Freelance" zählt als Akquise.
                 </p>
+                {c.karriere_url ? (
+                    <div style={{ margin: '0 0 14px' }}>
+                        <CareerScrapeButton companyId={c.id} />
+                        <div className="an-muted" style={{ marginTop: 4, fontSize: '0.85em' }}>
+                            Quelle: <a href={c.karriere_url} target="_blank" rel="noopener noreferrer">{c.karriere_url} <FiExternalLink aria-hidden="true" /></a>
+                        </div>
+                    </div>
+                ) : (
+                    <p className="an-card-note" style={{ marginTop: 0 }}>Keine Karriere-URL hinterlegt — nach einem Scan bzw. über „Bearbeiten" wird sie hier zum Stellen-Import genutzt.</p>
+                )}
                 {c.opportunities.length === 0 ? (
                     <p className="an-card-note">Noch keine Chancen erfasst.</p>
                 ) : (

@@ -234,3 +234,104 @@ export async function fingerprintUrl(rawUrl) {
         team_signal,
     };
 }
+
+// ─── Karriereseite → Stellen (Phase 3A, on-demand) ───────────────────────────
+// Holt die (bereits erkannte) Karriere-URL und extrahiert Stellentitel: statisch
+// aus dem HTML plus strukturierte Feeds gängiger ATS (Personio/Greenhouse/
+// Recruitee). Kein Browser → reine JS-Widgets ohne Feed bleiben unsichtbar.
+
+// „(m/w/d)" & Varianten sind das präziseste Signal für einen Stellentitel.
+const GENDER_MARK = /\((?:m\/w\/d|w\/m\/d|d\/m\/w|m\/w\/x|m\/w|w\/m|m\/f\/d|all genders?|divers|gn|a\*|m\/w\/i)\)/i;
+const NON_TITLE = /^(mehr|details|mehr erfahren|weiterlesen|read more|apply|jetzt bewerben|bewerben|hier bewerben|zur stelle|ansehen|view|open)/i;
+// Sektions-/Navi-Links („Jobs bei X", „Offene Stellen") sind keine einzelnen Stellen.
+const SECTION_TEXT = /^(jobs?|stellen(angebote)?|karriere|offene stellen|alle stellen|zu den (jobs|stellen)|(jobs|karriere|arbeiten) bei\b|unsere (jobs|stellen))/i;
+
+function extractCareerJobs(html, baseUrl) {
+    const jobs = [];
+    const seen = new Set();
+    const add = (titel, href, standort = '') => {
+        const t = decodeEntities((titel || '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+        if (!t || t.length < 5 || t.length > 120) return;
+        const key = t.toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        jobs.push({ titel: t, url: href ? abs(baseUrl, href) : '', standort: standort.trim() });
+    };
+    // Links: Gender-Marker (hohe Präzision) oder eindeutig job-artige URL.
+    const jobHref = /\/(jobs?|stellen?|stellenangebote?|position|vacan|karriere\/[^"'#?]+|offene-stellen)\b/i;
+    for (const m of html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)) {
+        const href = m[1];
+        const text = m[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!text) continue;
+        if (GENDER_MARK.test(text)) add(text, href);
+        else if (jobHref.test(href) && text.length >= 6 && text.length <= 100 && !NON_TITLE.test(text) && !SECTION_TEXT.test(text)) add(text, href);
+    }
+    // Überschriften mit Gender-Marker (Listen-Karriereseiten ohne Einzel-Links).
+    for (const m of html.matchAll(/<h[1-5][^>]*>([\s\S]*?)<\/h[1-5]>/gi)) {
+        if (GENDER_MARK.test(m[1])) add(m[1], '');
+    }
+    return jobs;
+}
+
+async function fetchAtsJobs(html, origin) {
+    const out = [];
+    const grab = async (url) => {
+        try { const r = await fetch(url, { headers: { 'user-agent': UA, accept: 'application/json,application/xml,text/xml' } }); return r.ok ? (await r.text()).slice(0, MAX_BYTES) : ''; } catch { return ''; }
+    };
+    const hay = `${html} ${origin}`;
+
+    // Personio: XML-Feed <company>.jobs.personio.de/xml
+    const pm = hay.match(/https?:\/\/([a-z0-9-]+)\.jobs\.personio\.(?:de|com)/i);
+    if (pm) {
+        const xml = await grab(`https://${pm[1]}.jobs.personio.de/xml`);
+        for (const block of xml.match(/<position>[\s\S]*?<\/position>/gi) || []) {
+            const name = (block.match(/<name>([\s\S]*?)<\/name>/i) || [])[1];
+            const office = (block.match(/<office>([\s\S]*?)<\/office>/i) || [])[1] || '';
+            if (name) out.push({ titel: decodeEntities(name).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(), url: '', standort: decodeEntities(office).trim() });
+        }
+    }
+    // Greenhouse: JSON-Board
+    const gm = hay.match(/(?:boards\.greenhouse\.io|grnhse\.[^"'/]*\/boards)\/([a-z0-9_-]+)/i);
+    if (gm) {
+        const js = await grab(`https://boards-api.greenhouse.io/v1/boards/${gm[1]}/jobs`);
+        try { for (const j of (JSON.parse(js).jobs || [])) out.push({ titel: (j.title || '').trim(), url: j.absolute_url || '', standort: (j.location && j.location.name) || '' }); } catch { /* egal */ }
+    }
+    // Recruitee: JSON-Offers
+    const rm = hay.match(/https?:\/\/([a-z0-9-]+)\.recruitee\.com/i);
+    if (rm) {
+        const js = await grab(`https://${rm[1]}.recruitee.com/api/offers/`);
+        try { for (const o of (JSON.parse(js).offers || [])) out.push({ titel: (o.title || '').trim(), url: o.careers_url || o.careers_apply_url || '', standort: [o.city, o.country_code].filter(Boolean).join(', ') }); } catch { /* egal */ }
+    }
+    return out;
+}
+
+export async function scrapeCareerJobs(rawUrl) {
+    const n = normalizeUrl(rawUrl);
+    if (!n) return { ok: false, error: 'Ungültige Karriere-URL.' };
+    if (!(await robotsAllowsRoot(n.origin))) return { ok: false, error: 'robots.txt verbietet den Zugriff.' };
+
+    let page;
+    try { page = await fetchText(n.url); } catch (e) { return { ok: false, error: `Karriereseite nicht erreichbar (${e.name === 'AbortError' ? 'Timeout' : 'Fehler'}).` }; }
+    if (page.status === 403 || page.status === 429) return { ok: false, error: `Zugriff abgewiesen (${page.status}).` };
+
+    const jobs = extractCareerJobs(page.html, n.url);
+    const seen = new Set(jobs.map((j) => j.titel.toLowerCase()));
+    const ats = await fetchAtsJobs(page.html, n.origin);
+    for (const j of ats) {
+        const t = (j.titel || '').trim();
+        if (!t || t.length < 5) continue;
+        const k = t.toLowerCase();
+        if (seen.has(k)) continue;
+        seen.add(k);
+        jobs.push({ titel: t, url: j.url || '', standort: j.standort || '' });
+    }
+
+    // JS-Widget, das die Stellen erst clientseitig lädt und keinen lesbaren Feed hat
+    // → ehrlicher Hinweis statt stiller 0 (kein Browser, keine undokumentierte API).
+    let widget = '';
+    if (!jobs.length) {
+        if (/join\.com\/api\/widget/i.test(page.html)) widget = 'JOIN';
+        else if (/(?:softgarden|smartrecruiters|workday|personio-widget|jobs2web|prescreen)/i.test(page.html)) widget = 'externes Bewerber-Widget';
+    }
+    return { ok: true, jobs: jobs.slice(0, 60), source: ats.length ? 'ats+html' : 'html', widget };
+}
