@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-    FiGrid, FiUsers, FiActivity, FiShare2, FiTarget, FiDatabase, FiFileText, FiLayers, FiDownload, FiBriefcase, FiInbox, FiEdit3, FiCpu, FiMessageSquare, FiMessageCircle, FiEyeOff, FiShield,
+    FiGrid, FiUsers, FiActivity, FiShare2, FiTarget, FiDatabase, FiFileText, FiLayers, FiDownload, FiBriefcase, FiInbox, FiEdit3, FiCpu, FiMessageSquare, FiMessageCircle, FiEyeOff, FiShield, FiRadio,
 } from "react-icons/fi";
 import { roboto_condensed } from "@/app/fonts";
 
@@ -33,6 +33,7 @@ const NAV_GROUPS = [
             { href: '/dashboard/vertrauliche-referenzen', label: 'Vertrauliche Referenzen', icon: FiEyeOff },
             { href: '/dashboard/bewerbungen', label: 'Bewerbungen', icon: FiBriefcase },
             { href: '/dashboard/angebote', label: 'Angebote', icon: FiInbox },
+            { href: '/dashboard/radar', label: 'Radar', icon: FiRadio },
         ],
     },
 ];

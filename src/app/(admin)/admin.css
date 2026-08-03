@@ -337,6 +337,21 @@ body {
 }
 .an-alert-danger code { background: rgba(214, 69, 69, 0.12); padding: 1px 5px; border-radius: 4px; }
 
+/* Radar: URL-Scan-Eingabe */
+.an-input {
+    padding: 9px 12px;
+    border: 1px solid var(--adm-border);
+    border-radius: 8px;
+    font: inherit;
+    font-size: 14px;
+    background: #fff;
+    color: var(--adm-ink);
+}
+.an-scan { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.an-scan-url { flex: 1 1 320px; min-width: 0; }
+.an-scan select { padding: 9px 12px; border: 1px solid var(--adm-border); border-radius: 8px; font: inherit; font-size: 14px; background: #fff; }
+.an-scan-error { flex-basis: 100%; color: #c0392b; font-size: 13.5px; }
+
 /* Filterzeile / Pagination */
 .an-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 .an-filter-btn { padding: 5px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; color: var(--adm-ink-soft); background: #eef3f5; }

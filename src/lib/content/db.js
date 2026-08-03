@@ -338,6 +338,147 @@ function migrate(database) {
             nkey    TEXT PRIMARY KEY,
             read_at INTEGER NOT NULL DEFAULT 0
         );
+
+        -- ── Bewerbungs- & Akquise-Radar (Phase 1) ─────────────────────────
+        -- Interne Listen potenzieller Arbeitgeber (Shopware-Shops = Inhouse) und
+        -- Agenturen (= Freelance-Akquise). Recherchieren/priorisieren ja, Versand
+        -- immer von Hand. Fingerprint-/Findings-Tabellen kommen in Phase 2.
+        CREATE TABLE IF NOT EXISTS radar_companies (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            domain         TEXT    NOT NULL DEFAULT '',   -- normalisiert, ohne www/Protokoll (Dedupe-Schlüssel)
+            name           TEXT    NOT NULL DEFAULT '',
+            rechtsform     TEXT    NOT NULL DEFAULT '',
+            strasse        TEXT    NOT NULL DEFAULT '',
+            plz            TEXT    NOT NULL DEFAULT '',
+            ort            TEXT    NOT NULL DEFAULT '',
+            region         TEXT    NOT NULL DEFAULT '',
+            distanz_km     INTEGER NOT NULL DEFAULT 0,    -- ab Stade (Hybrid-Tauglichkeit)
+            typ            TEXT    NOT NULL DEFAULT 'unbekannt', -- inhouse_shop|agentur|hersteller|dienstleister|unbekannt
+            themengebiete  TEXT    NOT NULL DEFAULT '',   -- Komma/Zeilen (Branchen)
+            inhouse_team   TEXT    NOT NULL DEFAULT 'unklar', -- ja|nein|unklar
+            karriere_url   TEXT    NOT NULL DEFAULT '',
+            linkedin_url   TEXT    NOT NULL DEFAULT '',
+            github_org     TEXT    NOT NULL DEFAULT '',
+            notiz          TEXT    NOT NULL DEFAULT '',
+            aktiv          INTEGER NOT NULL DEFAULT 1,
+            created_at     INTEGER NOT NULL DEFAULT 0,
+            updated_at     INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_radar_companies_domain ON radar_companies (domain);
+
+        -- Ansprechpartner (DSGVO: Herkunft + Löschfrist sind Pflicht).
+        CREATE TABLE IF NOT EXISTS radar_contacts (
+            id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id            INTEGER NOT NULL,
+            name                  TEXT    NOT NULL DEFAULT '',
+            rolle                 TEXT    NOT NULL DEFAULT '',
+            email                 TEXT    NOT NULL DEFAULT '',
+            telefon               TEXT    NOT NULL DEFAULT '',
+            linkedin_url          TEXT    NOT NULL DEFAULT '',
+            ist_entscheider       INTEGER NOT NULL DEFAULT 0,
+            quelle                TEXT    NOT NULL DEFAULT 'manuell', -- impressum|stellenanzeige|website|manuell
+            erhoben_am            INTEGER NOT NULL DEFAULT 0,
+            loeschen_am           INTEGER NOT NULL DEFAULT 0,          -- automatische Löschfrist
+            art14_info_gesendet_am INTEGER NOT NULL DEFAULT 0,
+            created_at            INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_radar_contacts_company ON radar_contacts (company_id);
+
+        -- Chancen (Stellen/Initiativ/Freelance). share_id koppelt an das bestehende
+        -- Freigabe-System (Anschreiben + Token-Link + Aufruf-Tracking).
+        CREATE TABLE IF NOT EXISTS radar_opportunities (
+            id               INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id       INTEGER NOT NULL,
+            typ              TEXT    NOT NULL DEFAULT 'initiativ', -- job_inhouse|job_agentur|initiativ|freelance
+            pipeline         TEXT    NOT NULL DEFAULT 'bewerbung', -- bewerbung|akquise (für Sperrlogik & Sicht)
+            titel            TEXT    NOT NULL DEFAULT '',
+            quell_url        TEXT    NOT NULL DEFAULT '',
+            quelle           TEXT    NOT NULL DEFAULT 'manuell',
+            gefunden_am      INTEGER NOT NULL DEFAULT 0,
+            veroeffentlicht_am TEXT  NOT NULL DEFAULT '',
+            frist            TEXT    NOT NULL DEFAULT '',
+            stunden_woche    TEXT    NOT NULL DEFAULT '',
+            remote_anteil    TEXT    NOT NULL DEFAULT '',
+            standort         TEXT    NOT NULL DEFAULT '',
+            gehalt_angabe    TEXT    NOT NULL DEFAULT '',
+            stack_erkannt    TEXT    NOT NULL DEFAULT '',   -- csv
+            match_treffer    TEXT    NOT NULL DEFAULT '',   -- csv (was du mitbringst)
+            match_luecken    TEXT    NOT NULL DEFAULT '',   -- csv (was fehlt)
+            score_gesamt     INTEGER NOT NULL DEFAULT 0,
+            teilscores       TEXT    NOT NULL DEFAULT '',   -- json
+            begruendung      TEXT    NOT NULL DEFAULT '',
+            red_flags        TEXT    NOT NULL DEFAULT '',   -- csv
+            status           TEXT    NOT NULL DEFAULT 'neu', -- neu|geprueft|shortlist|beworben|gespraech|angebot|absage|verworfen
+            verworfen_grund  TEXT    NOT NULL DEFAULT '',
+            rohtext_hash     TEXT    NOT NULL DEFAULT '',
+            share_id         INTEGER NOT NULL DEFAULT 0,     -- Kopplung an shares (0 = keine)
+            created_at       INTEGER NOT NULL DEFAULT 0,
+            updated_at       INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_radar_opps_company ON radar_opportunities (company_id);
+        CREATE INDEX IF NOT EXISTS idx_radar_opps_status ON radar_opportunities (status);
+
+        -- Doppelansprache-Sperre: wer eine Bewerbung bekam, ist X Zeit für Akquise
+        -- gesperrt (und umgekehrt) – „nicht billig machen".
+        CREATE TABLE IF NOT EXISTS radar_outreach_blocks (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id   INTEGER NOT NULL,
+            pipeline     TEXT    NOT NULL DEFAULT 'bewerbung', -- gesperrte Pipeline
+            grund        TEXT    NOT NULL DEFAULT '',
+            gesperrt_bis INTEGER NOT NULL DEFAULT 0,
+            created_at   INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_radar_blocks_company ON radar_outreach_blocks (company_id);
+
+        -- Scoring-Profile: konfigurierbar statt hartcodiert (im Admin editierbar).
+        CREATE TABLE IF NOT EXISTS radar_scoring_profiles (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            name         TEXT    NOT NULL DEFAULT '',
+            pipeline     TEXT    NOT NULL DEFAULT 'bewerbung',
+            gewichte     TEXT    NOT NULL DEFAULT '',   -- json: {fachlich, remote, stunden, branche, arbeitgeber, entfernung}
+            min_stunden  INTEGER NOT NULL DEFAULT 0,
+            max_distanz  INTEGER NOT NULL DEFAULT 0,
+            remote_min   INTEGER NOT NULL DEFAULT 0,
+            ausschluss   TEXT    NOT NULL DEFAULT '',   -- csv (Zeitarbeit, Personalvermittler …)
+            aktiv        INTEGER NOT NULL DEFAULT 1,
+            updated_at   INTEGER NOT NULL DEFAULT 0
+        );
+
+        -- Technikprofil je Firma (Phase 2, aus dem Fingerprint der URL). Versioniert:
+        -- die Veränderung ist das Signal (Migration = Budget bewegt sich).
+        CREATE TABLE IF NOT EXISTS radar_tech_snapshots (
+            id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id         INTEGER NOT NULL,
+            erhoben_am         INTEGER NOT NULL DEFAULT 0,
+            plattform          TEXT    NOT NULL DEFAULT 'unbekannt', -- shopware6|shopware5|shopify|woocommerce|oxid|custom|unbekannt
+            plattform_confidence REAL  NOT NULL DEFAULT 0,
+            version            TEXT    NOT NULL DEFAULT '',
+            version_eol        INTEGER NOT NULL DEFAULT 0,
+            frontend           TEXT    NOT NULL DEFAULT 'unklar',    -- twig_storefront|headless_next|headless_vue|unklar
+            theme_typ          TEXT    NOT NULL DEFAULT '',          -- standard|custom|unklar
+            agentur_credit     TEXT    NOT NULL DEFAULT '',
+            eigene_namespaces  TEXT    NOT NULL DEFAULT '',
+            server_header      TEXT    NOT NULL DEFAULT '',
+            security_header    TEXT    NOT NULL DEFAULT '',          -- json {hsts,csp,xfo}
+            belege             TEXT    NOT NULL DEFAULT ''           -- json [{signal,beleg}]
+        );
+        CREATE INDEX IF NOT EXISTS idx_radar_snap_company ON radar_tech_snapshots (company_id, erhoben_am);
+
+        -- Fallstricke/Potenziale je Firma (Anschreiben-Aufhänger).
+        CREATE TABLE IF NOT EXISTS radar_findings (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id     INTEGER NOT NULL,
+            snapshot_id    INTEGER NOT NULL DEFAULT 0,
+            typ            TEXT    NOT NULL DEFAULT '', -- eol_version|security|performance|barrierefreiheit|seo|veraltetes_plugin
+            schwere        TEXT    NOT NULL DEFAULT 'info', -- info|mittel|hoch
+            titel          TEXT    NOT NULL DEFAULT '',
+            beschreibung   TEXT    NOT NULL DEFAULT '',
+            beleg_url      TEXT    NOT NULL DEFAULT '',
+            verwendbar_als TEXT    NOT NULL DEFAULT 'gespraechsthema', -- akquise_aufhaenger|gespraechsthema|intern_nur
+            quelle         TEXT    NOT NULL DEFAULT 'automatisch',
+            created_at     INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_radar_findings_company ON radar_findings (company_id);
     `);
 
     // Doku-Seiten einem Bereich zuordnen (Mehr-Doku-Fähigkeit nachgerüstet).
