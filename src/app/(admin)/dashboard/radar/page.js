@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { FiPlus, FiExternalLink, FiLock, FiTrash2 } from 'react-icons/fi';
-import { getCompanies, getOpportunities } from '@/lib/content/radarStore';
-import { deleteCompanyAction } from '@/lib/content/radarActions';
+import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield } from 'react-icons/fi';
+import { getCompanies, getOpportunities, getContactsDueForDeletion } from '@/lib/content/radarStore';
+import { deleteCompanyAction, deleteContactAction } from '@/lib/content/radarActions';
 import { formatNumber } from '@/lib/analytics/format';
 import StatTile from '@/components/analytics/StatTile';
 import RadarScanForm from '@/components/analytics/RadarScanForm';
@@ -25,6 +25,8 @@ export default async function RadarPage({ searchParams }) {
     const companies = getCompanies({ q, typ });
     const opps = getOpportunities({});
     const offene = opps.filter((o) => !['absage', 'verworfen'].includes(o.status));
+    const dueContacts = getContactsDueForDeletion(14);
+    const jetzt = Date.now();
 
     return (
         <div className="an-dashboard">
@@ -52,6 +54,41 @@ export default async function RadarPage({ searchParams }) {
                 <StatTile value={formatNumber(offene.length)} label="Offene Chancen" />
                 <StatTile value={formatNumber(companies.filter((c) => c.blocked).length)} label="Gesperrt (Doppelansprache)" />
             </div>
+
+            {dueContacts.length > 0 && (
+                <section className="an-card an-full">
+                    <h2><FiShield aria-hidden="true" /> DSGVO – Löschfristen · {formatNumber(dueContacts.length)}</h2>
+                    <p className="an-card-note" style={{ marginTop: 0 }}>
+                        Kontakte, deren 6-Monats-Löschfrist erreicht ist oder in den nächsten 14 Tagen fällt. Ohne Kontakt/Aktivität
+                        löschen (Recht auf Vergessenwerden); bei laufendem Vorgang genügt eine Notiz an der Firma.
+                    </p>
+                    <div className="an-table-wrap">
+                        <table className="an-table">
+                            <thead><tr><th>Kontakt</th><th>Firma</th><th>Quelle</th><th>Löschen bis</th><th></th></tr></thead>
+                            <tbody>
+                                {dueContacts.map((k) => {
+                                    const faellig = k.loeschen_am <= jetzt;
+                                    return (
+                                        <tr key={k.id}>
+                                            <td>{k.name || k.email || '—'}</td>
+                                            <td><Link href={`/dashboard/radar/${k.company_id}`}>{k.company_name || k.company_domain}</Link></td>
+                                            <td className="an-muted">{k.quelle}</td>
+                                            <td><span className={`an-badge ${faellig ? 'an-badge--bad' : 'an-badge--warn'}`}>{new Date(k.loeschen_am).toISOString().slice(0, 10)}{faellig ? ' · fällig' : ''}</span></td>
+                                            <td>
+                                                <form action={deleteContactAction}>
+                                                    <input type="hidden" name="id" value={k.id} />
+                                                    <input type="hidden" name="company_id" value={k.company_id} />
+                                                    <button type="submit" className="an-btn-secondary an-btn-small an-danger" title="Kontakt löschen"><FiTrash2 aria-hidden="true" /> löschen</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            )}
 
             <section className="an-card an-full">
                 <form className="an-filters" style={{ marginBottom: 14 }}>

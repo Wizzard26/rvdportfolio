@@ -1,16 +1,26 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { FiArrowLeft, FiEdit2, FiTrash2, FiExternalLink, FiLock, FiSend } from 'react-icons/fi';
+import { FiArrowLeft, FiEdit2, FiTrash2, FiExternalLink, FiLock, FiSend, FiShield, FiCheck } from 'react-icons/fi';
 import { getCompany, getLatestSnapshot, getFindings, OPP_STATUS } from '@/lib/content/radarStore';
 import {
     createOpportunityAction, setOpportunityStatusAction, deleteOpportunityAction,
     addContactAction, deleteContactAction, deleteCompanyAction, createFreigabeFromOpportunityAction,
+    markArt14SentAction,
 } from '@/lib/content/radarActions';
 
 export const dynamic = 'force-dynamic';
 
 const TYP_LABEL = { inhouse_shop: 'Inhouse-Shop', agentur: 'Agentur', hersteller: 'Hersteller', dienstleister: 'Dienstleister', unbekannt: 'unbekannt' };
 const OPP_TYP = [['job_inhouse', 'Festanstellung – Stelle'], ['job_agentur', 'Festanstellung – Agenturstelle'], ['initiativ', 'Initiativbewerbung'], ['freelance', 'Freelance (Akquise)']];
+
+// Textbaustein für die Informationspflicht nach Art. 14 DSGVO beim Erstkontakt.
+const ART14_TEXT = 'Hinweis zum Datenschutz: Ihre Kontaktdaten (Name, dienstliche E-Mail) habe ich dem öffentlich '
+    + 'zugänglichen Impressum bzw. Ihrer Stellenausschreibung entnommen, um Sie einmalig persönlich zu kontaktieren. '
+    + 'Rechtsgrundlage ist mein berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO). Ich speichere die Daten nur zu '
+    + 'diesem Zweck und lösche sie spätestens sechs Monate nach dem letzten Kontakt. Weitere Informationen und Ihre '
+    + 'Rechte: https://rene-van-dinter.de/disclaimer — einem weiteren Kontakt können Sie jederzeit formlos widersprechen.';
+
+const dedate = (ms) => (ms ? new Date(ms).toISOString().slice(0, 10) : '');
 
 export default async function RadarCompanyDetail({ params }) {
     const { id } = await params;
@@ -182,7 +192,7 @@ export default async function RadarCompanyDetail({ params }) {
                 {c.contacts.length > 0 && (
                     <div className="an-table-wrap">
                         <table className="an-table">
-                            <thead><tr><th>Name</th><th>Rolle</th><th>Kontakt</th><th>Quelle</th><th></th></tr></thead>
+                            <thead><tr><th>Name</th><th>Rolle</th><th>Kontakt</th><th>Quelle</th><th>Art. 14</th><th></th></tr></thead>
                             <tbody>
                                 {c.contacts.map((k) => (
                                     <tr key={k.id}>
@@ -190,6 +200,16 @@ export default async function RadarCompanyDetail({ params }) {
                                         <td>{k.rolle || '—'}</td>
                                         <td className="an-muted">{[k.email, k.telefon].filter(Boolean).join(' · ') || '—'}</td>
                                         <td>{k.quelle}</td>
+                                        <td>
+                                            <form action={markArt14SentAction} style={{ display: 'inline' }}>
+                                                <input type="hidden" name="id" value={k.id} />
+                                                <input type="hidden" name="company_id" value={c.id} />
+                                                <input type="hidden" name="sent" value={k.art14_info_gesendet_am ? '0' : '1'} />
+                                                {k.art14_info_gesendet_am
+                                                    ? <button type="submit" className="an-badge an-badge--ok" title={`Gesendet am ${dedate(k.art14_info_gesendet_am)} · Klick = zurücksetzen`}><FiCheck aria-hidden="true" /> {dedate(k.art14_info_gesendet_am)}</button>
+                                                    : <button type="submit" className="an-btn-secondary an-btn-small" title="Info nach Art. 14 als gesendet markieren"><FiShield aria-hidden="true" /> markieren</button>}
+                                            </form>
+                                        </td>
                                         <td><form action={deleteContactAction}><input type="hidden" name="id" value={k.id} /><input type="hidden" name="company_id" value={c.id} />
                                             <button type="submit" className="an-icon-btn an-danger" title="Löschen"><FiTrash2 /></button></form></td>
                                     </tr>
@@ -197,6 +217,13 @@ export default async function RadarCompanyDetail({ params }) {
                             </tbody>
                         </table>
                     </div>
+                )}
+                {c.contacts.length > 0 && (
+                    <details style={{ marginTop: 12 }}>
+                        <summary className="an-btn-secondary an-btn-small" style={{ display: 'inline-block' }}><FiShield aria-hidden="true" /> Textbaustein Art. 14 DSGVO</summary>
+                        <p className="an-card-note" style={{ marginTop: 10 }}>Beim ersten Kontakt (Mail/Anschreiben) mit anhängen, danach oben „markieren":</p>
+                        <pre className="an-input" style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{ART14_TEXT}</pre>
+                    </details>
                 )}
                 <details style={{ marginTop: 14 }}>
                     <summary className="an-btn-secondary an-btn-small" style={{ display: 'inline-block' }}>+ Kontakt hinzufügen</summary>

@@ -91,6 +91,14 @@ function abs(origin, href) {
     try { return new URL(href, origin).toString(); } catch { return ''; }
 }
 
+// Häufige HTML-Entities in extrahierten Texten (Titel/Impressum) auflösen.
+function decodeEntities(s) {
+    return (s || '')
+        .replace(/&amp;/gi, '&').replace(/&lt;/gi, '<').replace(/&gt;/gi, '>')
+        .replace(/&quot;/gi, '"').replace(/&#0?39;|&apos;/gi, "'").replace(/&nbsp;/gi, ' ')
+        .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)));
+}
+
 function detectPlatform(html, headers) {
     const belege = [];
     const push = (signal, beleg) => belege.push({ signal, beleg });
@@ -138,7 +146,7 @@ function extractContact(html) {
     // Firmenname/Rechtsform grob aus Impressum-Text.
     const rechts = (html.match(/([A-ZÄÖÜ][\w&.\- ]{2,60}?\s(GmbH(?:\s*&\s*Co\.?\s*KG)?|AG|UG(?:\s*\(haftungsbeschränkt\))?|e\.K\.|GbR|KG|OHG))/) || [])[1] || '';
     const plz = (html.match(/\b(\d{5})\s+([A-ZÄÖÜ][a-zäöüß.\- ]{2,40})/) || []);
-    return { email, rechtsform: rechts ? rechts.replace(/\s+/g, ' ').trim() : '', plz: plz[1] || '', ort: (plz[2] || '').trim() };
+    return { email, rechtsform: rechts ? decodeEntities(rechts).replace(/\s+/g, ' ').trim() : '', plz: plz[1] || '', ort: decodeEntities((plz[2] || '').trim()) };
 }
 
 export async function fingerprintUrl(rawUrl) {
@@ -159,7 +167,7 @@ export async function fingerprintUrl(rawUrl) {
     const githubLink = findLink(html, 'github\\.com');
     const github_org = githubLink ? (githubLink.match(/github\.com\/([^\/"']+)/i) || [])[1] || '' : '';
     const linkedin_url = abs(n.origin, findLink(html, 'linkedin\\.com'));
-    const title = (html.match(/<title[^>]*>([^<]+)</i) || [])[1]?.trim() || '';
+    const title = decodeEntities((html.match(/<title[^>]*>([^<]+)</i) || [])[1]?.trim() || '');
     const name = title.split(/[|\-–—:]/)[0].trim().slice(0, 80);
 
     // Sitemap laden und daraus Jobs-/Impressum-/Kontakt-Seiten per Keyword ziehen —

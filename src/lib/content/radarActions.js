@@ -6,6 +6,7 @@ import {
     createCompany, updateCompany, deleteCompany,
     createOpportunity, setOpportunityStatus, deleteOpportunity, rescoreOpportunity,
     addContact, deleteContact, addOutreachBlock, saveFingerprint, createShareFromOpportunity,
+    markArt14Sent,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl } from '@/lib/content/radarFingerprint';
 
@@ -135,5 +136,13 @@ export async function addContactAction(formData) {
 export async function deleteContactAction(formData) {
     const companyId = Number(formData.get('company_id'));
     deleteContact(Number(formData.get('id')));
-    revalidatePath(`/dashboard/radar/${companyId}`);
+    if (companyId) revalidatePath(`/dashboard/radar/${companyId}`);
+    revalidatePath('/dashboard/radar'); // DSGVO-Löschliste in der Übersicht aktualisieren
+}
+
+// Art. 14 DSGVO: Erstkontakt-Info als gesendet/offen markieren.
+export async function markArt14SentAction(formData) {
+    const companyId = Number(formData.get('company_id'));
+    markArt14Sent(Number(formData.get('id')), formData.get('sent') === '1');
+    if (companyId) revalidatePath(`/dashboard/radar/${companyId}`);
 }

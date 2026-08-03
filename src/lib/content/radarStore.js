@@ -99,11 +99,14 @@ export function updateCompany(id, data) {
 
 export function deleteCompany(id) {
     const db = getContentDb();
+    const cid = Number(id);
     db.transaction(() => {
-        db.prepare('DELETE FROM radar_opportunities WHERE company_id = ?').run(Number(id));
-        db.prepare('DELETE FROM radar_contacts WHERE company_id = ?').run(Number(id));
-        db.prepare('DELETE FROM radar_outreach_blocks WHERE company_id = ?').run(Number(id));
-        db.prepare('DELETE FROM radar_companies WHERE id = ?').run(Number(id));
+        db.prepare('DELETE FROM radar_opportunities WHERE company_id = ?').run(cid);
+        db.prepare('DELETE FROM radar_contacts WHERE company_id = ?').run(cid);
+        db.prepare('DELETE FROM radar_outreach_blocks WHERE company_id = ?').run(cid);
+        db.prepare('DELETE FROM radar_tech_snapshots WHERE company_id = ?').run(cid);
+        db.prepare('DELETE FROM radar_findings WHERE company_id = ?').run(cid);
+        db.prepare('DELETE FROM radar_companies WHERE id = ?').run(cid);
     })();
 }
 
@@ -182,6 +185,16 @@ export function createShareFromOpportunity(oppId) {
     const purpose = opp.typ === 'initiativ' ? 'initiativ' : (opp.pipeline === 'akquise' ? 'sonstiges' : 'bewerbung');
     const title = [opp.titel, firma].filter(Boolean).join(' – ') || `Freigabe – ${firma || 'Unbenannt'}`;
 
+    // Akquise: einen technischen Aufhänger (z. B. EOL-Version) als Gesprächseinstieg
+    // vorbefüllen. Bei Bewerbungen bewusst leer — der „Warum ihr"-Satz bleibt persönlich.
+    let motivation = '';
+    if (opp.pipeline === 'akquise') {
+        const hook = db.prepare("SELECT beschreibung FROM radar_findings WHERE company_id = ? AND verwendbar_als = 'akquise_aufhaenger' ORDER BY CASE schwere WHEN 'hoch' THEN 0 WHEN 'mittel' THEN 1 ELSE 2 END, id DESC LIMIT 1").get(opp.company_id);
+        if (hook && hook.beschreibung) {
+            motivation = `Beim Blick auf ${firma || 'Ihren Shop'} ist mir aufgefallen: ${hook.beschreibung} Genau hier kann ich mit meiner Shopware-Erfahrung unterstützen.`;
+        }
+    }
+
     const { id, token } = createShare({
         title,
         purpose,
@@ -193,6 +206,7 @@ export function createShareFromOpportunity(oppId) {
         position: opp.titel || '',
         work_model: mapWorkModel(opp.remote_anteil),
         skills: opp.stack_erkannt || '',
+        motivation,
         website: company.domain ? `https://${company.domain}` : '',
         email: contact.email || '',
         job_ref: opp.quell_url || '',
@@ -244,6 +258,24 @@ export function addContact(data) {
 
 export function deleteContact(id) {
     getContentDb().prepare('DELETE FROM radar_contacts WHERE id = ?').run(Number(id));
+}
+
+// Art. 14 DSGVO: Informationspflicht beim Erstkontakt als erledigt/offen markieren.
+export function markArt14Sent(id, sent) {
+    getContentDb().prepare('UPDATE radar_contacts SET art14_info_gesendet_am = ? WHERE id = ?')
+        .run(sent ? Date.now() : 0, Number(id));
+}
+
+// DSGVO-Löschfristen: Kontakte, deren Frist erreicht ist oder in `withinDays` fällt
+// (inkl. Firmenname für die Übersicht). Ohne Cron im Projekt = manuelle Sichtliste.
+export function getContactsDueForDeletion(withinDays = 14) {
+    const grenze = Date.now() + withinDays * 24 * 60 * 60 * 1000;
+    return getContentDb().prepare(`
+        SELECT k.*, c.name AS company_name, c.domain AS company_domain
+        FROM radar_contacts k JOIN radar_companies c ON c.id = k.company_id
+        WHERE k.loeschen_am > 0 AND k.loeschen_am <= ?
+        ORDER BY k.loeschen_am ASC
+    `).all(grenze);
 }
 
 // ─── Doppelansprache-Sperre ──────────────────────────────────────────────────
