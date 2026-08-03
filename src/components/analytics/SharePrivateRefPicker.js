@@ -13,7 +13,9 @@ export default function SharePrivateRefPicker({ refs = [], initialIds = [] }) {
 
     const byId = new Map(refs.map((r) => [r.id, r]));
     const available = refs.filter((r) => !ids.includes(r.id));
-    const label = (r) => [r.title, r.context].filter(Boolean).join(' · ');
+    // Nur der Titel im Auswahlfeld — ein langer Kontext würde das native <select>
+    // aufblähen (Kontext steht ohnehin in der Liste darunter).
+    const label = (r) => r.title;
 
     const add = () => {
         const id = Number(pick);

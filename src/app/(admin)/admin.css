@@ -594,7 +594,7 @@ button.an-tab.is-active:hover { background: var(--adm-accent); }
 .an-doc-actions { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; }
 .an-doc-actions .an-icon-btn:disabled { opacity: .35; cursor: default; }
 .an-docadd { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.an-docadd select { flex: 1 1 220px; min-width: 0; }
+.an-docadd select { flex: 1 1 220px; min-width: 0; max-width: 100%; }
 .an-docadd .an-btn-small { margin-top: 0; white-space: nowrap; }
 
 .an-btn-small { align-self: flex-start; padding: 6px 12px; font-size: 13px; margin-top: 6px; }

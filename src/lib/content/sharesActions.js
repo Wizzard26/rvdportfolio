@@ -71,9 +71,10 @@ export async function createShareAction(prevState, formData) {
     const data = parse(formData);
     if (!data.title.trim()) return { error: 'Titel fehlt', values: data };
     if (data.documentIds.length === 0) return { error: 'Bitte mindestens ein Dokument auswählen.', values: data };
-    createShare(data);
+    const { id } = createShare(data);
     revalidate();
-    redirect('/dashboard/dokumente/freigaben');
+    // Auf der gerade angelegten Freigabe bleiben (Referenzen/Dokumente weiter pflegen).
+    redirect(`/dashboard/dokumente/freigaben/${id}`);
 }
 
 export async function updateShareAction(prevState, formData) {
@@ -83,7 +84,8 @@ export async function updateShareAction(prevState, formData) {
     if (data.documentIds.length === 0) return { error: 'Bitte mindestens ein Dokument auswählen.', values: { ...data, id } };
     updateShare(id, data);
     revalidate();
-    redirect('/dashboard/dokumente/freigaben');
+    // Nicht zur Liste springen — auf der Freigabe bleiben (mehrere Referenzen nacheinander).
+    redirect(`/dashboard/dokumente/freigaben/${id}`);
 }
 
 export async function deleteShareAction(formData) {

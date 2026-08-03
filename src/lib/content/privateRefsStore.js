@@ -1,4 +1,5 @@
 import { getContentDb } from './db';
+import { PRIVATE_REF_STATUS_VALUES } from '@/lib/privateRefStatus';
 
 // Vertrauliche Referenzen: showcase-ähnliche Arbeitsproben, die NICHT öffentlich
 // gezeigt werden dürfen, aber gezielt über eine private Freigabe-Seite
@@ -7,7 +8,7 @@ import { getContentDb } from './db';
 // (mit KI-Kennzeichnung). Zuordnung zu einer Freigabe: siehe sharesStore
 // (setPrivateRefs / getShareByToken).
 
-const STATUSES = new Set(['live', 'in_entwicklung']);
+const STATUSES = new Set(PRIVATE_REF_STATUS_VALUES);
 
 function fields(data) {
     const status = STATUSES.has(data.status) ? data.status : 'live';

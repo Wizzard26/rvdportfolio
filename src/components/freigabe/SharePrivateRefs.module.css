@@ -25,16 +25,16 @@
     margin: 0 0 16px;
 }
 
-/* Karten nebeneinander: 1 Karte = volle Breite, 2 = je 50 %, 3 = je 33 %,
-   danach umbrechen. auto-fit lässt eine einzelne Karte auf volle Breite wachsen. */
+/* Feste 2 Spalten → jede Karte max. 50 %; eine einzelne Karte bleibt bei 50 %
+   (füllt nur eine Spalte). Unter 820 px (Tablet hochkant/Mobil) einspaltig. */
 .grid {
     display: grid;
-    /* Spaltenbreite ≥ ~33 % deckelt auf MAX. 3 Spalten: 1 Karte = volle Breite,
-       2 = je 50 %, ab 3 = je 33 %, darunter (schmaler Container) 2 bzw. 1.
-       Container-basiert (kein fester Breakpoint) → passt sich der Hauptspalte an. */
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(280px, calc(33.333% - 20px))), 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
-    /* align-items: stretch (Default) → Karten einer Reihe sind gleich hoch. */
+    align-items: start; /* Karten NICHT auf gleiche Höhe strecken */
+}
+@media (max-width: 820px) {
+    .grid { grid-template-columns: 1fr; }
 }
 
 .card {
@@ -72,8 +72,81 @@
     white-space: nowrap;
 }
 .statusDev { color: #b7791f; border-color: #b7791f; }
+.statusAuftrag { color: #2b6cb0; border-color: #2b6cb0; }
+.statusStelle { color: #6b46c1; border-color: #6b46c1; }
 
-.desc { line-height: 1.55; margin: 0 0 14px; white-space: pre-line; font-size: 0.95rem; }
+.desc { line-height: 1.55; margin: 0 0 12px; white-space: pre-line; font-size: 0.95rem; }
+/* Höhe der Karte deckeln: Beschreibung auf 6 Zeilen klappen, Rest per Modal. */
+.descClamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.moreBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    margin: 0 0 14px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.moreBtn:hover { color: var(--primary-dark); text-decoration: underline; }
+
+/* ── „Mehr anzeigen"-Modal ───────────────────────────────────────────────── */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    animation: prefFade 0.15s ease;
+}
+@keyframes prefFade { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+    position: relative;
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 14px;
+    border: 1px solid var(--dark-light);
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+@media (prefers-color-scheme: dark) {
+    .modal { background: var(--light); }
+}
+.modalBody { padding: 20px 22px 24px; }
+.descFull { line-height: 1.6; margin: 0 0 16px; white-space: pre-line; font-size: 0.97rem; }
+.modalClose {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background .15s ease;
+}
+.modalClose:hover { background: rgba(0, 0, 0, 0.72); }
 
 .tech { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
 .chip {

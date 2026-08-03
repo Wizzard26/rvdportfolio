@@ -12,8 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { FiMove, FiEdit2, FiTrash2, FiEyeOff, FiImage } from 'react-icons/fi';
 import { reorderPrivateRefsAction, deletePrivateRefAction, togglePrivateRefAction } from '@/lib/content/privateRefsActions';
 import StatusToggle from '@/components/analytics/StatusToggle';
-
-const STATUS_LABEL = { live: 'live', in_entwicklung: 'in Entwicklung' };
+import { PRIVATE_REF_STATUS_LABEL as STATUS_LABEL } from '@/lib/privateRefStatus';
 
 function Row({ r }) {
     const meta = [r.context, STATUS_LABEL[r.status] || r.status].filter(Boolean).join(' · ');
