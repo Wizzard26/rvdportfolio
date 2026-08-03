@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { FiArrowLeft, FiEdit2, FiTrash2, FiExternalLink, FiLock } from 'react-icons/fi';
+import { FiArrowLeft, FiEdit2, FiTrash2, FiExternalLink, FiLock, FiSend } from 'react-icons/fi';
 import { getCompany, getLatestSnapshot, getFindings, OPP_STATUS } from '@/lib/content/radarStore';
 import {
     createOpportunityAction, setOpportunityStatusAction, deleteOpportunityAction,
-    addContactAction, deleteContactAction, deleteCompanyAction,
+    addContactAction, deleteContactAction, deleteCompanyAction, createFreigabeFromOpportunityAction,
 } from '@/lib/content/radarActions';
 
 export const dynamic = 'force-dynamic';
@@ -134,8 +134,17 @@ export default async function RadarCompanyDetail({ params }) {
                                                 <button type="submit" className="an-btn-secondary an-btn-small">setzen</button>
                                             </form>
                                         </td>
-                                        <td>
-                                            <form action={deleteOpportunityAction}><input type="hidden" name="id" value={o.id} /><input type="hidden" name="company_id" value={c.id} />
+                                        <td style={{ whiteSpace: 'nowrap' }}>
+                                            {o.share_id ? (
+                                                <Link href={`/dashboard/dokumente/freigaben/${o.share_id}`} className="an-btn-secondary an-btn-small" title="Verknüpfte Freigabe öffnen"><FiSend aria-hidden="true" /> Freigabe</Link>
+                                            ) : (
+                                                <form action={createFreigabeFromOpportunityAction} style={{ display: 'inline' }}>
+                                                    <input type="hidden" name="id" value={o.id} />
+                                                    <input type="hidden" name="company_id" value={c.id} />
+                                                    <button type="submit" className="an-btn-secondary an-btn-small" title="Vorbefüllte Freigabe mit Anschreiben erstellen"><FiSend aria-hidden="true" /> Freigabe</button>
+                                                </form>
+                                            )}
+                                            <form action={deleteOpportunityAction} style={{ display: 'inline', marginLeft: 6 }}><input type="hidden" name="id" value={o.id} /><input type="hidden" name="company_id" value={c.id} />
                                                 <button type="submit" className="an-icon-btn an-danger" title="Löschen"><FiTrash2 /></button></form>
                                         </td>
                                     </tr>

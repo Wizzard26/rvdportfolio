@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import {
     createCompany, updateCompany, deleteCompany,
     createOpportunity, setOpportunityStatus, deleteOpportunity, rescoreOpportunity,
-    addContact, deleteContact, addOutreachBlock, saveFingerprint,
+    addContact, deleteContact, addOutreachBlock, saveFingerprint, createShareFromOpportunity,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl } from '@/lib/content/radarFingerprint';
 
@@ -106,6 +106,17 @@ export async function deleteOpportunityAction(formData) {
     const companyId = Number(formData.get('company_id'));
     deleteOpportunity(Number(formData.get('id')));
     revalidatePath(`/dashboard/radar/${companyId}`);
+}
+
+// One-Click: Chance → vorbefüllte Freigabe (Anschreiben + Token-Link) und direkt
+// zur Freigabe-Bearbeitung springen, wo René sie feinschleift und teilt.
+export async function createFreigabeFromOpportunityAction(formData) {
+    const oppId = Number(formData.get('id'));
+    const companyId = Number(formData.get('company_id'));
+    const res = createShareFromOpportunity(oppId);
+    revalidatePath(`/dashboard/radar/${companyId}`);
+    if (!res) redirect(`/dashboard/radar/${companyId}`);
+    redirect(`/dashboard/dokumente/freigaben/${res.id}`);
 }
 
 // ── Kontakte ─────────────────────────────────────────────────────────────

@@ -1,4 +1,5 @@
 import { getContentDb } from './db';
+import { createShare } from './sharesStore';
 
 // Bewerbungs- & Akquise-Radar (Phase 1): interne Listen potenzieller Arbeitgeber.
 // Recherchieren/priorisieren ja – Versand immer von Hand. Fingerprinter (Phase 2)
@@ -149,6 +150,58 @@ export function createOpportunity(data) {
 
 export function getOpportunity(id) {
     return getContentDb().prepare('SELECT * FROM radar_opportunities WHERE id = ?').get(Number(id)) || null;
+}
+
+// Remote-Angabe der Chance → Freigabe-Arbeitsmodell.
+function mapWorkModel(remote) {
+    const s = (remote || '').toLowerCase();
+    if (/remote/.test(s)) return 'remote';
+    if (/hybrid/.test(s)) return 'hybrid';
+    if (/vor ?ort|onsite|präsenz/.test(s)) return 'vor_ort';
+    return '';
+}
+
+// One-Click: aus einer Chance eine vorbefüllte Freigabe (Anschreiben + Token-Link)
+// erzeugen und mit der Chance verknüpfen. Idempotent — existiert bereits eine
+// gültige Freigabe, wird deren ID zurückgegeben (kein Duplikat).
+export function createShareFromOpportunity(oppId) {
+    const db = getContentDb();
+    const opp = getOpportunity(oppId);
+    if (!opp) return null;
+
+    // Bereits verknüpft und Freigabe existiert noch → wiederverwenden.
+    if (opp.share_id) {
+        const exists = db.prepare('SELECT id FROM shares WHERE id = ?').get(opp.share_id);
+        if (exists) return { id: opp.share_id, existing: true };
+    }
+
+    const company = db.prepare('SELECT * FROM radar_companies WHERE id = ?').get(opp.company_id) || {};
+    const contact = db.prepare("SELECT * FROM radar_contacts WHERE company_id = ? ORDER BY (name != '') DESC, ist_entscheider DESC, id LIMIT 1").get(opp.company_id) || {};
+
+    const firma = company.name || company.domain || '';
+    const purpose = opp.typ === 'initiativ' ? 'initiativ' : (opp.pipeline === 'akquise' ? 'sonstiges' : 'bewerbung');
+    const title = [opp.titel, firma].filter(Boolean).join(' – ') || `Freigabe – ${firma || 'Unbenannt'}`;
+
+    const { id, token } = createShare({
+        title,
+        purpose,
+        company: firma,
+        street: company.strasse || '',
+        zip: company.plz || '',
+        city: company.ort || '',
+        contact: contact.name || '',
+        position: opp.titel || '',
+        work_model: mapWorkModel(opp.remote_anteil),
+        skills: opp.stack_erkannt || '',
+        website: company.domain ? `https://${company.domain}` : '',
+        email: contact.email || '',
+        job_ref: opp.quell_url || '',
+        status: 'offen',
+        is_active: 1,
+    });
+
+    db.prepare('UPDATE radar_opportunities SET share_id = ?, updated_at = ? WHERE id = ?').run(id, Date.now(), Number(oppId));
+    return { id, token, existing: false };
 }
 
 export function setOpportunityStatus(id, status, grund = '') {
