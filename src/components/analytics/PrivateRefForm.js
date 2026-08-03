@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import Link from 'next/link';
+import { PRIVATE_REF_STATUS } from '@/lib/privateRefStatus';
 
 // Admin-Formular für eine vertrauliche Referenz (Text). Screenshots werden auf
 // der Bearbeiten-Seite separat verwaltet (erst nach dem Anlegen möglich).
@@ -30,8 +31,7 @@ export default function PrivateRefForm({ action, item }) {
 
             <label className="an-field"><span>Status</span>
                 <select name="status" defaultValue={v.status || 'live'}>
-                    <option value="live">live / im Einsatz</option>
-                    <option value="in_entwicklung">in Entwicklung (noch nicht angekündigt)</option>
+                    {PRIVATE_REF_STATUS.map((s) => <option key={s.value} value={s.value}>{s.formLabel}</option>)}
                 </select></label>
 
             <div className="an-field-row">
