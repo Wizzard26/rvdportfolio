@@ -10,7 +10,8 @@ export default function RadarImportForm() {
     const [state, action, pending] = useActionState(importBuiltWithAction, {});
     return (
         <form action={action} className="an-scan" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-            <input type="file" name="file" accept=".csv,text/csv" required disabled={pending} className="an-input" aria-label="BuiltWith-CSV" />
+            <input type="file" name="file" accept=".csv,text/csv" required disabled={pending} aria-label="BuiltWith-CSV"
+                style={{ font: 'inherit', fontSize: 14, cursor: 'pointer' }} />
             <button type="submit" className="an-btn-primary" disabled={pending}>
                 <FiUploadCloud aria-hidden="true" /> {pending ? 'Importiere …' : 'CSV importieren'}
             </button>
