@@ -599,6 +599,11 @@ function migrate(database) {
     ensureColumn(database, 'radar_companies', 'prio_grund', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'radar_companies', 'verworfen_grund', "TEXT NOT NULL DEFAULT ''"); // Karteileiche/weg-migriert
     ensureColumn(database, 'radar_companies', 'last_scan', 'INTEGER NOT NULL DEFAULT 0'); // letzter Re-Scan (Batch-Steuerung)
+    // Domain nur einmal (leere Domains bei rein manuellen Einträgen ausgenommen).
+    // Guard: falls Altbestand bereits Dubletten hat, greift der App-Dedupe.
+    try {
+        database.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_radar_companies_domain ON radar_companies(domain) WHERE domain != ''").run();
+    } catch { /* bestehende Duplikate → createCompany-Dedupe schützt weiterhin */ }
 }
 
 export function getContentDb() {

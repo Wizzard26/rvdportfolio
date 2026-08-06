@@ -8,8 +8,10 @@ import {
     addContact, deleteContact, addOutreachBlock, saveFingerprint, createShareFromOpportunity,
     markArt14Sent, getCompany, importCareerJobs,
     parseBuiltWithCsv, importBuiltWith, getCompaniesToRescan, countCompaniesToRescan, applyRescan,
+    saveDiscovery,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
+import { ccDetect } from '@/lib/content/radarCommonCrawl';
 
 // Server Actions für das Bewerbungs-/Akquise-Radar. /dashboard ist per Proxy
 // geschützt; Freigabe-Seiten sind force-dynamic → keine Revalidierung nötig.
@@ -121,6 +123,38 @@ export async function importBuiltWithAction(prevState, formData) {
     const res = importBuiltWith(rows);
     revalidatePath('/dashboard/radar');
     return { ok: true, ...res };
+}
+
+// Common-Crawl-Discovery (Prototyp): Domains gegen das CC-Archiv prüfen (ohne die
+// Live-Seiten zu belasten) und Shopware/Shopify-Treffer ins Radar importieren.
+export async function ccDiscoverAction(prevState, formData) {
+    const raw = (formData.get('domains') || '').toString();
+    const domains = [...new Set(raw.split(/[\s,;]+/).map((d) => d.trim().toLowerCase()).filter(Boolean))].slice(0, 20);
+    if (!domains.length) return { error: 'Keine Domains angegeben.' };
+    let checked = 0; let imported = 0; let sw5 = 0; let sw6 = 0; let shopify = 0; let noCopy = 0; let other = 0;
+    const results = [];
+    for (const d of domains) {
+        checked += 1;
+        let det;
+        try { det = await ccDetect(d); } catch { det = { ok: false, reason: 'Fehler' }; }
+        if (!det.ok) { noCopy += 1; results.push({ domain: d, outcome: det.reason || 'keine Kopie' }); }
+        else {
+            const plat = det.plattform || 'unbekannt';
+            const isTarget = plat.startsWith('shopware') || plat === 'shopify';
+            if (!isTarget) { other += 1; results.push({ domain: d, outcome: plat }); }
+            else {
+                const findings = [];
+                if (det.version_eol) findings.push({ typ: 'eol_version', schwere: 'hoch', titel: 'Shopware 5 (EOL)', beschreibung: 'Aus Common-Crawl-Archiv als Shopware 5 erkannt — Migrations-Aufhänger; per Re-Scan live verifizieren.', beleg_url: `https://${d}`, verwendbar_als: 'akquise_aufhaenger' });
+                saveDiscovery(d, det, findings, 'commoncrawl');
+                imported += 1;
+                if (plat === 'shopware5') sw5 += 1; else if (plat === 'shopware6') sw6 += 1; else if (plat === 'shopify') shopify += 1;
+                results.push({ domain: d, outcome: `${plat}${det.version ? ` ${det.version}` : ''}` });
+            }
+        }
+        await new Promise((res) => setTimeout(res, 250));
+    }
+    revalidatePath('/dashboard/radar');
+    return { ok: true, checked, imported, sw5, sw6, shopify, noCopy, other, results };
 }
 
 // Batch-Re-Scan: pro Aufruf ein Häppchen Domains live fingerprinten (gedrosselt,

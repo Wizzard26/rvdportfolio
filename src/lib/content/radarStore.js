@@ -82,6 +82,27 @@ export function getCompany(id) {
 export function createCompany(data) {
     const db = getContentDb();
     const f = companyFields(data);
+    // Dedupe: gleiche Domain wird nie doppelt angelegt (egal ob manuell, Import,
+    // Scan oder CC-Discovery) — bestehende Firma auffüllen und deren ID zurückgeben.
+    if (f.domain) {
+        const existing = getCompanyByDomain(f.domain);
+        if (existing) {
+            db.prepare(`UPDATE radar_companies SET
+                name=CASE WHEN name='' THEN @name ELSE name END,
+                rechtsform=CASE WHEN rechtsform='' THEN @rechtsform ELSE rechtsform END,
+                strasse=CASE WHEN strasse='' THEN @strasse ELSE strasse END,
+                plz=CASE WHEN plz='' THEN @plz ELSE plz END,
+                ort=CASE WHEN ort='' THEN @ort ELSE ort END,
+                region=CASE WHEN region='' THEN @region ELSE region END,
+                themengebiete=CASE WHEN themengebiete='' THEN @themengebiete ELSE themengebiete END,
+                karriere_url=CASE WHEN karriere_url='' THEN @karriere_url ELSE karriere_url END,
+                linkedin_url=CASE WHEN linkedin_url='' THEN @linkedin_url ELSE linkedin_url END,
+                github_org=CASE WHEN github_org='' THEN @github_org ELSE github_org END,
+                notiz=CASE WHEN notiz='' THEN @notiz ELSE notiz END,
+                updated_at=@now WHERE id=@id`).run({ id: existing.id, ...f });
+            return existing.id;
+        }
+    }
     return db.prepare(`
         INSERT INTO radar_companies (domain, name, rechtsform, strasse, plz, ort, region, distanz_km, typ,
             themengebiete, inhouse_team, karriere_url, linkedin_url, github_org, notiz, aktiv, created_at, updated_at)
@@ -330,7 +351,7 @@ export function addOutreachBlock(companyId, ownPipeline, grund = '') {
 // ─── Fingerprint speichern (Phase 2) ─────────────────────────────────────────
 
 export function getCompanyByDomain(domain) {
-    return getContentDb().prepare('SELECT * FROM radar_companies WHERE domain = ?').get((domain || '').toLowerCase()) || null;
+    return getContentDb().prepare('SELECT * FROM radar_companies WHERE domain = ?').get(normalizeDomain(domain)) || null;
 }
 
 export function getLatestSnapshot(companyId) {
@@ -596,6 +617,35 @@ export function importBuiltWith(rows) {
     });
     run();
     return { created, updated, skipped, contactsAdded, sw5, sw6, shopify, total: created + updated };
+}
+
+// ─── Discovery-Treffer speichern (Common Crawl u. Ä.) ────────────────────────
+// Legt/aktualisiert eine Firma (dedupe per Domain), schreibt einen quellenbelegten
+// Snapshot + Findings und berechnet die Lead-Prio. Kein Live-Request nötig.
+export function saveDiscovery(domain, snapshot, findings = [], source = 'commoncrawl') {
+    const dom = normalizeDomain(domain);
+    if (!dom) return null;
+    const db = getContentDb();
+    const now = Date.now();
+    return db.transaction(() => {
+        let company = getCompanyByDomain(dom);
+        let id;
+        if (company) {
+            id = company.id;
+            db.prepare("UPDATE radar_companies SET quelle = CASE WHEN quelle='manuell' THEN ? ELSE quelle END, updated_at=? WHERE id=?").run(source, now, id);
+        } else {
+            id = createCompany({ domain: dom, typ: 'inhouse_shop', aktiv: 1 });
+            db.prepare('UPDATE radar_companies SET quelle=? WHERE id=?').run(source, id);
+        }
+        const snapId = insertSnapshot(db, id, {
+            plattform: snapshot.plattform, plattform_confidence: snapshot.plattform_confidence || 0.6,
+            version: snapshot.version || '', version_eol: snapshot.version_eol || 0,
+            frontend: snapshot.frontend || 'unklar', belege: snapshot.belege || '',
+        }, now);
+        replaceAutoFindings(db, id, snapId, findings, now);
+        updateLeadScore(db, id);
+        return id;
+    })();
 }
 
 // ─── Batch-Re-Scan ───────────────────────────────────────────────────────────

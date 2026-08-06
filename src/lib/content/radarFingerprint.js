@@ -99,7 +99,7 @@ function decodeEntities(s) {
         .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)));
 }
 
-function detectPlatform(html, headers) {
+export function detectPlatform(html, headers) {
     const belege = [];
     const push = (signal, beleg) => belege.push({ signal, beleg });
     let plattform = 'unbekannt'; let confidence = 0; let version = ''; let eol = 0; let frontend = 'unklar';

@@ -7,6 +7,7 @@ import StatTile from '@/components/analytics/StatTile';
 import RadarScanForm from '@/components/analytics/RadarScanForm';
 import RadarImportForm from '@/components/analytics/RadarImportForm';
 import RadarBatchRescan from '@/components/analytics/RadarBatchRescan';
+import RadarCcDiscover from '@/components/analytics/RadarCcDiscover';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,6 +68,17 @@ export default async function RadarPage({ searchParams }) {
                     <p className="an-card-note" style={{ margin: '0 0 8px' }}>Live-Re-Scan (gedrosselt, robots-konform):</p>
                     <RadarBatchRescan pendingCount={unscanned} />
                 </div>
+                <details style={{ marginTop: 16 }}>
+                    <summary className="an-btn-secondary an-btn-small" style={{ display: 'inline-block' }}>Common-Crawl-Discovery (Prototyp)</summary>
+                    <p className="an-card-note" style={{ margin: '10px 0 8px' }}>
+                        Domains gegen das öffentliche <strong>Common-Crawl-Archiv</strong> prüfen — die Plattform kommt aus der
+                        archivierten Startseite, <strong>ohne die Live-Seite zu belasten</strong>. Treffer landen direkt im Radar
+                        (dedupliziert). Grenzen: CC ist nicht vollständig/tagesaktuell; headless/CDN-Shops ohne HTML-Marker rutschen durch.
+                        Für echte <strong>Massen-Enumeration</strong> den CC-Columnar-Index (Athena) mit Marker-Query nutzen und den
+                        Domain-Export oben als CSV importieren.
+                    </p>
+                    <RadarCcDiscover />
+                </details>
             </section>
 
             <div className="an-tiles">
