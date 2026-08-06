@@ -1,10 +1,12 @@
 import Link from 'next/link';
-import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield } from 'react-icons/fi';
-import { getCompanies, getOpportunities, getContactsDueForDeletion } from '@/lib/content/radarStore';
+import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud } from 'react-icons/fi';
+import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan } from '@/lib/content/radarStore';
 import { deleteCompanyAction, deleteContactAction } from '@/lib/content/radarActions';
 import { formatNumber } from '@/lib/analytics/format';
 import StatTile from '@/components/analytics/StatTile';
 import RadarScanForm from '@/components/analytics/RadarScanForm';
+import RadarImportForm from '@/components/analytics/RadarImportForm';
+import RadarBatchRescan from '@/components/analytics/RadarBatchRescan';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,12 +23,17 @@ export default async function RadarPage({ searchParams }) {
     const sp = await searchParams;
     const q = (sp?.q || '').toString();
     const typ = (sp?.typ || '').toString();
+    const status = ['aktiv', 'verworfen', 'alle'].includes(sp?.status) ? sp.status : 'aktiv';
 
-    const companies = getCompanies({ q, typ });
+    const companies = getCompanies({ q, typ, status });
     const opps = getOpportunities({});
     const offene = opps.filter((o) => !['absage', 'verworfen'].includes(o.status));
     const dueContacts = getContactsDueForDeletion(14);
+    const verworfenCount = getCompanies({ status: 'verworfen' }).length;
+    const unscanned = countCompaniesToRescan('unscanned');
     const jetzt = Date.now();
+
+    const prioClass = (s) => (s >= 70 ? 'an-badge--ok' : s >= 40 ? 'an-badge--warn' : '');
 
     return (
         <div className="an-dashboard">
@@ -48,11 +55,25 @@ export default async function RadarPage({ searchParams }) {
                 <RadarScanForm />
             </section>
 
+            <section className="an-card an-full">
+                <h2><FiUploadCloud aria-hidden="true" /> Discovery-Import (BuiltWith-CSV)</h2>
+                <p className="an-card-note" style={{ marginTop: 0 }}>
+                    Exportierte Shopware-Liste als Saat einlesen: Domain, Plattform/Version (SW5 → EOL-Aufhänger), Ort, Kontakt,
+                    Umsatz-/Tech-Spend-Schätzung → wird zu Firmen + Kontakten + Lead-Prio, dedupliziert per Domain. Kein Crawling.
+                    Danach <strong>Re-Scan</strong> für Live-Verifikation (Karteileichen/weg-migrierte aussortieren, Karriereseite + frische Kontakte).
+                </p>
+                <RadarImportForm />
+                <div style={{ marginTop: 16 }}>
+                    <p className="an-card-note" style={{ margin: '0 0 8px' }}>Live-Re-Scan (gedrosselt, robots-konform):</p>
+                    <RadarBatchRescan pendingCount={unscanned} />
+                </div>
+            </section>
+
             <div className="an-tiles">
                 <StatTile value={formatNumber(companies.filter((c) => c.typ === 'inhouse_shop').length)} label="Inhouse-Shops" />
                 <StatTile value={formatNumber(companies.filter((c) => c.typ === 'agentur').length)} label="Agenturen" />
                 <StatTile value={formatNumber(offene.length)} label="Offene Chancen" />
-                <StatTile value={formatNumber(companies.filter((c) => c.blocked).length)} label="Gesperrt (Doppelansprache)" />
+                <StatTile value={formatNumber(verworfenCount)} label="Verworfen / Karteileichen" />
             </div>
 
             {dueContacts.length > 0 && (
@@ -97,6 +118,11 @@ export default async function RadarPage({ searchParams }) {
                         <option value="">Alle Typen</option>
                         {Object.entries(TYP_LABEL).map(([val, lbl]) => <option key={val} value={val}>{lbl}</option>)}
                     </select>
+                    <select name="status" defaultValue={status}>
+                        <option value="aktiv">Aktive</option>
+                        <option value="verworfen">Verworfen / Karteileichen</option>
+                        <option value="alle">Alle</option>
+                    </select>
                     <button type="submit" className="an-btn-secondary an-btn-small">Filtern</button>
                 </form>
 
@@ -105,14 +131,23 @@ export default async function RadarPage({ searchParams }) {
                 ) : (
                     <div className="an-table-wrap">
                         <table className="an-table">
-                            <thead><tr><th>Firma</th><th>Typ</th><th>Plattform</th><th>Ort</th><th>Chancen</th><th></th></tr></thead>
+                            <thead><tr><th>Prio</th><th>Firma</th><th>Typ</th><th>Plattform</th><th>Ort</th><th>Chancen</th><th></th></tr></thead>
                             <tbody>
                                 {companies.map((c) => (
                                     <tr key={c.id}>
+                                        <td><span className={`an-badge ${prioClass(c.prio_score)}`} title={c.prio_grund || ''}>{formatNumber(c.prio_score || 0)}</span></td>
                                         <td>
                                             <Link href={`/dashboard/radar/${c.id}`}><strong>{c.name || c.domain || '(ohne Name)'}</strong></Link>
                                             {c.blocked && <span className="an-badge an-badge--warn" title="Doppelansprache gesperrt"> <FiLock aria-hidden="true" /> gesperrt</span>}
+                                            {c.verworfen_grund && <span className="an-badge an-badge--bad" title={c.verworfen_grund}> verworfen</span>}
                                             {c.domain && <div className="an-muted"><a href={`https://${c.domain}`} target="_blank" rel="noopener noreferrer">{c.domain} <FiExternalLink aria-hidden="true" /></a></div>}
+                                            {(c.umsatz_est > 0 || c.tech_spend_est > 0) && (
+                                                <div className="an-muted" style={{ fontSize: '0.82em' }}>
+                                                    {c.umsatz_est > 0 ? `Umsatz ~$${formatNumber(c.umsatz_est)}/M` : ''}
+                                                    {c.umsatz_est > 0 && c.tech_spend_est > 0 ? ' · ' : ''}
+                                                    {c.tech_spend_est > 0 ? `Tech-Spend ~$${formatNumber(c.tech_spend_est)}` : ''}
+                                                </div>
+                                            )}
                                         </td>
                                         <td><span className="an-badge">{TYP_LABEL[c.typ] || c.typ}</span></td>
                                         <td>

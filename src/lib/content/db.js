@@ -589,6 +589,16 @@ function migrate(database) {
     // Optionaler Live-Link je vertraulicher Referenz (nachgerüstet für bestehende DBs).
     ensureColumn(database, 'private_refs', 'link', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'private_refs', 'link_label', "TEXT NOT NULL DEFAULT ''");
+
+    // Radar: externe Import-Daten (BuiltWith) + Lead-Priorisierung + Re-Scan-Zustand.
+    ensureColumn(database, 'radar_companies', 'quelle', "TEXT NOT NULL DEFAULT 'manuell'"); // manuell|scan|builtwith
+    ensureColumn(database, 'radar_companies', 'umsatz_est', 'INTEGER NOT NULL DEFAULT 0'); // $/Monat, Schätzung extern
+    ensureColumn(database, 'radar_companies', 'tech_spend_est', 'INTEGER NOT NULL DEFAULT 0'); // $/Monat, Schätzung extern
+    ensureColumn(database, 'radar_companies', 'extern_gesehen', "TEXT NOT NULL DEFAULT ''"); // Last-Found aus der Quelle
+    ensureColumn(database, 'radar_companies', 'prio_score', 'INTEGER NOT NULL DEFAULT 0'); // 0-100 „lohnt sich"
+    ensureColumn(database, 'radar_companies', 'prio_grund', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'radar_companies', 'verworfen_grund', "TEXT NOT NULL DEFAULT ''"); // Karteileiche/weg-migriert
+    ensureColumn(database, 'radar_companies', 'last_scan', 'INTEGER NOT NULL DEFAULT 0'); // letzter Re-Scan (Batch-Steuerung)
 }
 
 export function getContentDb() {

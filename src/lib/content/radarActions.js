@@ -7,6 +7,7 @@ import {
     createOpportunity, setOpportunityStatus, deleteOpportunity, rescoreOpportunity,
     addContact, deleteContact, addOutreachBlock, saveFingerprint, createShareFromOpportunity,
     markArt14Sent, getCompany, importCareerJobs,
+    parseBuiltWithCsv, importBuiltWith, getCompaniesToRescan, countCompaniesToRescan, applyRescan,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 
@@ -107,6 +108,37 @@ export async function deleteOpportunityAction(formData) {
     const companyId = Number(formData.get('company_id'));
     deleteOpportunity(Number(formData.get('id')));
     revalidatePath(`/dashboard/radar/${companyId}`);
+}
+
+// Discovery: BuiltWith-CSV importieren → Firmen + Kontakte + Tech-Snapshot + Lead-Prio.
+export async function importBuiltWithAction(prevState, formData) {
+    const file = formData.get('file');
+    if (!file || typeof file.text !== 'function' || !file.size) return { error: 'Keine CSV-Datei ausgewählt.' };
+    let text = '';
+    try { text = await file.text(); } catch { return { error: 'Datei nicht lesbar.' }; }
+    const rows = parseBuiltWithCsv(text);
+    if (!rows.length) return { error: 'CSV leer oder Header nicht erkannt (Root Domain, eCommerce Platform …).' };
+    const res = importBuiltWith(rows);
+    revalidatePath('/dashboard/radar');
+    return { ok: true, ...res };
+}
+
+// Batch-Re-Scan: pro Aufruf ein Häppchen Domains live fingerprinten (gedrosselt,
+// robots-konform) und die Realität korrigieren. Client ruft in Schleife auf.
+export async function rescanBatchAction(prevState, formData) {
+    const limit = Math.min(8, Math.max(1, Number(formData.get('limit')) || 5));
+    const mode = formData.get('mode') === 'all' ? 'all' : 'unscanned';
+    const targets = getCompaniesToRescan({ limit, mode });
+    const results = [];
+    for (const t of targets) {
+        let fp;
+        try { fp = await fingerprintUrl(`https://${t.domain}`); } catch { fp = { ok: false }; }
+        const r = applyRescan(t.id, fp);
+        results.push({ domain: t.domain, outcome: r.outcome, plattform: r.plattform || '' });
+        await new Promise((res) => setTimeout(res, 400)); // höflich zwischen den Domains
+    }
+    revalidatePath('/dashboard/radar');
+    return { ok: true, scanned: results.length, remaining: countCompaniesToRescan(mode), results };
 }
 
 // Phase 3A: Stellen von der Karriereseite der Firma ziehen und als Chancen anlegen.

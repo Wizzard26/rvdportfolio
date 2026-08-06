@@ -43,12 +43,15 @@ function companyFields(d) {
     };
 }
 
-export function getCompanies({ q = '', typ = '', pipeline = '' } = {}) {
+export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv' } = {}) {
     const db = getContentDb();
     const where = ['1=1'];
     const p = {};
     if (q) { where.push('(c.name LIKE @q OR c.domain LIKE @q OR c.ort LIKE @q OR c.themengebiete LIKE @q)'); p.q = `%${q}%`; }
     if (typ) { where.push('c.typ = @typ'); p.typ = typ; }
+    if (status === 'aktiv') where.push('c.aktiv = 1');
+    else if (status === 'verworfen') where.push("c.verworfen_grund != ''");
+    const order = sort === 'prio' ? 'c.prio_score DESC, c.updated_at DESC' : 'c.updated_at DESC, c.id DESC';
     // Firmen-Filter „für Akquise/Bewerbung": nach Typ-Eignung + nicht gesperrt.
     const rows = db.prepare(`
         SELECT c.*,
@@ -60,7 +63,7 @@ export function getCompanies({ q = '', typ = '', pipeline = '' } = {}) {
                 ${pipeline ? 'AND b.pipeline = @pipeline' : ''}) AS blocked_until
         FROM radar_companies c
         WHERE ${where.join(' AND ')}
-        ORDER BY c.updated_at DESC, c.id DESC
+        ORDER BY ${order}
     `).all(pipeline ? { ...p, pipeline } : p);
     const now = Date.now();
     return rows.map((r) => ({ ...r, blocked: !!(r.blocked_until && r.blocked_until > now) }));
@@ -338,6 +341,27 @@ export function getFindings(companyId) {
     return getContentDb().prepare('SELECT * FROM radar_findings WHERE company_id = ? ORDER BY id DESC').all(Number(companyId));
 }
 
+// Gemeinsame Persistenz-Helfer (von saveFingerprint, Import und Re-Scan genutzt).
+function insertSnapshot(db, companyId, s, now) {
+    db.prepare(`INSERT INTO radar_tech_snapshots
+        (company_id, erhoben_am, plattform, plattform_confidence, version, version_eol, frontend,
+         theme_typ, agentur_credit, eigene_namespaces, server_header, security_header, belege)
+        VALUES (@company_id, @now, @plattform, @conf, @version, @eol, @frontend, @theme, @credit, @ns, @server, @sec, @belege)`)
+        .run({
+            company_id: companyId, now, plattform: s.plattform || 'unbekannt', conf: s.plattform_confidence || 0,
+            version: s.version || '', eol: s.version_eol ? 1 : 0, frontend: s.frontend || 'unklar',
+            theme: s.theme_typ || '', credit: s.agentur_credit || '', ns: s.eigene_namespaces || '',
+            server: s.server_header || '', sec: s.security_header || '', belege: s.belege || '',
+        });
+    return db.prepare('SELECT last_insert_rowid() AS id').get().id;
+}
+function replaceAutoFindings(db, companyId, snapshotId, findings, now) {
+    db.prepare('DELETE FROM radar_findings WHERE company_id = ? AND quelle = ?').run(companyId, 'automatisch');
+    const insF = db.prepare(`INSERT INTO radar_findings (company_id, snapshot_id, typ, schwere, titel, beschreibung, beleg_url, verwendbar_als, quelle, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'automatisch', ?)`);
+    for (const f of (findings || [])) insF.run(companyId, snapshotId, f.typ, f.schwere, f.titel, f.beschreibung, f.beleg_url || '', f.verwendbar_als || 'gespraechsthema', now);
+}
+
 // Speichert ein Fingerprint-Ergebnis. `typ` = Nutzerwahl (inhouse_shop|agentur).
 // Firma wird per Domain upgesertet; Snapshot + Findings werden versioniert
 // hinzugefügt (alte Findings der Firma ersetzt).
@@ -371,27 +395,14 @@ export function saveFingerprint(result, typ) {
             company = { id };
         }
 
-        db.prepare(`INSERT INTO radar_tech_snapshots
-            (company_id, erhoben_am, plattform, plattform_confidence, version, version_eol, frontend,
-             theme_typ, agentur_credit, eigene_namespaces, server_header, security_header, belege)
-            VALUES (@company_id, @now, @plattform, @conf, @version, @eol, @frontend, @theme, @credit, @ns, @server, @sec, @belege)`)
-            .run({
-                company_id: company.id, now, plattform: r.snapshot.plattform, conf: r.snapshot.plattform_confidence,
-                version: r.snapshot.version, eol: r.snapshot.version_eol ? 1 : 0, frontend: r.snapshot.frontend,
-                theme: r.snapshot.theme_typ, credit: r.snapshot.agentur_credit, ns: r.snapshot.eigene_namespaces,
-                server: r.snapshot.server_header, sec: r.snapshot.security_header, belege: r.snapshot.belege,
-            });
-        const snapId = db.prepare('SELECT last_insert_rowid() AS id').get().id;
-
-        db.prepare('DELETE FROM radar_findings WHERE company_id = ? AND quelle = ?').run(company.id, 'automatisch');
-        const insF = db.prepare(`INSERT INTO radar_findings (company_id, snapshot_id, typ, schwere, titel, beschreibung, beleg_url, verwendbar_als, quelle, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'automatisch', ?)`);
-        for (const f of (r.findings || [])) insF.run(company.id, snapId, f.typ, f.schwere, f.titel, f.beschreibung, f.beleg_url, f.verwendbar_als, now);
+        const snapId = insertSnapshot(db, company.id, r.snapshot, now);
+        replaceAutoFindings(db, company.id, snapId, r.findings, now);
 
         if (r.contact && r.contact.email) {
             const exists = db.prepare('SELECT 1 FROM radar_contacts WHERE company_id = ? AND email = ?').get(company.id, r.contact.email);
             if (!exists) addContact({ company_id: company.id, email: r.contact.email, quelle: 'impressum' });
         }
+        updateLeadScore(db, company.id);
         return company.id;
     });
     return save();
@@ -431,4 +442,220 @@ export function rescoreOpportunity(id) {
     const r = scoreOpportunity(o, c);
     db.prepare('UPDATE radar_opportunities SET score_gesamt=?, teilscores=?, match_treffer=?, match_luecken=?, begruendung=?, updated_at=? WHERE id=?')
         .run(r.score_gesamt, JSON.stringify(r.teilscores), r.treffer.join(', '), r.luecken.join(', '), r.begruendung, Date.now(), Number(id));
+}
+
+// ─── Lead-Priorisierung („lohnt sich") ───────────────────────────────────────
+// Firmen-Ebene, unabhängig vom Chancen-Scoring: wen zuerst angehen? SW5/EOL =
+// größter Migrations-Aufhänger; Tech-Spend = Investitionsbereitschaft; Umsatz =
+// Größe/Budget. Zahlen sind externe Schätzungen → nur grob, als Tier.
+export function scoreCompanyLead(company, snapshot, hasContact = false) {
+    const plat = (snapshot?.plattform || '').toLowerCase();
+    const spend = Number(company?.tech_spend_est) || 0;
+    const rev = Number(company?.umsatz_est) || 0;
+    let score = 0; const g = [];
+    if (plat === 'shopware5') { score += 40; g.push('SW5/EOL – Migrationschance'); }
+    else if (plat === 'shopware6') { score += 25; g.push('Shopware 6'); }
+    else if (plat.startsWith('shopware')) { score += 20; g.push('Shopware'); }
+    else if (plat && plat !== 'unbekannt') { score += 5; g.push(`Fremdsystem (${plat})`); }
+    else { score += 10; }
+    if (spend >= 8000) { score += 25; g.push('hoher Tech-Spend'); }
+    else if (spend >= 3000) { score += 15; g.push('mittlerer Tech-Spend'); }
+    else if (spend > 0) { score += 8; }
+    if (rev >= 50000) { score += 20; g.push('großer Shop'); }
+    else if (rev >= 10000) { score += 12; }
+    else if (rev > 0) { score += 6; }
+    if (hasContact) { score += 8; g.push('Kontakt vorhanden'); }
+    if (rev === 0 && spend < 1000) { score -= 15; g.push('Karteileiche-Verdacht'); }
+    score = Math.max(0, Math.min(100, score));
+    return { score, grund: g.join(' · ') };
+}
+
+// Prio je Firma neu berechnen und speichern (nach Import/Scan/Re-Scan).
+function updateLeadScore(db, companyId) {
+    const c = db.prepare('SELECT * FROM radar_companies WHERE id = ?').get(companyId);
+    if (!c) return;
+    const snap = db.prepare('SELECT * FROM radar_tech_snapshots WHERE company_id = ? ORDER BY erhoben_am DESC, id DESC LIMIT 1').get(companyId);
+    const contactCount = db.prepare('SELECT COUNT(*) n FROM radar_contacts WHERE company_id = ?').get(companyId).n;
+    let { score, grund } = scoreCompanyLead(c, snap, contactCount > 0);
+    if (!c.aktiv || (c.verworfen_grund || '').trim()) { score = 0; grund = c.verworfen_grund || 'inaktiv'; }
+    db.prepare('UPDATE radar_companies SET prio_score = ?, prio_grund = ? WHERE id = ?').run(score, grund, companyId);
+}
+
+// ─── BuiltWith-CSV-Import ─────────────────────────────────────────────────────
+// RFC-4180-toleranter Parser (gequotete Felder, „" als Escape, BOM, CRLF).
+function parseCsv(text) {
+    const s = (text || '').replace(/^﻿/, '');
+    const rows = []; let row = []; let field = ''; let inQ = false; let i = 0;
+    while (i < s.length) {
+        const ch = s[i];
+        if (inQ) {
+            if (ch === '"') { if (s[i + 1] === '"') { field += '"'; i += 2; continue; } inQ = false; i++; continue; }
+            field += ch; i++; continue;
+        }
+        if (ch === '"') { inQ = true; i++; continue; }
+        if (ch === ',') { row.push(field); field = ''; i++; continue; }
+        if (ch === '\r') { i++; continue; }
+        if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+        field += ch; i++;
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    return rows;
+}
+
+export function parseBuiltWithCsv(text) {
+    const rows = parseCsv(text).filter((r) => r.some((c) => (c || '').trim()));
+    if (rows.length < 2) return [];
+    const header = rows[0].map((h) => (h || '').trim());
+    return rows.slice(1).map((cells) => {
+        const o = {}; header.forEach((h, i) => { o[h] = (cells[i] || '').trim(); }); return o;
+    });
+}
+
+const moneyToInt = (s) => { const n = parseInt((s || '').replace(/[^0-9]/g, ''), 10); return Number.isFinite(n) ? n : 0; };
+
+function mapBuiltWith(o) {
+    const domain = normalizeDomain(o['Root Domain'] || o['Primary Domain'] || '');
+    const ecom = (o['eCommerce Platform'] || '').toLowerCase();
+    const hasShopify = /shopify/.test(ecom);
+    let plattform = 'unbekannt'; let version = ''; let eol = 0;
+    if (/shopware 6/.test(ecom)) { plattform = 'shopware6'; version = '6'; }
+    else if (/shopware 5/.test(ecom)) { plattform = 'shopware5'; version = '5'; eol = 1; }
+    else if (/shopware/.test(ecom)) { plattform = 'shopware'; }
+    // Stadt-Feld ist teils Impressum-Schrott (€, „:", lange Strings) → verwerfen.
+    const cityRaw = (o['City'] || '').trim();
+    const ort = (/[€:]|\d{3,}/.test(cityRaw) || cityRaw.length > 40) ? '' : cityRaw;
+    const email = ((o['Emails'] || '').split(/[;,\s]+/).find((x) => /@/.test(x)) || '').trim();
+    const phone = ((o['Telephones'] || '').split(/[;]+/)[0] || '').trim();
+    const vert = (o['Vertical'] || '').trim();
+    const themen = [vert && vert !== 'Unknown' ? vert : '', o['Payment Platforms'] ? `Payment: ${o['Payment Platforms']}` : '']
+        .filter(Boolean).join(' · ');
+    return {
+        domain, name: (o['Company'] || '').trim(), ort, plz: (o['Zip'] || '').trim(), region: (o['State'] || '').trim(),
+        linkedin_url: (o['LinkedIn'] || '').trim(), themengebiete: themen,
+        umsatz_est: moneyToInt(o['Sales Revenue']), tech_spend_est: moneyToInt(o['Technology Spend']),
+        extern_gesehen: (o['Last Found'] || '').trim(), email, phone,
+        plattform, version, eol, hasShopify, ecomRaw: (o['eCommerce Platform'] || '').trim(),
+    };
+}
+
+// Import einer BuiltWith-CSV: legt/aktualisiert Firmen (dedupe per Domain), setzt
+// externe Kennzahlen, einen extern belegten Tech-Snapshot (+ EOL-/Shopify-Finding)
+// und den Kontakt; berechnet je Firma die Lead-Prio. Kein Crawling.
+export function importBuiltWith(rows) {
+    const db = getContentDb();
+    const now = Date.now();
+    let created = 0; let updated = 0; let skipped = 0; let contactsAdded = 0; let sw5 = 0; let sw6 = 0; let shopify = 0;
+    const run = db.transaction(() => {
+        for (const raw of rows) {
+            const m = mapBuiltWith(raw);
+            if (!m.domain) { skipped += 1; continue; }
+            let company = getCompanyByDomain(m.domain);
+            if (company) {
+                db.prepare(`UPDATE radar_companies SET
+                    name = CASE WHEN name='' THEN @name ELSE name END,
+                    plz = CASE WHEN plz='' THEN @plz ELSE plz END,
+                    ort = CASE WHEN ort='' THEN @ort ELSE ort END,
+                    region = CASE WHEN region='' THEN @region ELSE region END,
+                    linkedin_url = CASE WHEN linkedin_url='' THEN @linkedin ELSE linkedin_url END,
+                    themengebiete = CASE WHEN themengebiete='' THEN @themen ELSE themengebiete END,
+                    umsatz_est=@umsatz, tech_spend_est=@spend, extern_gesehen=@seen,
+                    quelle = CASE WHEN quelle='manuell' THEN 'builtwith' ELSE quelle END,
+                    updated_at=@now WHERE id=@id`).run({
+                    id: company.id, name: m.name, plz: m.plz, ort: m.ort, region: m.region, linkedin: m.linkedin_url,
+                    themen: m.themengebiete, umsatz: m.umsatz_est, spend: m.tech_spend_est, seen: m.extern_gesehen, now,
+                });
+                updated += 1;
+            } else {
+                const id = createCompany({
+                    domain: m.domain, name: m.name, plz: m.plz, ort: m.ort, region: m.region,
+                    linkedin_url: m.linkedin_url, themengebiete: m.themengebiete, typ: 'inhouse_shop', aktiv: 1,
+                });
+                db.prepare('UPDATE radar_companies SET quelle=?, umsatz_est=?, tech_spend_est=?, extern_gesehen=? WHERE id=?')
+                    .run('builtwith', m.umsatz_est, m.tech_spend_est, m.extern_gesehen, id);
+                company = { id };
+                created += 1;
+            }
+            const belege = JSON.stringify([{ signal: 'BuiltWith-Import', beleg: m.ecomRaw }]);
+            const snapId = insertSnapshot(db, company.id, {
+                plattform: m.plattform, plattform_confidence: 0.4, version: m.version, version_eol: m.eol,
+                frontend: 'unklar', belege,
+            }, now);
+            const findings = [];
+            if (m.eol) findings.push({ typ: 'eol_version', schwere: 'hoch', titel: 'Shopware 5 (EOL)', beschreibung: 'Laut Datenquelle Shopware 5 — ohne Sicherheitsupdates. Migrations-Aufhänger; per Re-Scan live verifizieren.', beleg_url: `https://${m.domain}`, verwendbar_als: 'akquise_aufhaenger' });
+            if (m.hasShopify) findings.push({ typ: 'plattformwechsel', schwere: 'mittel', titel: 'Shopify im Tech-Stack', beschreibung: 'Datenquelle sieht auch Shopify — evtl. von Shopware weg-migriert. Live-Plattform per Re-Scan prüfen.', beleg_url: `https://${m.domain}`, verwendbar_als: 'intern_nur' });
+            replaceAutoFindings(db, company.id, snapId, findings, now);
+            if (m.eol) sw5 += 1;
+            if (m.plattform === 'shopware6') sw6 += 1;
+            if (m.hasShopify) shopify += 1;
+            if (m.email) {
+                const exists = db.prepare('SELECT 1 FROM radar_contacts WHERE company_id = ? AND email = ?').get(company.id, m.email);
+                if (!exists) { addContact({ company_id: company.id, email: m.email, telefon: m.phone, quelle: 'builtwith' }); contactsAdded += 1; }
+            }
+            updateLeadScore(db, company.id);
+        }
+    });
+    run();
+    return { created, updated, skipped, contactsAdded, sw5, sw6, shopify, total: created + updated };
+}
+
+// ─── Batch-Re-Scan ───────────────────────────────────────────────────────────
+export function getCompaniesToRescan({ limit = 5, mode = 'unscanned' } = {}) {
+    const db = getContentDb();
+    const where = ["domain != ''"];
+    if (mode === 'unscanned') where.push('last_scan = 0');
+    return db.prepare(`SELECT id, domain FROM radar_companies WHERE ${where.join(' AND ')} ORDER BY last_scan ASC, prio_score DESC, id ASC LIMIT ?`).all(Math.max(1, Number(limit) || 5));
+}
+export function countCompaniesToRescan(mode = 'unscanned') {
+    const db = getContentDb();
+    const where = ["domain != ''"];
+    if (mode === 'unscanned') where.push('last_scan = 0');
+    return db.prepare(`SELECT COUNT(*) n FROM radar_companies WHERE ${where.join(' AND ')}`).get().n;
+}
+
+// Ergebnis eines Live-Fingerprints (aus radarFingerprint.fingerprintUrl) auf eine
+// bereits vorhandene Firma anwenden: Snapshot/Findings aktualisieren, Realität
+// korrigieren (nicht erreichbar → Karteileiche; Fremdsystem → weg-migriert;
+// Shopware bestätigt → Felder anreichern) und Prio neu berechnen.
+export function applyRescan(companyId, result) {
+    const db = getContentDb();
+    const now = Date.now();
+    const cid = Number(companyId);
+    const run = db.transaction(() => {
+        db.prepare('UPDATE radar_companies SET last_scan=@now, updated_at=@now WHERE id=@id').run({ now, id: cid });
+        if (!result || !result.ok) {
+            if (result && result.blocked) { updateLeadScore(db, cid); return { outcome: 'blocked' }; }
+            db.prepare("UPDATE radar_companies SET aktiv=0, verworfen_grund='nicht erreichbar (Re-Scan)' WHERE id=?").run(cid);
+            updateLeadScore(db, cid);
+            return { outcome: 'unreachable' };
+        }
+        const r = result;
+        const snapId = insertSnapshot(db, cid, r.snapshot, now);
+        replaceAutoFindings(db, cid, snapId, r.findings, now);
+        const plat = (r.snapshot.plattform || '').toLowerCase();
+        const shopwareish = plat.startsWith('shopware');
+        if (!shopwareish) {
+            db.prepare('UPDATE radar_companies SET aktiv=0, verworfen_grund=@g WHERE id=@id')
+                .run({ g: `weg-migriert (${plat || 'kein Shopware'})`, id: cid });
+        } else {
+            db.prepare(`UPDATE radar_companies SET aktiv=1, verworfen_grund='',
+                name = CASE WHEN name='' THEN @name ELSE name END,
+                plz = CASE WHEN plz='' THEN @plz ELSE plz END,
+                ort = CASE WHEN ort='' THEN @ort ELSE ort END,
+                karriere_url = CASE WHEN karriere_url='' THEN @karriere ELSE karriere_url END,
+                linkedin_url = CASE WHEN linkedin_url='' THEN @linkedin ELSE linkedin_url END,
+                inhouse_team = CASE WHEN inhouse_team='unklar' THEN @team ELSE inhouse_team END
+                WHERE id=@id`).run({
+                name: r.company.name || '', plz: r.company.plz || '', ort: r.company.ort || '',
+                karriere: r.company.karriere_url || '', linkedin: r.company.linkedin_url || '',
+                team: r.company.inhouse_team || 'unklar', id: cid,
+            });
+        }
+        if (r.contact && r.contact.email) {
+            const exists = db.prepare('SELECT 1 FROM radar_contacts WHERE company_id = ? AND email = ?').get(cid, r.contact.email);
+            if (!exists) addContact({ company_id: cid, email: r.contact.email, quelle: 'impressum' });
+        }
+        updateLeadScore(db, cid);
+        return { outcome: shopwareish ? 'shopware' : 'migrated', plattform: plat, version: r.snapshot.version || '' };
+    });
+    return run();
 }
