@@ -648,6 +648,62 @@ export function saveDiscovery(domain, snapshot, findings = [], source = 'commonc
     })();
 }
 
+// ─── Domain-/URL-Listen-Import (z. B. PublicWWW-Marker-Export) ────────────────
+// Robust: extrahiert Domain-Token aus beliebigem Text (CSV/Zeilen/Paste), egal ob
+// volle URLs, mit Header oder Kommas. Normalisiert + dedupliziert.
+export function parseDomainList(text) {
+    const out = [];
+    for (const tok of (text || '').split(/[\s,;"'<>()[\]]+/)) {
+        const dom = normalizeDomain(tok);
+        if (/^(?:[a-z0-9-]+\.)+[a-z]{2,}$/i.test(dom)) out.push(dom);
+    }
+    return [...new Set(out)];
+}
+
+// Legt aus einer Domainliste Firmen an (dedupe per Domain). Optionaler Plattform-
+// Hinweis (aus dem gesuchten Marker: SW6 = /bundles/storefront/, SW5 = engine/
+// Shopware) → schwacher Snapshot (Confidence 0.3), den der Re-Scan verifiziert.
+export function importDomainList(domains, { plattformHint = '', source = 'liste' } = {}) {
+    const db = getContentDb();
+    const now = Date.now();
+    const plat = ['shopware6', 'shopware5', 'shopify'].includes(plattformHint) ? plattformHint : '';
+    let created = 0; let updated = 0; let skipped = 0;
+    const seen = new Set();
+    const run = db.transaction(() => {
+        for (const raw of domains) {
+            const dom = normalizeDomain(raw);
+            if (!dom || seen.has(dom)) { skipped += 1; continue; }
+            seen.add(dom);
+            const before = getCompanyByDomain(dom);
+            let id;
+            if (before) {
+                id = before.id;
+                db.prepare("UPDATE radar_companies SET quelle = CASE WHEN quelle='manuell' THEN ? ELSE quelle END, updated_at=? WHERE id=?").run(source, now, id);
+                updated += 1;
+            } else {
+                id = createCompany({ domain: dom, typ: 'inhouse_shop', aktiv: 1 });
+                db.prepare('UPDATE radar_companies SET quelle=? WHERE id=?').run(source, id);
+                created += 1;
+            }
+            if (plat) {
+                const belege = JSON.stringify([{ signal: 'Marker-Liste', beleg: source }]);
+                const snapId = insertSnapshot(db, id, {
+                    plattform: plat, plattform_confidence: 0.3,
+                    version: plat === 'shopware6' ? '6' : plat === 'shopware5' ? '5' : '',
+                    version_eol: plat === 'shopware5' ? 1 : 0, frontend: 'unklar', belege,
+                }, now);
+                const findings = plat === 'shopware5'
+                    ? [{ typ: 'eol_version', schwere: 'hoch', titel: 'Shopware 5 (EOL)', beschreibung: 'Aus Marker-Liste als Shopware 5 gelistet — per Re-Scan live verifizieren; Migrations-Aufhänger.', beleg_url: `https://${dom}`, verwendbar_als: 'akquise_aufhaenger' }]
+                    : [];
+                replaceAutoFindings(db, id, snapId, findings, now);
+            }
+            updateLeadScore(db, id);
+        }
+    });
+    run();
+    return { created, updated, skipped, total: created + updated };
+}
+
 // ─── Batch-Re-Scan ───────────────────────────────────────────────────────────
 export function getCompaniesToRescan({ limit = 5, mode = 'unscanned' } = {}) {
     const db = getContentDb();

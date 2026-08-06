@@ -8,6 +8,7 @@ import RadarScanForm from '@/components/analytics/RadarScanForm';
 import RadarImportForm from '@/components/analytics/RadarImportForm';
 import RadarBatchRescan from '@/components/analytics/RadarBatchRescan';
 import RadarCcDiscover from '@/components/analytics/RadarCcDiscover';
+import RadarListImport from '@/components/analytics/RadarListImport';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,14 +58,24 @@ export default async function RadarPage({ searchParams }) {
             </section>
 
             <section className="an-card an-full">
-                <h2><FiUploadCloud aria-hidden="true" /> Discovery-Import (BuiltWith-CSV)</h2>
+                <h2><FiUploadCloud aria-hidden="true" /> Discovery-Import</h2>
                 <p className="an-card-note" style={{ marginTop: 0 }}>
-                    Exportierte Shopware-Liste als Saat einlesen: Domain, Plattform/Version (SW5 → EOL-Aufhänger), Ort, Kontakt,
-                    Umsatz-/Tech-Spend-Schätzung → wird zu Firmen + Kontakten + Lead-Prio, dedupliziert per Domain. Kein Crawling.
-                    Danach <strong>Re-Scan</strong> für Live-Verifikation (Karteileichen/weg-migrierte aussortieren, Karriereseite + frische Kontakte).
+                    Externe Listen als Saat einlesen → Firmen + Lead-Prio, dedupliziert per Domain. Kein Crawling.
+                    Danach <strong>Re-Scan</strong> für Live-Verifikation (Plattform bestätigen, Karteileichen/weg-migrierte aussortieren, Karriereseite + Kontakt).
                 </p>
+
+                <h3 style={{ margin: '4px 0 6px', fontSize: '1rem' }}>① BuiltWith-CSV (reich: Kontakt, Umsatz, Payment …)</h3>
                 <RadarImportForm />
-                <div style={{ marginTop: 16 }}>
+
+                <h3 style={{ margin: '18px 0 6px', fontSize: '1rem' }}>② Domain-/URL-Liste (z. B. PublicWWW-Marker-Export)</h3>
+                <p className="an-card-note" style={{ margin: '0 0 8px' }}>
+                    In PublicWWW gezielt nach dem Marker suchen (SW6 = <code>/bundles/storefront/</code>, SW5 = <code>engine/Shopware</code>),
+                    Land <strong>DE</strong> filtern, nach Popularität sortieren → Domainliste hier einfügen und den passenden Plattform-Hinweis wählen.
+                    Kontakt/Version holt der Re-Scan.
+                </p>
+                <RadarListImport />
+
+                <div style={{ marginTop: 18 }}>
                     <p className="an-card-note" style={{ margin: '0 0 8px' }}>Live-Re-Scan (gedrosselt, robots-konform):</p>
                     <RadarBatchRescan pendingCount={unscanned} />
                 </div>

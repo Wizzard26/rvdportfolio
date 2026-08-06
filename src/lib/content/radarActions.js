@@ -8,7 +8,7 @@ import {
     addContact, deleteContact, addOutreachBlock, saveFingerprint, createShareFromOpportunity,
     markArt14Sent, getCompany, importCareerJobs,
     parseBuiltWithCsv, importBuiltWith, getCompaniesToRescan, countCompaniesToRescan, applyRescan,
-    saveDiscovery,
+    saveDiscovery, parseDomainList, importDomainList,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 import { ccDetect } from '@/lib/content/radarCommonCrawl';
@@ -123,6 +123,24 @@ export async function importBuiltWithAction(prevState, formData) {
     const res = importBuiltWith(rows);
     revalidatePath('/dashboard/radar');
     return { ok: true, ...res };
+}
+
+// Domain-/URL-Liste importieren (z. B. PublicWWW-Marker-Export). Schneller Bulk-
+// Import ohne Crawling; der Plattform-Hinweis kommt aus dem gesuchten Marker,
+// verifiziert wird per Batch-Re-Scan.
+export async function importDomainListAction(prevState, formData) {
+    const file = formData.get('file');
+    let text = (formData.get('domains') || '').toString();
+    if ((!text || !text.trim()) && file && typeof file.text === 'function' && file.size) {
+        try { text = await file.text(); } catch { /* ignore */ }
+    }
+    const domains = parseDomainList(text);
+    if (!domains.length) return { error: 'Keine Domains erkannt (Liste/Datei leer?).' };
+    const hint = (formData.get('plattform') || '').toString();
+    const plattformHint = ['shopware6', 'shopware5', 'shopify'].includes(hint) ? hint : '';
+    const res = importDomainList(domains, { plattformHint, source: 'publicwww' });
+    revalidatePath('/dashboard/radar');
+    return { ok: true, found: domains.length, ...res };
 }
 
 // Common-Crawl-Discovery (Prototyp): Domains gegen das CC-Archiv prüfen (ohne die

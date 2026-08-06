@@ -1,0 +1,38 @@
+'use client';
+
+import { useActionState } from 'react';
+import { FiList } from 'react-icons/fi';
+import { importDomainListAction } from '@/lib/content/radarActions';
+
+// Schneller Bulk-Import einer Domain-/URL-Liste (z. B. PublicWWW-Marker-Export).
+// Der Plattform-Hinweis kommt aus dem gesuchten Marker; verifiziert wird per Re-Scan.
+export default function RadarListImport() {
+    const [state, action, pending] = useActionState(importDomainListAction, {});
+    return (
+        <form action={action}>
+            <textarea
+                name="domains" rows={4} className="an-input" style={{ width: '100%' }} disabled={pending}
+                placeholder="Domains/URLs einfügen (PublicWWW-Export oder je Zeile eine) — volle URLs sind ok, die Domain wird extrahiert"
+            />
+            <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                <span className="an-muted" style={{ fontSize: '0.85em' }}>oder Datei:</span>
+                <input type="file" name="file" accept=".csv,.txt,text/csv,text/plain" disabled={pending} style={{ font: 'inherit', fontSize: 13, cursor: 'pointer' }} aria-label="Domainliste" />
+                <select name="plattform" defaultValue="" disabled={pending} aria-label="Plattform-Hinweis">
+                    <option value="">Plattform: unbekannt (Re-Scan klärt)</option>
+                    <option value="shopware6">= Shopware 6 (Marker /bundles/storefront/)</option>
+                    <option value="shopware5">= Shopware 5 (Marker engine/Shopware)</option>
+                    <option value="shopify">= Shopify</option>
+                </select>
+                <button type="submit" className="an-btn-secondary" disabled={pending}>
+                    <FiList aria-hidden="true" /> {pending ? 'Importiere …' : 'Liste importieren'}
+                </button>
+            </div>
+            {state?.error && <span className="an-scan-error" role="alert" style={{ display: 'inline-block', marginTop: 8 }}>{state.error}</span>}
+            {state?.ok && (
+                <span className="an-badge an-badge--ok" style={{ display: 'inline-block', marginTop: 8 }}>
+                    {state.found} Domains erkannt · {state.created} neu · {state.updated} aktualisiert{state.skipped ? ` · ${state.skipped} Dubletten/leer` : ''}
+                </span>
+            )}
+        </form>
+    );
+}
