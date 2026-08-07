@@ -149,6 +149,52 @@ function extractContact(html) {
     return { email, rechtsform: rechts ? decodeEntities(rechts).replace(/\s+/g, ' ').trim() : '', plz: plz[1] || '', ort: decodeEntities((plz[2] || '').trim()) };
 }
 
+// Shop-Check: erzeugt aus dem bereits geholten HTML + Headern einen Fehlerbericht
+// (Findings). Kein zusätzlicher Request. Rechtliches/SEO/Security sind statisch gut
+// prüfbar — echte Performance/Barrierefreiheit bräuchte Lighthouse (bewusst außen vor).
+function runShopChecks({ html, headers, url, sec, hasImpressum, hasDatenschutz }) {
+    const f = [];
+    const add = (typ, schwere, titel, beschreibung, verwendbar_als = 'gespraechsthema') => f.push({ typ, schwere, titel, beschreibung, beleg_url: url, verwendbar_als });
+
+    // ── DE-Recht (die stärksten, legitimen Akquise-Aufhänger) ──
+    if (!hasImpressum) add('recht_impressum', 'hoch', 'Impressum nicht auffindbar', 'Auf Startseite/Sitemap kein Impressum-Link gefunden — in Deutschland Pflicht (§ 5 DDG).', 'akquise_aufhaenger');
+    if (!hasDatenschutz) add('recht_datenschutz', 'hoch', 'Datenschutzerklärung nicht auffindbar', 'Kein Link zu einer Datenschutzerklärung gefunden — DSGVO-Pflicht.', 'akquise_aufhaenger');
+    if (!/cookiebot|usercentrics|borlabs|klaro|cookie-?consent|onetrust|consentmanager|ccm19|cookiefirst|complianz/i.test(html)) {
+        add('recht_cookie', 'mittel', 'Kein Cookie-Consent erkennbar', 'Kein gängiges Consent-Tool im HTML gefunden — bei Cookies/Tracking in DE Pflicht.', 'akquise_aufhaenger');
+    }
+
+    // ── Sicherheit ──
+    const missing = [];
+    if (!sec.hsts) missing.push('HSTS');
+    if (!sec.csp) missing.push('CSP');
+    if (!sec.xfo) missing.push('X-Frame-Options');
+    if (!sec.xcto) missing.push('X-Content-Type-Options');
+    if (!sec.ref) missing.push('Referrer-Policy');
+    if (missing.length) add('security_header', missing.length >= 3 ? 'mittel' : 'info', 'Fehlende Security-Header', `${missing.join(', ')} nicht gesetzt.`, missing.length >= 3 ? 'akquise_aufhaenger' : 'gespraechsthema');
+    const server = headers.get('server') || '';
+    if (/\d+\.\d+/.test(server)) add('security_server', 'info', 'Server-Version sichtbar', `Server-Header verrät Version: ${server}.`, 'intern_nur');
+
+    // ── SEO / Darstellung ──
+    const title = (html.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1]?.trim() || '';
+    if (!title) add('seo_title', 'mittel', 'Kein Seitentitel', 'Startseite ohne <title>.', 'gespraechsthema');
+    else if (title.length > 65) add('seo_title', 'info', 'Seitentitel sehr lang', `Titel ${title.length} Zeichen (>65 wird in Suchergebnissen abgeschnitten).`, 'gespraechsthema');
+    if (!/<meta[^>]+name=["']description["']/i.test(html)) add('seo_desc', 'mittel', 'Keine Meta-Description', 'Startseite ohne Meta-Description.', 'gespraechsthema');
+    const h1 = (html.match(/<h1[\s>]/gi) || []).length;
+    if (h1 === 0) add('seo_h1', 'info', 'Keine H1-Überschrift', 'Startseite ohne H1.', 'gespraechsthema');
+    else if (h1 > 1) add('seo_h1', 'info', 'Mehrere H1', `${h1} H1-Überschriften auf der Startseite.`, 'gespraechsthema');
+    if (!/<meta[^>]+name=["']viewport["']/i.test(html)) add('mobil_viewport', 'mittel', 'Kein Viewport-Meta', 'Kein viewport-Meta — Seite vermutlich nicht mobiloptimiert.', 'akquise_aufhaenger');
+    if (!/<link[^>]+rel=["']canonical["']/i.test(html)) add('seo_canonical', 'info', 'Kein Canonical-Link', 'Kein rel=canonical auf der Startseite.', 'gespraechsthema');
+    if (!/<meta[^>]+property=["']og:/i.test(html)) add('seo_og', 'info', 'Keine Open-Graph-Tags', 'Keine og:-Tags (Social-Sharing-Vorschau fehlt).', 'gespraechsthema');
+
+    // ── Barrierefreiheit ──
+    if (!/<html[^>]+lang=/i.test(html)) add('a11y_lang', 'info', 'Kein lang-Attribut', '<html> ohne lang-Attribut (Barrierefreiheit/SEO).', 'gespraechsthema');
+    const imgs = html.match(/<img\b[^>]*>/gi) || [];
+    const noAlt = imgs.filter((t) => !/\balt\s*=/i.test(t)).length;
+    if (imgs.length >= 5 && noAlt / imgs.length > 0.3) add('a11y_alt', 'info', 'Bilder ohne Alt-Text', `${noAlt} von ${imgs.length} Bildern ohne alt-Attribut.`, 'gespraechsthema');
+
+    return f;
+}
+
 export async function fingerprintUrl(rawUrl) {
     const n = normalizeUrl(rawUrl);
     if (!n) return { ok: false, error: 'Ungültige URL.' };
@@ -201,16 +247,20 @@ export async function fingerprintUrl(rawUrl) {
     }
     if (!contact.email) contact = { ...contact, ...extractContact(html) };
 
-    // Security-Header + Findings.
+    // Security-Header + Shop-Check (Fehlerbericht).
     const h = home.headers;
     const sec = {
         hsts: !!h.get('strict-transport-security'),
         csp: !!h.get('content-security-policy'),
         xfo: !!h.get('x-frame-options'),
+        xcto: !!h.get('x-content-type-options'),
+        ref: !!h.get('referrer-policy'),
     };
+    const datenschutzUrl = pickUrl(sitemapUrls, 'datenschutz|privacy|disclaimer|data-protection')
+        || abs(n.origin, findLink(html, 'datenschutz|privacy|disclaimer|data-protection'));
     const findings = [];
     if (platform.version_eol) findings.push({ typ: 'eol_version', schwere: 'hoch', titel: 'Veraltete Shop-Version (EOL)', beschreibung: `${platform.plattform} ohne Sicherheitsupdates — Migrations-Aufhänger.`, beleg_url: n.url, verwendbar_als: 'akquise_aufhaenger' });
-    if (!sec.hsts || !sec.csp) findings.push({ typ: 'security', schwere: 'mittel', titel: 'Fehlende Security-Header', beschreibung: `${!sec.hsts ? 'HSTS ' : ''}${!sec.csp ? 'CSP ' : ''}nicht gesetzt.`, beleg_url: n.url, verwendbar_als: 'intern_nur' });
+    findings.push(...runShopChecks({ html, headers: h, url: n.url, sec, hasImpressum: !!imprUrlAbs, hasDatenschutz: !!datenschutzUrl }));
 
     // Inhouse vs. Agentur: eigene Bundles/GitHub = Inhouse-Indiz; Agentur-Credit = Agentur.
     const inhouseSignal = platform.eigene_namespaces || github_org;

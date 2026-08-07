@@ -297,9 +297,12 @@ export function createShareFromOpportunity(oppId) {
     // vorbefüllen. Bei Bewerbungen bewusst leer — der „Warum ihr"-Satz bleibt persönlich.
     let motivation = '';
     if (opp.pipeline === 'akquise') {
-        const hook = db.prepare("SELECT beschreibung FROM radar_findings WHERE company_id = ? AND verwendbar_als = 'akquise_aufhaenger' ORDER BY CASE schwere WHEN 'hoch' THEN 0 WHEN 'mittel' THEN 1 ELSE 2 END, id DESC LIMIT 1").get(opp.company_id);
-        if (hook && hook.beschreibung) {
-            motivation = `Beim Blick auf ${firma || 'Ihren Shop'} ist mir aufgefallen: ${hook.beschreibung} Genau hier kann ich mit meiner Shopware-Erfahrung unterstützen.`;
+        const hooks = db.prepare("SELECT titel, beschreibung FROM radar_findings WHERE company_id = ? AND verwendbar_als = 'akquise_aufhaenger' ORDER BY CASE schwere WHEN 'hoch' THEN 0 WHEN 'mittel' THEN 1 ELSE 2 END, id DESC LIMIT 3").all(opp.company_id);
+        if (hooks.length === 1) {
+            motivation = `Beim Blick auf ${firma || 'Ihren Shop'} ist mir aufgefallen: ${hooks[0].beschreibung} Genau hier kann ich mit meiner Shopware-Erfahrung schnell unterstützen.`;
+        } else if (hooks.length > 1) {
+            const list = hooks.map((ho) => `• ${ho.titel}: ${ho.beschreibung}`).join('\n');
+            motivation = `Beim Blick auf ${firma || 'Ihren Shop'} sind mir ein paar Punkte aufgefallen:\n${list}\nGenau hier kann ich mit meiner Shopware-Erfahrung schnell für Verbesserung sorgen.`;
         }
     }
 
