@@ -20,6 +20,12 @@ const PLAT_LABEL = {
     shopware6: 'Shopware 6', shopware5: 'Shopware 5', shopify: 'Shopify',
     woocommerce: 'WooCommerce', magento: 'Magento', oxid: 'Oxid', custom: 'Custom', unbekannt: '—',
 };
+const EIGNUNG = {
+    bewerbung: { label: 'Bewerbung', cls: 'an-badge--ok', title: 'Inhouse-Team / Agentur / Karriereseite → Bewerbung lohnt' },
+    akquise: { label: 'Akquise', cls: 'an-badge--warn', title: 'Shop ohne Inhouse-Team oder EOL-Plattform → Akquise/Migration lohnt' },
+    beides: { label: 'Bew. + Akq.', cls: '', title: 'Signale für beides — Bewerbung und Akquise denkbar' },
+    unklar: { label: '?', cls: '', title: 'Zu wenig Signal — per Re-Scan (Karriereseite/Inhouse) klären' },
+};
 
 export default async function RadarPage({ searchParams }) {
     const sp = await searchParams;
@@ -28,12 +34,13 @@ export default async function RadarPage({ searchParams }) {
     const status = ['aktiv', 'verworfen', 'archiviert', 'alle'].includes(sp?.status) ? sp.status : 'aktiv';
     const plattform = (sp?.plattform || '').toString();
     const plz = (sp?.plz || '').toString();
+    const eignung = ['bewerbung', 'akquise', 'beides'].includes(sp?.eignung) ? sp.eignung : '';
 
     const PAGE_SIZE = 50;
-    const total = countCompanies({ q, typ, status, plattform, plz });
+    const total = countCompanies({ q, typ, status, plattform, plz, eignung });
     const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const page = Math.min(pages, Math.max(1, parseInt(sp?.page, 10) || 1));
-    const companies = getCompanies({ q, typ, status, plattform, plz, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
+    const companies = getCompanies({ q, typ, status, plattform, plz, eignung, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
 
     const opps = getOpportunities({});
     const offene = opps.filter((o) => !['absage', 'verworfen'].includes(o.status));
@@ -46,7 +53,7 @@ export default async function RadarPage({ searchParams }) {
     const prioClass = (s) => (s >= 70 ? 'an-badge--ok' : s >= 40 ? 'an-badge--warn' : '');
     // Query-String für Pagination-Links (aktuelle Filter behalten, page setzen).
     const qs = (over = {}) => {
-        const o = { q, typ, status, plattform, plz, page, ...over };
+        const o = { q, typ, status, plattform, plz, eignung, page, ...over };
         const parts = Object.entries(o).filter(([, v]) => v !== '' && v != null).map(([k, v]) => `${k}=${encodeURIComponent(v)}`);
         return `?${parts.join('&')}`;
     };
@@ -166,6 +173,12 @@ export default async function RadarPage({ searchParams }) {
                         <option value="archiviert">Archiviert</option>
                         <option value="alle">Alle</option>
                     </select>
+                    <select name="eignung" defaultValue={eignung}>
+                        <option value="">Eignung: alle</option>
+                        <option value="bewerbung">wo Bewerbung lohnt</option>
+                        <option value="akquise">wo Akquise lohnt</option>
+                        <option value="beides">beides denkbar</option>
+                    </select>
                     <button type="submit" className="an-btn-secondary an-btn-small">Filtern</button>
                 </form>
                 <p className="an-muted" style={{ margin: '0 0 12px', fontSize: '0.85em' }}>{formatNumber(total)} Firmen{pages > 1 ? ` · Seite ${page}/${pages}` : ''}</p>
@@ -175,7 +188,7 @@ export default async function RadarPage({ searchParams }) {
                 ) : (
                     <div className="an-table-wrap">
                         <table className="an-table">
-                            <thead><tr><th>Prio</th><th>Firma</th><th>Typ</th><th>Plattform</th><th>Ort</th><th>Chancen</th><th></th></tr></thead>
+                            <thead><tr><th>Prio</th><th>Firma</th><th>Eignung</th><th>Typ</th><th>Plattform</th><th>Ort</th><th>Chancen</th><th></th></tr></thead>
                             <tbody>
                                 {companies.map((c) => (
                                     <tr key={c.id}>
@@ -193,6 +206,7 @@ export default async function RadarPage({ searchParams }) {
                                                 </div>
                                             )}
                                         </td>
+                                        <td><span className={`an-badge ${(EIGNUNG[c.eignung] || EIGNUNG.unklar).cls}`} title={(EIGNUNG[c.eignung] || EIGNUNG.unklar).title}>{(EIGNUNG[c.eignung] || EIGNUNG.unklar).label}</span></td>
                                         <td><span className="an-badge">{TYP_LABEL[c.typ] || c.typ}</span></td>
                                         <td>
                                             {c.plattform && c.plattform !== 'unbekannt'

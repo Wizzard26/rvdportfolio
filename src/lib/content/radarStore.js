@@ -43,8 +43,25 @@ function companyFields(d) {
     };
 }
 
-// Gemeinsamer WHERE-Bau für Liste + Zähler (Suche, Typ, Status, Plattform, PLZ).
-function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '' }) {
+// Eignung je Firma: wo lohnt sich eine Bewerbung, wo (nur) Akquise?
+//  - Bewerbung: Firma beschäftigt Entwickler → Inhouse-Team, Agentur, oder eine
+//    Karriereseite vorhanden.
+//  - Akquise: Firma braucht externe Hilfe → Shop ohne Inhouse-Team, oder EOL-
+//    Plattform (Migrations-/Freelance-Aufhänger).
+// Ein Ziel kann für beides taugen. Nur Heuristik aus vorhandenen Signalen.
+const BEWERBUNG_SQL = "(c.inhouse_team='ja' OR c.typ='agentur' OR c.karriere_url != '')";
+const AKQUISE_SQL = "((c.typ='inhouse_shop' AND c.inhouse_team != 'ja') OR (SELECT version_eol FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1)=1)";
+export function eignungOf(c) {
+    const bewerbung = c.inhouse_team === 'ja' || c.typ === 'agentur' || !!(c.karriere_url && String(c.karriere_url).trim());
+    const akquise = (c.typ === 'inhouse_shop' && c.inhouse_team !== 'ja') || Number(c.version_eol) === 1;
+    if (bewerbung && akquise) return 'beides';
+    if (bewerbung) return 'bewerbung';
+    if (akquise) return 'akquise';
+    return 'unklar';
+}
+
+// Gemeinsamer WHERE-Bau für Liste + Zähler (Suche, Typ, Status, Plattform, PLZ, Eignung).
+function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '' }) {
     const where = ['1=1'];
     const p = {};
     if (q) { where.push('(c.name LIKE @q OR c.domain LIKE @q OR c.ort LIKE @q OR c.themengebiete LIKE @q)'); p.q = `%${q}%`; }
@@ -58,17 +75,20 @@ function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '',
         where.push('(SELECT plattform FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) = @plattform');
         p.plattform = plattform;
     }
+    if (eignung === 'bewerbung') where.push(BEWERBUNG_SQL);
+    else if (eignung === 'akquise') where.push(AKQUISE_SQL);
+    else if (eignung === 'beides') where.push(`${BEWERBUNG_SQL} AND ${AKQUISE_SQL}`);
     return { where, p };
 }
 
-export function countCompanies({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '' } = {}) {
-    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz });
+export function countCompanies({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '' } = {}) {
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung });
     return getContentDb().prepare(`SELECT COUNT(*) n FROM radar_companies c WHERE ${where.join(' AND ')}`).get(p).n;
 }
 
-export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv', plattform = '', plz = '', limit = 0, offset = 0 } = {}) {
+export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv', plattform = '', plz = '', eignung = '', limit = 0, offset = 0 } = {}) {
     const db = getContentDb();
-    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz });
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung });
     const order = sort === 'prio' ? 'c.prio_score DESC, c.updated_at DESC' : 'c.updated_at DESC, c.id DESC';
     const lim = limit ? `LIMIT ${Math.max(1, Number(limit) || 50)} OFFSET ${Math.max(0, Number(offset) || 0)}` : '';
     const params = { ...p };
@@ -86,7 +106,7 @@ export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', s
         ORDER BY ${order} ${lim}
     `).all(params);
     const now = Date.now();
-    return rows.map((r) => ({ ...r, blocked: !!(r.blocked_until && r.blocked_until > now) }));
+    return rows.map((r) => ({ ...r, blocked: !!(r.blocked_until && r.blocked_until > now), eignung: eignungOf(r) }));
 }
 
 export function getCompany(id) {
