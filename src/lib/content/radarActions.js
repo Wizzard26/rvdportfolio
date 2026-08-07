@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
-    createCompany, updateCompany, deleteCompany,
+    createCompany, updateCompany, deleteCompany, archiveCompany,
     createOpportunity, setOpportunityStatus, deleteOpportunity, rescoreOpportunity,
     addContact, deleteContact, addOutreachBlock, saveFingerprint, createShareFromOpportunity,
     markArt14Sent, getCompany, importCareerJobs,
@@ -48,6 +48,14 @@ export async function deleteCompanyAction(formData) {
     deleteCompany(Number(formData.get('id')));
     revalidatePath('/dashboard/radar');
     redirect('/dashboard/radar');
+}
+
+// Archivieren/Reaktivieren (statt Löschen): Bestand bleibt, raus aus aktiver Sicht.
+export async function archiveCompanyAction(formData) {
+    const id = Number(formData.get('id'));
+    archiveCompany(id, formData.get('on') === '1');
+    revalidatePath('/dashboard/radar');
+    if (id) revalidatePath(`/dashboard/radar/${id}`);
 }
 
 // ── URL scannen (Fingerprinter) ────────────────────────────────────────────
@@ -149,7 +157,7 @@ export async function ccDiscoverAction(prevState, formData) {
     const raw = (formData.get('domains') || '').toString();
     const domains = [...new Set(raw.split(/[\s,;]+/).map((d) => d.trim().toLowerCase()).filter(Boolean))].slice(0, 20);
     if (!domains.length) return { error: 'Keine Domains angegeben.' };
-    let checked = 0; let imported = 0; let sw5 = 0; let sw6 = 0; let shopify = 0; let noCopy = 0; let other = 0;
+    let checked = 0; let imported = 0; let sw5 = 0; let sw6 = 0; let shopify = 0; let noCopy = 0; let other = 0; let archived = 0;
     const results = [];
     for (const d of domains) {
         checked += 1;
@@ -163,16 +171,19 @@ export async function ccDiscoverAction(prevState, formData) {
             else {
                 const findings = [];
                 if (det.version_eol) findings.push({ typ: 'eol_version', schwere: 'hoch', titel: 'Shopware 5 (EOL)', beschreibung: 'Aus Common-Crawl-Archiv als Shopware 5 erkannt — Migrations-Aufhänger; per Re-Scan live verifizieren.', beleg_url: `https://${d}`, verwendbar_als: 'akquise_aufhaenger' });
-                saveDiscovery(d, det, findings, 'commoncrawl');
-                imported += 1;
-                if (plat === 'shopware5') sw5 += 1; else if (plat === 'shopware6') sw6 += 1; else if (plat === 'shopify') shopify += 1;
-                results.push({ domain: d, outcome: `${plat}${det.version ? ` ${det.version}` : ''}` });
+                const id = saveDiscovery(d, det, findings, 'commoncrawl');
+                if (!id) { archived += 1; results.push({ domain: d, outcome: 'archiviert (übersprungen)' }); }
+                else {
+                    imported += 1;
+                    if (plat === 'shopware5') sw5 += 1; else if (plat === 'shopware6') sw6 += 1; else if (plat === 'shopify') shopify += 1;
+                    results.push({ domain: d, outcome: `${plat}${det.version ? ` ${det.version}` : ''}` });
+                }
             }
         }
         await new Promise((res) => setTimeout(res, 250));
     }
     revalidatePath('/dashboard/radar');
-    return { ok: true, checked, imported, sw5, sw6, shopify, noCopy, other, results };
+    return { ok: true, checked, imported, sw5, sw6, shopify, noCopy, other, archived, results };
 }
 
 // Batch-Re-Scan: pro Aufruf ein Häppchen Domains live fingerprinten (gedrosselt,

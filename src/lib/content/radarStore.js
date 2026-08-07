@@ -43,16 +43,36 @@ function companyFields(d) {
     };
 }
 
-export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv' } = {}) {
-    const db = getContentDb();
+// Gemeinsamer WHERE-Bau für Liste + Zähler (Suche, Typ, Status, Plattform, PLZ).
+function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '' }) {
     const where = ['1=1'];
     const p = {};
     if (q) { where.push('(c.name LIKE @q OR c.domain LIKE @q OR c.ort LIKE @q OR c.themengebiete LIKE @q)'); p.q = `%${q}%`; }
     if (typ) { where.push('c.typ = @typ'); p.typ = typ; }
-    if (status === 'aktiv') where.push('c.aktiv = 1');
-    else if (status === 'verworfen') where.push("c.verworfen_grund != ''");
+    if (plz) { where.push('c.plz LIKE @plz'); p.plz = `${plz}%`; } // PLZ-Bereich (Präfix)
+    if (status === 'aktiv') where.push('c.aktiv = 1 AND c.archiviert = 0');
+    else if (status === 'verworfen') where.push("c.verworfen_grund != '' AND c.archiviert = 0");
+    else if (status === 'archiviert') where.push('c.archiviert = 1');
+    // 'alle' = keine Status-Einschränkung
+    if (plattform) {
+        where.push('(SELECT plattform FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) = @plattform');
+        p.plattform = plattform;
+    }
+    return { where, p };
+}
+
+export function countCompanies({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '' } = {}) {
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz });
+    return getContentDb().prepare(`SELECT COUNT(*) n FROM radar_companies c WHERE ${where.join(' AND ')}`).get(p).n;
+}
+
+export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv', plattform = '', plz = '', limit = 0, offset = 0 } = {}) {
+    const db = getContentDb();
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz });
     const order = sort === 'prio' ? 'c.prio_score DESC, c.updated_at DESC' : 'c.updated_at DESC, c.id DESC';
-    // Firmen-Filter „für Akquise/Bewerbung": nach Typ-Eignung + nicht gesperrt.
+    const lim = limit ? `LIMIT ${Math.max(1, Number(limit) || 50)} OFFSET ${Math.max(0, Number(offset) || 0)}` : '';
+    const params = { ...p };
+    if (pipeline) params.pipeline = pipeline;
     const rows = db.prepare(`
         SELECT c.*,
             (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id) AS opp_count,
@@ -63,8 +83,8 @@ export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', s
                 ${pipeline ? 'AND b.pipeline = @pipeline' : ''}) AS blocked_until
         FROM radar_companies c
         WHERE ${where.join(' AND ')}
-        ORDER BY ${order}
-    `).all(pipeline ? { ...p, pipeline } : p);
+        ORDER BY ${order} ${lim}
+    `).all(params);
     const now = Date.now();
     return rows.map((r) => ({ ...r, blocked: !!(r.blocked_until && r.blocked_until > now) }));
 }
@@ -132,6 +152,22 @@ export function deleteCompany(id) {
         db.prepare('DELETE FROM radar_findings WHERE company_id = ?').run(cid);
         db.prepare('DELETE FROM radar_companies WHERE id = ?').run(cid);
     })();
+}
+
+// Archivieren statt löschen: legt die Firma weg (raus aus aktiven Ansichten,
+// Prio 0), Bestand bleibt erhalten und kann reaktiviert werden. Der Import prüft
+// gegen das Archiv, damit weggelegte Shops nicht wieder hereinkommen.
+export function archiveCompany(id, on = true) {
+    const db = getContentDb();
+    const now = Date.now();
+    const cid = Number(id);
+    if (on) {
+        db.prepare('UPDATE radar_companies SET archiviert=1, archiviert_am=?, aktiv=0, prio_score=0, prio_grund=?, updated_at=? WHERE id=?')
+            .run(now, 'archiviert', now, cid);
+    } else {
+        db.prepare('UPDATE radar_companies SET archiviert=0, archiviert_am=0, aktiv=1, verworfen_grund=\'\', updated_at=? WHERE id=?').run(now, cid);
+        updateLeadScore(db, cid);
+    }
 }
 
 // ─── Chancen ────────────────────────────────────────────────────────────────
@@ -565,12 +601,13 @@ function mapBuiltWith(o) {
 export function importBuiltWith(rows) {
     const db = getContentDb();
     const now = Date.now();
-    let created = 0; let updated = 0; let skipped = 0; let contactsAdded = 0; let sw5 = 0; let sw6 = 0; let shopify = 0;
+    let created = 0; let updated = 0; let skipped = 0; let archived = 0; let contactsAdded = 0; let sw5 = 0; let sw6 = 0; let shopify = 0;
     const run = db.transaction(() => {
         for (const raw of rows) {
             const m = mapBuiltWith(raw);
             if (!m.domain) { skipped += 1; continue; }
             let company = getCompanyByDomain(m.domain);
+            if (company && company.archiviert) { archived += 1; continue; } // weggelegt → nicht wieder reinholen
             if (company) {
                 db.prepare(`UPDATE radar_companies SET
                     name = CASE WHEN name='' THEN @name ELSE name END,
@@ -616,7 +653,7 @@ export function importBuiltWith(rows) {
         }
     });
     run();
-    return { created, updated, skipped, contactsAdded, sw5, sw6, shopify, total: created + updated };
+    return { created, updated, skipped, archived, contactsAdded, sw5, sw6, shopify, total: created + updated };
 }
 
 // ─── Discovery-Treffer speichern (Common Crawl u. Ä.) ────────────────────────
@@ -629,6 +666,7 @@ export function saveDiscovery(domain, snapshot, findings = [], source = 'commonc
     const now = Date.now();
     return db.transaction(() => {
         let company = getCompanyByDomain(dom);
+        if (company && company.archiviert) return null; // weggelegt → nicht wieder reinholen
         let id;
         if (company) {
             id = company.id;
@@ -677,7 +715,7 @@ export function importDomainList(domains, { plattformHint = '', source = 'liste'
     const db = getContentDb();
     const now = Date.now();
     const plat = ['shopware6', 'shopware5', 'shopify'].includes(plattformHint) ? plattformHint : '';
-    let created = 0; let updated = 0; let skipped = 0;
+    let created = 0; let updated = 0; let skipped = 0; let archived = 0;
     const seen = new Set();
     const run = db.transaction(() => {
         for (const raw of domains) {
@@ -685,6 +723,7 @@ export function importDomainList(domains, { plattformHint = '', source = 'liste'
             if (!dom || seen.has(dom)) { skipped += 1; continue; }
             seen.add(dom);
             const before = getCompanyByDomain(dom);
+            if (before && before.archiviert) { archived += 1; continue; } // weggelegt → nicht wieder reinholen
             let id;
             if (before) {
                 id = before.id;
@@ -711,19 +750,19 @@ export function importDomainList(domains, { plattformHint = '', source = 'liste'
         }
     });
     run();
-    return { created, updated, skipped, total: created + updated };
+    return { created, updated, skipped, archived, total: created + updated };
 }
 
 // ─── Batch-Re-Scan ───────────────────────────────────────────────────────────
 export function getCompaniesToRescan({ limit = 5, mode = 'unscanned' } = {}) {
     const db = getContentDb();
-    const where = ["domain != ''"];
+    const where = ["domain != ''", 'archiviert = 0'];
     if (mode === 'unscanned') where.push('last_scan = 0');
     return db.prepare(`SELECT id, domain FROM radar_companies WHERE ${where.join(' AND ')} ORDER BY last_scan ASC, prio_score DESC, id ASC LIMIT ?`).all(Math.max(1, Number(limit) || 5));
 }
 export function countCompaniesToRescan(mode = 'unscanned') {
     const db = getContentDb();
-    const where = ["domain != ''"];
+    const where = ["domain != ''", 'archiviert = 0'];
     if (mode === 'unscanned') where.push('last_scan = 0');
     return db.prepare(`SELECT COUNT(*) n FROM radar_companies WHERE ${where.join(' AND ')}`).get().n;
 }

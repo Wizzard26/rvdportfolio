@@ -599,6 +599,8 @@ function migrate(database) {
     ensureColumn(database, 'radar_companies', 'prio_grund', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'radar_companies', 'verworfen_grund', "TEXT NOT NULL DEFAULT ''"); // Karteileiche/weg-migriert
     ensureColumn(database, 'radar_companies', 'last_scan', 'INTEGER NOT NULL DEFAULT 0'); // letzter Re-Scan (Batch-Steuerung)
+    ensureColumn(database, 'radar_companies', 'archiviert', 'INTEGER NOT NULL DEFAULT 0'); // manuell weggelegt (nicht loeschen)
+    ensureColumn(database, 'radar_companies', 'archiviert_am', 'INTEGER NOT NULL DEFAULT 0');
     // Domain nur einmal (leere Domains bei rein manuellen Einträgen ausgenommen).
     // Guard: falls Altbestand bereits Dubletten hat, greift der App-Dedupe.
     try {

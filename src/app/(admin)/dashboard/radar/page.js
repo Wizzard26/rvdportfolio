@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud } from 'react-icons/fi';
-import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan } from '@/lib/content/radarStore';
-import { deleteCompanyAction, deleteContactAction } from '@/lib/content/radarActions';
+import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw } from 'react-icons/fi';
+import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies } from '@/lib/content/radarStore';
+import { deleteCompanyAction, deleteContactAction, archiveCompanyAction } from '@/lib/content/radarActions';
 import { formatNumber } from '@/lib/analytics/format';
 import StatTile from '@/components/analytics/StatTile';
 import RadarScanForm from '@/components/analytics/RadarScanForm';
@@ -25,17 +25,31 @@ export default async function RadarPage({ searchParams }) {
     const sp = await searchParams;
     const q = (sp?.q || '').toString();
     const typ = (sp?.typ || '').toString();
-    const status = ['aktiv', 'verworfen', 'alle'].includes(sp?.status) ? sp.status : 'aktiv';
+    const status = ['aktiv', 'verworfen', 'archiviert', 'alle'].includes(sp?.status) ? sp.status : 'aktiv';
+    const plattform = (sp?.plattform || '').toString();
+    const plz = (sp?.plz || '').toString();
 
-    const companies = getCompanies({ q, typ, status });
+    const PAGE_SIZE = 50;
+    const total = countCompanies({ q, typ, status, plattform, plz });
+    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const page = Math.min(pages, Math.max(1, parseInt(sp?.page, 10) || 1));
+    const companies = getCompanies({ q, typ, status, plattform, plz, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
+
     const opps = getOpportunities({});
     const offene = opps.filter((o) => !['absage', 'verworfen'].includes(o.status));
     const dueContacts = getContactsDueForDeletion(14);
-    const verworfenCount = getCompanies({ status: 'verworfen' }).length;
+    const verworfenCount = countCompanies({ status: 'verworfen' });
+    const archivedCount = countCompanies({ status: 'archiviert' });
     const unscanned = countCompaniesToRescan('unscanned');
     const jetzt = Date.now();
 
     const prioClass = (s) => (s >= 70 ? 'an-badge--ok' : s >= 40 ? 'an-badge--warn' : '');
+    // Query-String für Pagination-Links (aktuelle Filter behalten, page setzen).
+    const qs = (over = {}) => {
+        const o = { q, typ, status, plattform, plz, page, ...over };
+        const parts = Object.entries(o).filter(([, v]) => v !== '' && v != null).map(([k, v]) => `${k}=${encodeURIComponent(v)}`);
+        return `?${parts.join('&')}`;
+    };
 
     return (
         <div className="an-dashboard">
@@ -95,8 +109,8 @@ export default async function RadarPage({ searchParams }) {
             <div className="an-tiles">
                 <StatTile value={formatNumber(companies.filter((c) => c.typ === 'inhouse_shop').length)} label="Inhouse-Shops" />
                 <StatTile value={formatNumber(companies.filter((c) => c.typ === 'agentur').length)} label="Agenturen" />
-                <StatTile value={formatNumber(offene.length)} label="Offene Chancen" />
                 <StatTile value={formatNumber(verworfenCount)} label="Verworfen / Karteileichen" />
+                <StatTile value={formatNumber(archivedCount)} label="Archiviert" />
             </div>
 
             {dueContacts.length > 0 && (
@@ -135,8 +149,13 @@ export default async function RadarPage({ searchParams }) {
             )}
 
             <section className="an-card an-full">
-                <form className="an-filters" style={{ marginBottom: 14 }}>
+                <form className="an-filters" style={{ marginBottom: 6 }}>
                     <input name="q" defaultValue={q} placeholder="Suche: Name, Domain, Ort, Thema" className="an-input" />
+                    <select name="plattform" defaultValue={plattform}>
+                        <option value="">Alle Plattformen</option>
+                        {Object.entries(PLAT_LABEL).filter(([v]) => v !== 'unbekannt').map(([val, lbl]) => <option key={val} value={val}>{lbl}</option>)}
+                    </select>
+                    <input name="plz" defaultValue={plz} placeholder="PLZ-Bereich (z. B. 21)" className="an-input" style={{ maxWidth: 160 }} />
                     <select name="typ" defaultValue={typ}>
                         <option value="">Alle Typen</option>
                         {Object.entries(TYP_LABEL).map(([val, lbl]) => <option key={val} value={val}>{lbl}</option>)}
@@ -144,10 +163,12 @@ export default async function RadarPage({ searchParams }) {
                     <select name="status" defaultValue={status}>
                         <option value="aktiv">Aktive</option>
                         <option value="verworfen">Verworfen / Karteileichen</option>
+                        <option value="archiviert">Archiviert</option>
                         <option value="alle">Alle</option>
                     </select>
                     <button type="submit" className="an-btn-secondary an-btn-small">Filtern</button>
                 </form>
+                <p className="an-muted" style={{ margin: '0 0 12px', fontSize: '0.85em' }}>{formatNumber(total)} Firmen{pages > 1 ? ` · Seite ${page}/${pages}` : ''}</p>
 
                 {companies.length === 0 ? (
                     <p className="an-empty">Noch keine Firmen. Lege oben die erste an.</p>
@@ -182,6 +203,19 @@ export default async function RadarPage({ searchParams }) {
                                         <td>{formatNumber(c.opp_count)}</td>
                                         <td style={{ whiteSpace: 'nowrap' }}>
                                             <Link href={`/dashboard/radar/${c.id}`} className="an-btn-secondary an-btn-small">Öffnen</Link>
+                                            {c.archiviert ? (
+                                                <form action={archiveCompanyAction} style={{ display: 'inline', marginLeft: 6 }}>
+                                                    <input type="hidden" name="id" value={c.id} />
+                                                    <input type="hidden" name="on" value="0" />
+                                                    <button type="submit" className="an-icon-btn" title="Reaktivieren"><FiRotateCcw /></button>
+                                                </form>
+                                            ) : (
+                                                <form action={archiveCompanyAction} style={{ display: 'inline', marginLeft: 6 }}>
+                                                    <input type="hidden" name="id" value={c.id} />
+                                                    <input type="hidden" name="on" value="1" />
+                                                    <button type="submit" className="an-icon-btn" title="Archivieren (weglegen, nicht löschen)"><FiArchive /></button>
+                                                </form>
+                                            )}
                                             <form action={deleteCompanyAction} style={{ display: 'inline', marginLeft: 6 }}>
                                                 <input type="hidden" name="id" value={c.id} />
                                                 <button type="submit" className="an-icon-btn an-danger" title="Firma löschen"><FiTrash2 /></button>
@@ -191,6 +225,14 @@ export default async function RadarPage({ searchParams }) {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                )}
+
+                {pages > 1 && (
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center', marginTop: 14, flexWrap: 'wrap' }}>
+                        {page > 1 && <Link href={qs({ page: page - 1 })} className="an-btn-secondary an-btn-small">← Zurück</Link>}
+                        <span className="an-muted" style={{ fontSize: '0.85em' }}>Seite {page} / {pages}</span>
+                        {page < pages && <Link href={qs({ page: page + 1 })} className="an-btn-secondary an-btn-small">Weiter →</Link>}
                     </div>
                 )}
             </section>

@@ -19,7 +19,7 @@ export default function RadarImportForm() {
             {state?.ok && (
                 <span className="an-badge an-badge--ok">
                     {state.total} verarbeitet · {state.created} neu · {state.updated} aktualisiert · {state.contactsAdded} Kontakte ·
-                    SW5 {state.sw5} / SW6 {state.sw6}{state.shopify ? ` · ${state.shopify}× Shopify-Flag` : ''}{state.skipped ? ` · ${state.skipped} übersprungen` : ''}
+                    SW5 {state.sw5} / SW6 {state.sw6}{state.shopify ? ` · ${state.shopify}× Shopify-Flag` : ''}{state.archived ? ` · ${state.archived} archiviert übersprungen` : ''}{state.skipped ? ` · ${state.skipped} übersprungen` : ''}
                 </span>
             )}
         </form>

@@ -40,7 +40,7 @@ export default function RadarListImport() {
             {state?.error && <span className="an-scan-error" role="alert" style={{ display: 'inline-block', marginTop: 8 }}>{state.error}</span>}
             {state?.ok && (
                 <span className="an-badge an-badge--ok" style={{ display: 'inline-block', marginTop: 8 }}>
-                    {state.found} Domains erkannt · {state.created} neu · {state.updated} aktualisiert{state.skipped ? ` · ${state.skipped} Dubletten/leer` : ''}
+                    {state.found} Domains erkannt · {state.created} neu · {state.updated} aktualisiert{state.archived ? ` · ${state.archived} archiviert übersprungen` : ''}{state.skipped ? ` · ${state.skipped} Dubletten/leer` : ''}
                 </span>
             )}
         </form>
