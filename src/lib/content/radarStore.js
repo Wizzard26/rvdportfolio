@@ -649,13 +649,23 @@ export function saveDiscovery(domain, snapshot, findings = [], source = 'commonc
 }
 
 // ─── Domain-/URL-Listen-Import (z. B. PublicWWW-Marker-Export) ────────────────
+// Infrastruktur-/Chrome-Domains, die beim Copy-Paste einer Ergebnisseite als
+// Rauschen mitkommen und nie ein Ziel-Shop sind → rausfiltern.
+const DOMAIN_DENY = new Set([
+    'publicwww.com', 'w3.org', 'schema.org', 'google.com', 'googleapis.com', 'gstatic.com',
+    'googletagmanager.com', 'google-analytics.com', 'cloudflare.com', 'jsdelivr.net', 'unpkg.com',
+    'cdnjs.com', 'jquery.com', 'bootstrapcdn.com', 'gravatar.com', 'gmpg.org',
+]);
+
 // Robust: extrahiert Domain-Token aus beliebigem Text (CSV/Zeilen/Paste), egal ob
-// volle URLs, mit Header oder Kommas. Normalisiert + dedupliziert.
+// volle URLs, mit Header oder Kommas. Normalisiert, filtert Infrastruktur, dedupe.
 export function parseDomainList(text) {
     const out = [];
     for (const tok of (text || '').split(/[\s,;"'<>()[\]]+/)) {
         const dom = normalizeDomain(tok);
-        if (/^(?:[a-z0-9-]+\.)+[a-z]{2,}$/i.test(dom)) out.push(dom);
+        if (!/^(?:[a-z0-9-]+\.)+[a-z]{2,}$/i.test(dom)) continue;
+        if (DOMAIN_DENY.has(dom) || [...DOMAIN_DENY].some((d) => dom.endsWith(`.${d}`))) continue;
+        out.push(dom);
     }
     return [...new Set(out)];
 }
