@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw } from 'react-icons/fi';
-import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies } from '@/lib/content/radarStore';
+import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies, countCompaniesForJobScan } from '@/lib/content/radarStore';
 import { deleteCompanyAction, deleteContactAction, archiveCompanyAction } from '@/lib/content/radarActions';
 import { formatNumber } from '@/lib/analytics/format';
 import StatTile from '@/components/analytics/StatTile';
@@ -9,6 +9,7 @@ import RadarImportForm from '@/components/analytics/RadarImportForm';
 import RadarBatchRescan from '@/components/analytics/RadarBatchRescan';
 import RadarCcDiscover from '@/components/analytics/RadarCcDiscover';
 import RadarListImport from '@/components/analytics/RadarListImport';
+import RadarJobScan from '@/components/analytics/RadarJobScan';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,6 +49,7 @@ export default async function RadarPage({ searchParams }) {
     const verworfenCount = countCompanies({ status: 'verworfen' });
     const archivedCount = countCompanies({ status: 'archiviert' });
     const unscanned = countCompaniesToRescan('unscanned');
+    const jobScanPending = countCompaniesForJobScan();
     const jetzt = Date.now();
 
     const prioClass = (s) => (s >= 70 ? 'an-badge--ok' : s >= 40 ? 'an-badge--warn' : '');
@@ -99,6 +101,13 @@ export default async function RadarPage({ searchParams }) {
                 <div style={{ marginTop: 18 }}>
                     <p className="an-card-note" style={{ margin: '0 0 8px' }}>Live-Re-Scan (gedrosselt, robots-konform):</p>
                     <RadarBatchRescan pendingCount={unscanned} />
+                </div>
+                <div style={{ marginTop: 18 }}>
+                    <p className="an-card-note" style={{ margin: '0 0 8px' }}>
+                        <strong>Stellen-Suche</strong> über die Karriereseiten der Firmen → Job-Chancen (legitim, keine Portale).
+                        Stepstone/Indeed und die Bundesagentur-API sind tabu bzw. blockiert — Quelle sind die Firmen selbst.
+                    </p>
+                    <RadarJobScan pendingCount={jobScanPending} />
                 </div>
                 <details style={{ marginTop: 16 }}>
                     <summary className="an-btn-secondary an-btn-small" style={{ display: 'inline-block' }}>Common-Crawl-Discovery (Prototyp)</summary>

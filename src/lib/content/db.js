@@ -601,6 +601,7 @@ function migrate(database) {
     ensureColumn(database, 'radar_companies', 'last_scan', 'INTEGER NOT NULL DEFAULT 0'); // letzter Re-Scan (Batch-Steuerung)
     ensureColumn(database, 'radar_companies', 'archiviert', 'INTEGER NOT NULL DEFAULT 0'); // manuell weggelegt (nicht loeschen)
     ensureColumn(database, 'radar_companies', 'archiviert_am', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'radar_companies', 'last_job_scan', 'INTEGER NOT NULL DEFAULT 0'); // letzter Karriereseiten-Job-Scan
     // Domain nur einmal (leere Domains bei rein manuellen Einträgen ausgenommen).
     // Guard: falls Altbestand bereits Dubletten hat, greift der App-Dedupe.
     try {

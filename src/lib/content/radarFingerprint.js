@@ -219,7 +219,9 @@ export async function fingerprintUrl(rawUrl) {
     // Sitemap laden und daraus Jobs-/Impressum-/Kontakt-Seiten per Keyword ziehen —
     // fängt auch Seiten wie /ueber-uns/jobs-bei-… ab, die im Startseiten-Menü fehlen.
     const sitemapUrls = await fetchSitemapUrls(n.origin);
-    const JOB_RE = 'karriere|jobs?|stellen|stellenangebot|career|join-?us|arbeiten-bei|mitarbeiter|vacan|werde-teil|offene-stellen';
+    // Karriere-URL streng als Pfad-Segment matchen — verhindert Fehltreffer wie
+    // /bestellen, /baustellenzubehoer, /ausstellung (bloße Substrings von „stellen").
+    const CAREER_SEG = /(^|[/_-])(karrieren?|jobs?|stellenangebote?|stellenausschreibung|offene-stellen|arbeiten-bei|karriere-bei|join-?us|werde-teil|wir-suchen)([/_.?-]|$)/i;
     const IMPR_RE = 'impressum|imprint|legal';
     const KONTAKT_RE = 'kontakt|contact';
 
@@ -233,7 +235,12 @@ export async function fingerprintUrl(rawUrl) {
         platform.belege = [...(platform.belege || []), { signal: 'Shopware-6-Sitemap', beleg: '/sitemap/salesChannel-…' }];
     }
 
-    const karriere_url = pickUrl(sitemapUrls, JOB_RE) || abs(n.origin, findLink(html, JOB_RE));
+    let karriere_url = sitemapUrls.find((u) => CAREER_SEG.test(u)) || '';
+    if (!karriere_url) {
+        for (const m of html.matchAll(/<a\b[^>]*href=["']([^"']+)["']/gi)) {
+            if (CAREER_SEG.test(m[1])) { karriere_url = abs(n.origin, m[1]); break; }
+        }
+    }
     const imprUrlAbs = pickUrl(sitemapUrls, IMPR_RE) || abs(n.origin, findLink(html, IMPR_RE));
     const kontaktUrlAbs = pickUrl(sitemapUrls, KONTAKT_RE) || abs(n.origin, findLink(html, KONTAKT_RE));
 

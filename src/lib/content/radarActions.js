@@ -9,6 +9,7 @@ import {
     markArt14Sent, getCompany, importCareerJobs,
     parseBuiltWithCsv, importBuiltWith, getCompaniesToRescan, countCompaniesToRescan, applyRescan,
     saveDiscovery, parseDomainList, importDomainList,
+    getCompaniesForJobScan, countCompaniesForJobScan, markJobScanned,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 import { ccDetect } from '@/lib/content/radarCommonCrawl';
@@ -202,6 +203,26 @@ export async function rescanBatchAction(prevState, formData) {
     }
     revalidatePath('/dashboard/radar');
     return { ok: true, scanned: results.length, remaining: countCompaniesToRescan(mode), results };
+}
+
+// Feature 2: Batch-Karriereseiten-Scan — sammelt Shopware-Stellen aus den eigenen
+// Karriereseiten der Firmen (legitim, keine Portale/BA) als Job-Chancen. Häppchen.
+export async function jobScanBatchAction(prevState, formData) {
+    const limit = Math.min(8, Math.max(1, Number(formData.get('limit')) || 5));
+    const targets = getCompaniesForJobScan({ limit });
+    const results = [];
+    let jobsAdded = 0;
+    for (const t of targets) {
+        let res = { ok: false, jobs: [] };
+        try { res = await scrapeCareerJobs(t.karriere_url); } catch { /* egal */ }
+        let added = 0;
+        if (res.ok && res.jobs && res.jobs.length) { added = importCareerJobs(t.id, res.jobs).added; jobsAdded += added; }
+        markJobScanned(t.id);
+        results.push({ id: t.id, added, found: (res.jobs && res.jobs.length) || 0, widget: res.widget || '' });
+        await new Promise((r) => setTimeout(r, 400));
+    }
+    revalidatePath('/dashboard/radar');
+    return { ok: true, scanned: results.length, jobsAdded, remaining: countCompaniesForJobScan(), results };
 }
 
 // Phase 3A: Stellen von der Karriereseite der Firma ziehen und als Chancen anlegen.

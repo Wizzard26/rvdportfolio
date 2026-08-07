@@ -235,6 +235,17 @@ export function getOpportunity(id) {
     return getContentDb().prepare('SELECT * FROM radar_opportunities WHERE id = ?').get(Number(id)) || null;
 }
 
+// Batch-Job-Scan: Firmen mit Karriereseite, die abgesucht werden können.
+export function getCompaniesForJobScan({ limit = 5 } = {}) {
+    return getContentDb().prepare("SELECT id, karriere_url FROM radar_companies WHERE karriere_url != '' AND archiviert = 0 AND aktiv = 1 ORDER BY last_job_scan ASC, prio_score DESC, id ASC LIMIT ?").all(Math.max(1, Number(limit) || 5));
+}
+export function countCompaniesForJobScan() {
+    return getContentDb().prepare("SELECT COUNT(*) n FROM radar_companies WHERE karriere_url != '' AND archiviert = 0 AND aktiv = 1 AND last_job_scan = 0").get().n;
+}
+export function markJobScanned(id) {
+    getContentDb().prepare('UPDATE radar_companies SET last_job_scan = ? WHERE id = ?').run(Date.now(), Number(id));
+}
+
 // Phase 3A: extrahierte Stellen einer Karriereseite als Chancen-Entwürfe anlegen.
 // Dedupe gegen bestehende Titel derselben Firma; Typ folgt dem Firmentyp (Agentur
 // → Agenturstelle, sonst Inhouse-Stelle) und ist danach je Chance änderbar.
