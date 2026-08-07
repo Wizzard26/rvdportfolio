@@ -745,10 +745,11 @@ export function parseDomainList(text) {
 // Legt aus einer Domainliste Firmen an (dedupe per Domain). Optionaler Plattform-
 // Hinweis (aus dem gesuchten Marker: SW6 = /bundles/storefront/, SW5 = engine/
 // Shopware) → schwacher Snapshot (Confidence 0.3), den der Re-Scan verifiziert.
-export function importDomainList(domains, { plattformHint = '', source = 'liste' } = {}) {
+export function importDomainList(domains, { plattformHint = '', source = 'liste', typ = 'inhouse_shop' } = {}) {
     const db = getContentDb();
     const now = Date.now();
     const plat = ['shopware6', 'shopware5', 'shopify'].includes(plattformHint) ? plattformHint : '';
+    const compTyp = COMPANY_TYPES.includes(typ) ? typ : 'inhouse_shop';
     let created = 0; let updated = 0; let skipped = 0; let archived = 0;
     const seen = new Set();
     const run = db.transaction(() => {
@@ -764,7 +765,7 @@ export function importDomainList(domains, { plattformHint = '', source = 'liste'
                 db.prepare("UPDATE radar_companies SET quelle = CASE WHEN quelle='manuell' THEN ? ELSE quelle END, updated_at=? WHERE id=?").run(source, now, id);
                 updated += 1;
             } else {
-                id = createCompany({ domain: dom, typ: 'inhouse_shop', aktiv: 1 });
+                id = createCompany({ domain: dom, typ: compTyp, aktiv: 1 });
                 db.prepare('UPDATE radar_companies SET quelle=? WHERE id=?').run(source, id);
                 created += 1;
             }

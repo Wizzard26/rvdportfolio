@@ -147,7 +147,9 @@ export async function importDomainListAction(prevState, formData) {
     if (!domains.length) return { error: 'Keine Domains erkannt (Liste/Datei leer?).' };
     const hint = (formData.get('plattform') || '').toString();
     const plattformHint = ['shopware6', 'shopware5', 'shopify'].includes(hint) ? hint : '';
-    const res = importDomainList(domains, { plattformHint, source: 'publicwww' });
+    const typ = (formData.get('typ') || '').toString() === 'agentur' ? 'agentur' : 'inhouse_shop';
+    const source = typ === 'agentur' ? 'partnerverzeichnis' : 'publicwww';
+    const res = importDomainList(domains, { plattformHint, source, typ });
     revalidatePath('/dashboard/radar');
     return { ok: true, found: domains.length, ...res };
 }

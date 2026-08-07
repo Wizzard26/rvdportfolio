@@ -90,11 +90,12 @@ export default async function RadarPage({ searchParams }) {
                 <h3 style={{ margin: '4px 0 6px', fontSize: '1rem' }}>① BuiltWith-CSV (reich: Kontakt, Umsatz, Payment …)</h3>
                 <RadarImportForm />
 
-                <h3 style={{ margin: '18px 0 6px', fontSize: '1rem' }}>② Domain-/URL-Liste (z. B. PublicWWW-Marker-Export)</h3>
+                <h3 style={{ margin: '18px 0 6px', fontSize: '1rem' }}>② Domain-/URL-Liste (Shops via PublicWWW · Agenturen via Partnerverzeichnis)</h3>
                 <p className="an-card-note" style={{ margin: '0 0 8px' }}>
-                    In PublicWWW gezielt nach dem Marker suchen (SW6 = <code>/bundles/storefront/</code>, SW5 = <code>engine/Shopware</code>),
-                    Land <strong>DE</strong> filtern, nach Popularität sortieren → Domainliste hier einfügen und den passenden Plattform-Hinweis wählen.
-                    Kontakt/Version holt der Re-Scan.
+                    <strong>Shops:</strong> in PublicWWW nach dem Marker suchen (SW6 = <code>/bundles/storefront/</code>, SW5 = <code>engine/Shopware</code>),
+                    Land <strong>DE</strong>, nach Popularität sortiert → Liste einfügen, Plattform-Hinweis wählen.<br />
+                    <strong>Agenturen:</strong> Domains aus dem <strong>Shopware-Partnerverzeichnis</strong> (shopware.com/partner) kopieren und Typ „Agentur" wählen →
+                    Eignung „Bewerbung"; der Job-Scan findet danach deren offene Shopware-Stellen. Kontakt/Version holt der Re-Scan.
                 </p>
                 <RadarListImport />
 

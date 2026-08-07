@@ -27,6 +27,10 @@ export default function RadarListImport() {
                     style={{ font: 'inherit', fontSize: 13, cursor: 'pointer' }} aria-label="Domainliste"
                     onChange={(e) => setHasFile(!!(e.target.files && e.target.files.length))}
                 />
+                <select name="typ" defaultValue="inhouse_shop" disabled={pending} aria-label="Firmentyp">
+                    <option value="inhouse_shop">Typ: Shop / Endkunde</option>
+                    <option value="agentur">Typ: Agentur (z. B. Shopware-Partner)</option>
+                </select>
                 <select name="plattform" defaultValue="" disabled={pending} aria-label="Plattform-Hinweis">
                     <option value="">Plattform: unbekannt (Re-Scan klärt)</option>
                     <option value="shopware6">= Shopware 6 (Marker /bundles/storefront/)</option>
