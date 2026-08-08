@@ -362,6 +362,47 @@ async function fetchAtsJobs(html, origin) {
     return out;
 }
 
+// JobPosting-JSON-LD (schema.org) aus <script type="application/ld+json"> lesen —
+// dasselbe strukturierte Markup, das Google Jobs nutzt. Verlässlicher als Heuristik
+// (Titel/Ort/Datum direkt). Verschachtelung (Array, @graph) wird aufgelöst.
+function extractJsonLdJobs(html, baseUrl) {
+    const jobs = [];
+    const seen = new Set();
+    const pushJob = (obj) => {
+        if (!obj || typeof obj !== 'object') return;
+        const types = [].concat(obj['@type'] || []).map((t) => String(t).toLowerCase());
+        if (!types.includes('jobposting')) return;
+        const titel = decodeEntities(String(obj.title || obj.name || '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+        if (!titel || titel.length < 3 || titel.length > 160) return;
+        const key = titel.toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        let standort = '';
+        for (const l of [].concat(obj.jobLocation || [])) {
+            const a = (l && l.address) || {};
+            if (typeof a === 'string') { standort = a; break; }
+            standort = [a.postalCode || '', a.addressLocality || ''].filter(Boolean).join(' ').trim();
+            if (standort) break;
+        }
+        let url = obj.url || (obj.hiringOrganization && obj.hiringOrganization.sameAs) || '';
+        url = url ? abs(baseUrl, String(url)) : '';
+        jobs.push({ titel, url, standort });
+    };
+    const walk = (node, depth) => {
+        if (!node || depth > 6) return;
+        if (Array.isArray(node)) { node.forEach((x) => walk(x, depth + 1)); return; }
+        if (typeof node !== 'object') return;
+        pushJob(node);
+        if (node['@graph']) walk(node['@graph'], depth + 1);
+    };
+    for (const m of html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+        const raw = m[1].trim();
+        if (!raw) continue;
+        try { walk(JSON.parse(raw), 0); } catch { /* defektes/mehrfaches JSON überspringen */ }
+    }
+    return jobs;
+}
+
 export async function scrapeCareerJobs(rawUrl) {
     const n = normalizeUrl(rawUrl);
     if (!n) return { ok: false, error: 'Ungültige Karriere-URL.' };
@@ -371,17 +412,23 @@ export async function scrapeCareerJobs(rawUrl) {
     try { page = await fetchText(n.url); } catch (e) { return { ok: false, error: `Karriereseite nicht erreichbar (${e.name === 'AbortError' ? 'Timeout' : 'Fehler'}).` }; }
     if (page.status === 403 || page.status === 429) return { ok: false, error: `Zugriff abgewiesen (${page.status}).` };
 
-    const jobs = extractCareerJobs(page.html, n.url);
+    // Reihenfolge nach Verlässlichkeit: JSON-LD (strukturiert) → ATS-Feed → Heuristik.
+    const jsonld = extractJsonLdJobs(page.html, n.url);
+    const jobs = [...jsonld];
     const seen = new Set(jobs.map((j) => j.titel.toLowerCase()));
+    const merge = (list) => {
+        for (const j of list) {
+            const t = (j.titel || '').trim();
+            if (!t || t.length < 5) continue;
+            const k = t.toLowerCase();
+            if (seen.has(k)) continue;
+            seen.add(k);
+            jobs.push({ titel: t, url: j.url || '', standort: j.standort || '' });
+        }
+    };
     const ats = await fetchAtsJobs(page.html, n.origin);
-    for (const j of ats) {
-        const t = (j.titel || '').trim();
-        if (!t || t.length < 5) continue;
-        const k = t.toLowerCase();
-        if (seen.has(k)) continue;
-        seen.add(k);
-        jobs.push({ titel: t, url: j.url || '', standort: j.standort || '' });
-    }
+    merge(ats);
+    merge(extractCareerJobs(page.html, n.url));
 
     // JS-Widget, das die Stellen erst clientseitig lädt und keinen lesbaren Feed hat
     // → ehrlicher Hinweis statt stiller 0 (kein Browser, keine undokumentierte API).
@@ -390,5 +437,6 @@ export async function scrapeCareerJobs(rawUrl) {
         if (/join\.com\/api\/widget/i.test(page.html)) widget = 'JOIN';
         else if (/(?:softgarden|smartrecruiters|workday|personio-widget|jobs2web|prescreen)/i.test(page.html)) widget = 'externes Bewerber-Widget';
     }
-    return { ok: true, jobs: jobs.slice(0, 60), source: ats.length ? 'ats+html' : 'html', widget };
+    const source = [jsonld.length ? 'jsonld' : '', ats.length ? 'ats' : '', 'html'].filter(Boolean).join('+');
+    return { ok: true, jobs: jobs.slice(0, 60), source, widget };
 }
