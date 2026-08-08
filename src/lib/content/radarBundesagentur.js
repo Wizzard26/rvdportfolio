@@ -11,8 +11,8 @@ export async function searchArbeitsagentur({ was = 'Shopware', wo = '', umkreis 
     if (wo) p.set('wo', wo);
     if (wo && umkreis) p.set('umkreis', String(Number(umkreis) || 25));
     let res;
-    try { res = await fetch(`${BASE}?${p.toString()}`, { headers: HEADERS }); }
-    catch { return { ok: false, error: 'Bundesagentur nicht erreichbar.' }; }
+    try { res = await fetch(`${BASE}?${p.toString()}`, { headers: HEADERS, cache: 'no-store' }); }
+    catch (e) { return { ok: false, error: `Bundesagentur nicht erreichbar (${e?.message || 'Fetch-Fehler'}).` }; }
     if (!res.ok) return { ok: false, error: `Bundesagentur-API antwortete ${res.status}.` };
     let d;
     try { d = await res.json(); } catch { return { ok: false, error: 'Antwort nicht lesbar.' }; }

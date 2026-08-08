@@ -602,9 +602,12 @@ function migrate(database) {
     ensureColumn(database, 'radar_companies', 'archiviert', 'INTEGER NOT NULL DEFAULT 0'); // manuell weggelegt (nicht loeschen)
     ensureColumn(database, 'radar_companies', 'archiviert_am', 'INTEGER NOT NULL DEFAULT 0');
     ensureColumn(database, 'radar_companies', 'last_job_scan', 'INTEGER NOT NULL DEFAULT 0'); // letzter Karriereseiten-Job-Scan
-    // Domain nur einmal (leere Domains bei rein manuellen Einträgen ausgenommen).
-    // Guard: falls Altbestand bereits Dubletten hat, greift der App-Dedupe.
+    // Domain nur einmal — aber PARTIELL: leere Domains (Firmen ohne Website, z. B.
+    // Arbeitgeber aus Job-Anzeigen) müssen mehrfach erlaubt sein. Früher wurde hier
+    // fälschlich ein voller Unique-Index angelegt → mehrere '' kollidierten. Reparieren.
     try {
+        const existing = database.prepare("SELECT sql FROM sqlite_master WHERE type='index' AND name='idx_radar_companies_domain'").get();
+        if (existing && !/where/i.test(existing.sql || '')) database.prepare('DROP INDEX idx_radar_companies_domain').run();
         database.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_radar_companies_domain ON radar_companies(domain) WHERE domain != ''").run();
     } catch { /* bestehende Duplikate → createCompany-Dedupe schützt weiterhin */ }
 }
