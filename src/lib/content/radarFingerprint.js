@@ -99,7 +99,7 @@ function decodeEntities(s) {
         .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)));
 }
 
-function detectPlatform(html, headers) {
+export function detectPlatform(html, headers) {
     const belege = [];
     const push = (signal, beleg) => belege.push({ signal, beleg });
     let plattform = 'unbekannt'; let confidence = 0; let version = ''; let eol = 0; let frontend = 'unklar';
@@ -149,6 +149,52 @@ function extractContact(html) {
     return { email, rechtsform: rechts ? decodeEntities(rechts).replace(/\s+/g, ' ').trim() : '', plz: plz[1] || '', ort: decodeEntities((plz[2] || '').trim()) };
 }
 
+// Shop-Check: erzeugt aus dem bereits geholten HTML + Headern einen Fehlerbericht
+// (Findings). Kein zusätzlicher Request. Rechtliches/SEO/Security sind statisch gut
+// prüfbar — echte Performance/Barrierefreiheit bräuchte Lighthouse (bewusst außen vor).
+function runShopChecks({ html, headers, url, sec, hasImpressum, hasDatenschutz }) {
+    const f = [];
+    const add = (typ, schwere, titel, beschreibung, verwendbar_als = 'gespraechsthema') => f.push({ typ, schwere, titel, beschreibung, beleg_url: url, verwendbar_als });
+
+    // ── DE-Recht (die stärksten, legitimen Akquise-Aufhänger) ──
+    if (!hasImpressum) add('recht_impressum', 'hoch', 'Impressum nicht auffindbar', 'Auf Startseite/Sitemap kein Impressum-Link gefunden — in Deutschland Pflicht (§ 5 DDG).', 'akquise_aufhaenger');
+    if (!hasDatenschutz) add('recht_datenschutz', 'hoch', 'Datenschutzerklärung nicht auffindbar', 'Kein Link zu einer Datenschutzerklärung gefunden — DSGVO-Pflicht.', 'akquise_aufhaenger');
+    if (!/cookiebot|usercentrics|borlabs|klaro|cookie-?consent|onetrust|consentmanager|ccm19|cookiefirst|complianz/i.test(html)) {
+        add('recht_cookie', 'mittel', 'Kein Cookie-Consent erkennbar', 'Kein gängiges Consent-Tool im HTML gefunden — bei Cookies/Tracking in DE Pflicht.', 'akquise_aufhaenger');
+    }
+
+    // ── Sicherheit ──
+    const missing = [];
+    if (!sec.hsts) missing.push('HSTS');
+    if (!sec.csp) missing.push('CSP');
+    if (!sec.xfo) missing.push('X-Frame-Options');
+    if (!sec.xcto) missing.push('X-Content-Type-Options');
+    if (!sec.ref) missing.push('Referrer-Policy');
+    if (missing.length) add('security_header', missing.length >= 3 ? 'mittel' : 'info', 'Fehlende Security-Header', `${missing.join(', ')} nicht gesetzt.`, missing.length >= 3 ? 'akquise_aufhaenger' : 'gespraechsthema');
+    const server = headers.get('server') || '';
+    if (/\d+\.\d+/.test(server)) add('security_server', 'info', 'Server-Version sichtbar', `Server-Header verrät Version: ${server}.`, 'intern_nur');
+
+    // ── SEO / Darstellung ──
+    const title = (html.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1]?.trim() || '';
+    if (!title) add('seo_title', 'mittel', 'Kein Seitentitel', 'Startseite ohne <title>.', 'gespraechsthema');
+    else if (title.length > 65) add('seo_title', 'info', 'Seitentitel sehr lang', `Titel ${title.length} Zeichen (>65 wird in Suchergebnissen abgeschnitten).`, 'gespraechsthema');
+    if (!/<meta[^>]+name=["']description["']/i.test(html)) add('seo_desc', 'mittel', 'Keine Meta-Description', 'Startseite ohne Meta-Description.', 'gespraechsthema');
+    const h1 = (html.match(/<h1[\s>]/gi) || []).length;
+    if (h1 === 0) add('seo_h1', 'info', 'Keine H1-Überschrift', 'Startseite ohne H1.', 'gespraechsthema');
+    else if (h1 > 1) add('seo_h1', 'info', 'Mehrere H1', `${h1} H1-Überschriften auf der Startseite.`, 'gespraechsthema');
+    if (!/<meta[^>]+name=["']viewport["']/i.test(html)) add('mobil_viewport', 'mittel', 'Kein Viewport-Meta', 'Kein viewport-Meta — Seite vermutlich nicht mobiloptimiert.', 'akquise_aufhaenger');
+    if (!/<link[^>]+rel=["']canonical["']/i.test(html)) add('seo_canonical', 'info', 'Kein Canonical-Link', 'Kein rel=canonical auf der Startseite.', 'gespraechsthema');
+    if (!/<meta[^>]+property=["']og:/i.test(html)) add('seo_og', 'info', 'Keine Open-Graph-Tags', 'Keine og:-Tags (Social-Sharing-Vorschau fehlt).', 'gespraechsthema');
+
+    // ── Barrierefreiheit ──
+    if (!/<html[^>]+lang=/i.test(html)) add('a11y_lang', 'info', 'Kein lang-Attribut', '<html> ohne lang-Attribut (Barrierefreiheit/SEO).', 'gespraechsthema');
+    const imgs = html.match(/<img\b[^>]*>/gi) || [];
+    const noAlt = imgs.filter((t) => !/\balt\s*=/i.test(t)).length;
+    if (imgs.length >= 5 && noAlt / imgs.length > 0.3) add('a11y_alt', 'info', 'Bilder ohne Alt-Text', `${noAlt} von ${imgs.length} Bildern ohne alt-Attribut.`, 'gespraechsthema');
+
+    return f;
+}
+
 export async function fingerprintUrl(rawUrl) {
     const n = normalizeUrl(rawUrl);
     if (!n) return { ok: false, error: 'Ungültige URL.' };
@@ -173,7 +219,9 @@ export async function fingerprintUrl(rawUrl) {
     // Sitemap laden und daraus Jobs-/Impressum-/Kontakt-Seiten per Keyword ziehen —
     // fängt auch Seiten wie /ueber-uns/jobs-bei-… ab, die im Startseiten-Menü fehlen.
     const sitemapUrls = await fetchSitemapUrls(n.origin);
-    const JOB_RE = 'karriere|jobs?|stellen|stellenangebot|career|join-?us|arbeiten-bei|mitarbeiter|vacan|werde-teil|offene-stellen';
+    // Karriere-URL streng als Pfad-Segment matchen — verhindert Fehltreffer wie
+    // /bestellen, /baustellenzubehoer, /ausstellung (bloße Substrings von „stellen").
+    const CAREER_SEG = /(^|[/_-])(karrieren?|jobs?|stellenangebote?|stellenausschreibung|offene-stellen|arbeiten-bei|karriere-bei|join-?us|werde-teil|wir-suchen)([/_.?-]|$)/i;
     const IMPR_RE = 'impressum|imprint|legal';
     const KONTAKT_RE = 'kontakt|contact';
 
@@ -187,7 +235,12 @@ export async function fingerprintUrl(rawUrl) {
         platform.belege = [...(platform.belege || []), { signal: 'Shopware-6-Sitemap', beleg: '/sitemap/salesChannel-…' }];
     }
 
-    const karriere_url = pickUrl(sitemapUrls, JOB_RE) || abs(n.origin, findLink(html, JOB_RE));
+    let karriere_url = sitemapUrls.find((u) => CAREER_SEG.test(u)) || '';
+    if (!karriere_url) {
+        for (const m of html.matchAll(/<a\b[^>]*href=["']([^"']+)["']/gi)) {
+            if (CAREER_SEG.test(m[1])) { karriere_url = abs(n.origin, m[1]); break; }
+        }
+    }
     const imprUrlAbs = pickUrl(sitemapUrls, IMPR_RE) || abs(n.origin, findLink(html, IMPR_RE));
     const kontaktUrlAbs = pickUrl(sitemapUrls, KONTAKT_RE) || abs(n.origin, findLink(html, KONTAKT_RE));
 
@@ -201,16 +254,20 @@ export async function fingerprintUrl(rawUrl) {
     }
     if (!contact.email) contact = { ...contact, ...extractContact(html) };
 
-    // Security-Header + Findings.
+    // Security-Header + Shop-Check (Fehlerbericht).
     const h = home.headers;
     const sec = {
         hsts: !!h.get('strict-transport-security'),
         csp: !!h.get('content-security-policy'),
         xfo: !!h.get('x-frame-options'),
+        xcto: !!h.get('x-content-type-options'),
+        ref: !!h.get('referrer-policy'),
     };
+    const datenschutzUrl = pickUrl(sitemapUrls, 'datenschutz|privacy|disclaimer|data-protection')
+        || abs(n.origin, findLink(html, 'datenschutz|privacy|disclaimer|data-protection'));
     const findings = [];
     if (platform.version_eol) findings.push({ typ: 'eol_version', schwere: 'hoch', titel: 'Veraltete Shop-Version (EOL)', beschreibung: `${platform.plattform} ohne Sicherheitsupdates — Migrations-Aufhänger.`, beleg_url: n.url, verwendbar_als: 'akquise_aufhaenger' });
-    if (!sec.hsts || !sec.csp) findings.push({ typ: 'security', schwere: 'mittel', titel: 'Fehlende Security-Header', beschreibung: `${!sec.hsts ? 'HSTS ' : ''}${!sec.csp ? 'CSP ' : ''}nicht gesetzt.`, beleg_url: n.url, verwendbar_als: 'intern_nur' });
+    findings.push(...runShopChecks({ html, headers: h, url: n.url, sec, hasImpressum: !!imprUrlAbs, hasDatenschutz: !!datenschutzUrl }));
 
     // Inhouse vs. Agentur: eigene Bundles/GitHub = Inhouse-Indiz; Agentur-Credit = Agentur.
     const inhouseSignal = platform.eigene_namespaces || github_org;
@@ -305,6 +362,47 @@ async function fetchAtsJobs(html, origin) {
     return out;
 }
 
+// JobPosting-JSON-LD (schema.org) aus <script type="application/ld+json"> lesen —
+// dasselbe strukturierte Markup, das Google Jobs nutzt. Verlässlicher als Heuristik
+// (Titel/Ort/Datum direkt). Verschachtelung (Array, @graph) wird aufgelöst.
+function extractJsonLdJobs(html, baseUrl) {
+    const jobs = [];
+    const seen = new Set();
+    const pushJob = (obj) => {
+        if (!obj || typeof obj !== 'object') return;
+        const types = [].concat(obj['@type'] || []).map((t) => String(t).toLowerCase());
+        if (!types.includes('jobposting')) return;
+        const titel = decodeEntities(String(obj.title || obj.name || '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+        if (!titel || titel.length < 3 || titel.length > 160) return;
+        const key = titel.toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        let standort = '';
+        for (const l of [].concat(obj.jobLocation || [])) {
+            const a = (l && l.address) || {};
+            if (typeof a === 'string') { standort = a; break; }
+            standort = [a.postalCode || '', a.addressLocality || ''].filter(Boolean).join(' ').trim();
+            if (standort) break;
+        }
+        let url = obj.url || (obj.hiringOrganization && obj.hiringOrganization.sameAs) || '';
+        url = url ? abs(baseUrl, String(url)) : '';
+        jobs.push({ titel, url, standort });
+    };
+    const walk = (node, depth) => {
+        if (!node || depth > 6) return;
+        if (Array.isArray(node)) { node.forEach((x) => walk(x, depth + 1)); return; }
+        if (typeof node !== 'object') return;
+        pushJob(node);
+        if (node['@graph']) walk(node['@graph'], depth + 1);
+    };
+    for (const m of html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+        const raw = m[1].trim();
+        if (!raw) continue;
+        try { walk(JSON.parse(raw), 0); } catch { /* defektes/mehrfaches JSON überspringen */ }
+    }
+    return jobs;
+}
+
 export async function scrapeCareerJobs(rawUrl) {
     const n = normalizeUrl(rawUrl);
     if (!n) return { ok: false, error: 'Ungültige Karriere-URL.' };
@@ -314,17 +412,23 @@ export async function scrapeCareerJobs(rawUrl) {
     try { page = await fetchText(n.url); } catch (e) { return { ok: false, error: `Karriereseite nicht erreichbar (${e.name === 'AbortError' ? 'Timeout' : 'Fehler'}).` }; }
     if (page.status === 403 || page.status === 429) return { ok: false, error: `Zugriff abgewiesen (${page.status}).` };
 
-    const jobs = extractCareerJobs(page.html, n.url);
+    // Reihenfolge nach Verlässlichkeit: JSON-LD (strukturiert) → ATS-Feed → Heuristik.
+    const jsonld = extractJsonLdJobs(page.html, n.url);
+    const jobs = [...jsonld];
     const seen = new Set(jobs.map((j) => j.titel.toLowerCase()));
+    const merge = (list) => {
+        for (const j of list) {
+            const t = (j.titel || '').trim();
+            if (!t || t.length < 5) continue;
+            const k = t.toLowerCase();
+            if (seen.has(k)) continue;
+            seen.add(k);
+            jobs.push({ titel: t, url: j.url || '', standort: j.standort || '' });
+        }
+    };
     const ats = await fetchAtsJobs(page.html, n.origin);
-    for (const j of ats) {
-        const t = (j.titel || '').trim();
-        if (!t || t.length < 5) continue;
-        const k = t.toLowerCase();
-        if (seen.has(k)) continue;
-        seen.add(k);
-        jobs.push({ titel: t, url: j.url || '', standort: j.standort || '' });
-    }
+    merge(ats);
+    merge(extractCareerJobs(page.html, n.url));
 
     // JS-Widget, das die Stellen erst clientseitig lädt und keinen lesbaren Feed hat
     // → ehrlicher Hinweis statt stiller 0 (kein Browser, keine undokumentierte API).
@@ -333,5 +437,6 @@ export async function scrapeCareerJobs(rawUrl) {
         if (/join\.com\/api\/widget/i.test(page.html)) widget = 'JOIN';
         else if (/(?:softgarden|smartrecruiters|workday|personio-widget|jobs2web|prescreen)/i.test(page.html)) widget = 'externes Bewerber-Widget';
     }
-    return { ok: true, jobs: jobs.slice(0, 60), source: ats.length ? 'ats+html' : 'html', widget };
+    const source = [jsonld.length ? 'jsonld' : '', ats.length ? 'ats' : '', 'html'].filter(Boolean).join('+');
+    return { ok: true, jobs: jobs.slice(0, 60), source, widget };
 }

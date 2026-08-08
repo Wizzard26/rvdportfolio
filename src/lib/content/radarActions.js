@@ -3,12 +3,18 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
-    createCompany, updateCompany, deleteCompany,
+    createCompany, updateCompany, deleteCompany, archiveCompany,
     createOpportunity, setOpportunityStatus, deleteOpportunity, rescoreOpportunity,
     addContact, deleteContact, addOutreachBlock, saveFingerprint, createShareFromOpportunity,
     markArt14Sent, getCompany, importCareerJobs,
+    parseBuiltWithCsv, importBuiltWith, getCompaniesToRescan, countCompaniesToRescan, applyRescan,
+    saveDiscovery, parseDomainList, importDomainList,
+    getCompaniesForJobScan, countCompaniesForJobScan, markJobScanned,
+    importJobPostings, getOpportunity, setOpportunityDescription,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
+import { ccDetect } from '@/lib/content/radarCommonCrawl';
+import { searchArbeitsagentur, fetchJobDetail } from '@/lib/content/radarBundesagentur';
 
 // Server Actions für das Bewerbungs-/Akquise-Radar. /dashboard ist per Proxy
 // geschützt; Freigabe-Seiten sind force-dynamic → keine Revalidierung nötig.
@@ -45,6 +51,14 @@ export async function deleteCompanyAction(formData) {
     deleteCompany(Number(formData.get('id')));
     revalidatePath('/dashboard/radar');
     redirect('/dashboard/radar');
+}
+
+// Archivieren/Reaktivieren (statt Löschen): Bestand bleibt, raus aus aktiver Sicht.
+export async function archiveCompanyAction(formData) {
+    const id = Number(formData.get('id'));
+    archiveCompany(id, formData.get('on') === '1');
+    revalidatePath('/dashboard/radar');
+    if (id) revalidatePath(`/dashboard/radar/${id}`);
 }
 
 // ── URL scannen (Fingerprinter) ────────────────────────────────────────────
@@ -107,6 +121,137 @@ export async function deleteOpportunityAction(formData) {
     const companyId = Number(formData.get('company_id'));
     deleteOpportunity(Number(formData.get('id')));
     revalidatePath(`/dashboard/radar/${companyId}`);
+}
+
+// Discovery: BuiltWith-CSV importieren → Firmen + Kontakte + Tech-Snapshot + Lead-Prio.
+export async function importBuiltWithAction(prevState, formData) {
+    const file = formData.get('file');
+    if (!file || typeof file.text !== 'function' || !file.size) return { error: 'Keine CSV-Datei ausgewählt.' };
+    let text = '';
+    try { text = await file.text(); } catch { return { error: 'Datei nicht lesbar.' }; }
+    const rows = parseBuiltWithCsv(text);
+    if (!rows.length) return { error: 'CSV leer oder Header nicht erkannt (Root Domain, eCommerce Platform …).' };
+    const res = importBuiltWith(rows);
+    revalidatePath('/dashboard/radar');
+    return { ok: true, ...res };
+}
+
+// Domain-/URL-Liste importieren (z. B. PublicWWW-Marker-Export). Schneller Bulk-
+// Import ohne Crawling; der Plattform-Hinweis kommt aus dem gesuchten Marker,
+// verifiziert wird per Batch-Re-Scan.
+export async function importDomainListAction(prevState, formData) {
+    const file = formData.get('file');
+    let text = (formData.get('domains') || '').toString();
+    if ((!text || !text.trim()) && file && typeof file.text === 'function' && file.size) {
+        try { text = await file.text(); } catch { /* ignore */ }
+    }
+    const domains = parseDomainList(text);
+    if (!domains.length) return { error: 'Keine Domains erkannt (Liste/Datei leer?).' };
+    const hint = (formData.get('plattform') || '').toString();
+    const plattformHint = ['shopware6', 'shopware5', 'shopify'].includes(hint) ? hint : '';
+    const typ = (formData.get('typ') || '').toString() === 'agentur' ? 'agentur' : 'inhouse_shop';
+    const source = typ === 'agentur' ? 'partnerverzeichnis' : 'publicwww';
+    const res = importDomainList(domains, { plattformHint, source, typ });
+    revalidatePath('/dashboard/radar');
+    return { ok: true, found: domains.length, ...res };
+}
+
+// Common-Crawl-Discovery (Prototyp): Domains gegen das CC-Archiv prüfen (ohne die
+// Live-Seiten zu belasten) und Shopware/Shopify-Treffer ins Radar importieren.
+export async function ccDiscoverAction(prevState, formData) {
+    const raw = (formData.get('domains') || '').toString();
+    const domains = [...new Set(raw.split(/[\s,;]+/).map((d) => d.trim().toLowerCase()).filter(Boolean))].slice(0, 20);
+    if (!domains.length) return { error: 'Keine Domains angegeben.' };
+    let checked = 0; let imported = 0; let sw5 = 0; let sw6 = 0; let shopify = 0; let noCopy = 0; let other = 0; let archived = 0;
+    const results = [];
+    for (const d of domains) {
+        checked += 1;
+        let det;
+        try { det = await ccDetect(d); } catch { det = { ok: false, reason: 'Fehler' }; }
+        if (!det.ok) { noCopy += 1; results.push({ domain: d, outcome: det.reason || 'keine Kopie' }); }
+        else {
+            const plat = det.plattform || 'unbekannt';
+            const isTarget = plat.startsWith('shopware') || plat === 'shopify';
+            if (!isTarget) { other += 1; results.push({ domain: d, outcome: plat }); }
+            else {
+                const findings = [];
+                if (det.version_eol) findings.push({ typ: 'eol_version', schwere: 'hoch', titel: 'Shopware 5 (EOL)', beschreibung: 'Aus Common-Crawl-Archiv als Shopware 5 erkannt — Migrations-Aufhänger; per Re-Scan live verifizieren.', beleg_url: `https://${d}`, verwendbar_als: 'akquise_aufhaenger' });
+                const id = saveDiscovery(d, det, findings, 'commoncrawl');
+                if (!id) { archived += 1; results.push({ domain: d, outcome: 'archiviert (übersprungen)' }); }
+                else {
+                    imported += 1;
+                    if (plat === 'shopware5') sw5 += 1; else if (plat === 'shopware6') sw6 += 1; else if (plat === 'shopify') shopify += 1;
+                    results.push({ domain: d, outcome: `${plat}${det.version ? ` ${det.version}` : ''}` });
+                }
+            }
+        }
+        await new Promise((res) => setTimeout(res, 250));
+    }
+    revalidatePath('/dashboard/radar');
+    return { ok: true, checked, imported, sw5, sw6, shopify, noCopy, other, archived, results };
+}
+
+// Batch-Re-Scan: pro Aufruf ein Häppchen Domains live fingerprinten (gedrosselt,
+// robots-konform) und die Realität korrigieren. Client ruft in Schleife auf.
+export async function rescanBatchAction(prevState, formData) {
+    const limit = Math.min(8, Math.max(1, Number(formData.get('limit')) || 5));
+    const mode = formData.get('mode') === 'all' ? 'all' : 'unscanned';
+    const targets = getCompaniesToRescan({ limit, mode });
+    const results = [];
+    for (const t of targets) {
+        let fp;
+        try { fp = await fingerprintUrl(`https://${t.domain}`); } catch { fp = { ok: false }; }
+        const r = applyRescan(t.id, fp);
+        results.push({ domain: t.domain, outcome: r.outcome, plattform: r.plattform || '' });
+        await new Promise((res) => setTimeout(res, 400)); // höflich zwischen den Domains
+    }
+    revalidatePath('/dashboard/radar');
+    return { ok: true, scanned: results.length, remaining: countCompaniesToRescan(mode), results };
+}
+
+// Bundesagentur-Jobsuche → Job-Chancen (Arbeitgeber + Ort). Offizielle API.
+export async function searchBaJobsAction(prevState, formData) {
+    const was = ((formData.get('was') || 'Shopware').toString().trim()) || 'Shopware';
+    const wo = (formData.get('wo') || '').toString().trim();
+    const umkreis = (formData.get('umkreis') || '').toString().trim();
+    const size = Math.min(100, Math.max(10, Number(formData.get('size')) || 50));
+    const r = await searchArbeitsagentur({ was, wo, umkreis, size });
+    if (!r.ok) return { error: r.error || 'Bundesagentur-Suche fehlgeschlagen.' };
+    const res = importJobPostings(r.jobs, { quelle: 'bundesagentur' });
+    revalidatePath('/dashboard/radar');
+    return { ok: true, total: r.total, found: r.jobs.length, ...res };
+}
+
+// BA-Detailabruf: Stellenbeschreibung einer Job-Chance nachladen (fürs Anschreiben).
+export async function fetchBaDetailAction(formData) {
+    const id = Number(formData.get('id'));
+    const companyId = Number(formData.get('company_id'));
+    const opp = getOpportunity(id);
+    if (opp && opp.ba_refnr) {
+        const d = await fetchJobDetail(opp.ba_refnr);
+        if (d.ok) setOpportunityDescription(id, d.beschreibung, d.verguetung);
+    }
+    if (companyId) revalidatePath(`/dashboard/radar/${companyId}`);
+}
+
+// Feature 2: Batch-Karriereseiten-Scan — sammelt Shopware-Stellen aus den eigenen
+// Karriereseiten der Firmen (legitim) als Job-Chancen. Häppchen.
+export async function jobScanBatchAction(prevState, formData) {
+    const limit = Math.min(8, Math.max(1, Number(formData.get('limit')) || 5));
+    const targets = getCompaniesForJobScan({ limit });
+    const results = [];
+    let jobsAdded = 0;
+    for (const t of targets) {
+        let res = { ok: false, jobs: [] };
+        try { res = await scrapeCareerJobs(t.karriere_url); } catch { /* egal */ }
+        let added = 0;
+        if (res.ok && res.jobs && res.jobs.length) { added = importCareerJobs(t.id, res.jobs).added; jobsAdded += added; }
+        markJobScanned(t.id);
+        results.push({ id: t.id, added, found: (res.jobs && res.jobs.length) || 0, widget: res.widget || '' });
+        await new Promise((r) => setTimeout(r, 400));
+    }
+    revalidatePath('/dashboard/radar');
+    return { ok: true, scanned: results.length, jobsAdded, remaining: countCompaniesForJobScan(), results };
 }
 
 // Phase 3A: Stellen von der Karriereseite der Firma ziehen und als Chancen anlegen.

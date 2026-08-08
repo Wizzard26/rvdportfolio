@@ -589,6 +589,29 @@ function migrate(database) {
     // Optionaler Live-Link je vertraulicher Referenz (nachgerüstet für bestehende DBs).
     ensureColumn(database, 'private_refs', 'link', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'private_refs', 'link_label', "TEXT NOT NULL DEFAULT ''");
+
+    // Radar: externe Import-Daten (BuiltWith) + Lead-Priorisierung + Re-Scan-Zustand.
+    ensureColumn(database, 'radar_companies', 'quelle', "TEXT NOT NULL DEFAULT 'manuell'"); // manuell|scan|builtwith
+    ensureColumn(database, 'radar_companies', 'umsatz_est', 'INTEGER NOT NULL DEFAULT 0'); // $/Monat, Schätzung extern
+    ensureColumn(database, 'radar_companies', 'tech_spend_est', 'INTEGER NOT NULL DEFAULT 0'); // $/Monat, Schätzung extern
+    ensureColumn(database, 'radar_companies', 'extern_gesehen', "TEXT NOT NULL DEFAULT ''"); // Last-Found aus der Quelle
+    ensureColumn(database, 'radar_companies', 'prio_score', 'INTEGER NOT NULL DEFAULT 0'); // 0-100 „lohnt sich"
+    ensureColumn(database, 'radar_companies', 'prio_grund', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'radar_companies', 'verworfen_grund', "TEXT NOT NULL DEFAULT ''"); // Karteileiche/weg-migriert
+    ensureColumn(database, 'radar_companies', 'last_scan', 'INTEGER NOT NULL DEFAULT 0'); // letzter Re-Scan (Batch-Steuerung)
+    ensureColumn(database, 'radar_companies', 'archiviert', 'INTEGER NOT NULL DEFAULT 0'); // manuell weggelegt (nicht loeschen)
+    ensureColumn(database, 'radar_companies', 'archiviert_am', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'radar_companies', 'last_job_scan', 'INTEGER NOT NULL DEFAULT 0'); // letzter Karriereseiten-Job-Scan
+    ensureColumn(database, 'radar_opportunities', 'ba_refnr', "TEXT NOT NULL DEFAULT ''"); // Bundesagentur-Referenz fuer Detailabruf
+    ensureColumn(database, 'radar_opportunities', 'beschreibung', "TEXT NOT NULL DEFAULT ''"); // Stellenbeschreibung (BA-Detail)
+    // Domain nur einmal — aber PARTIELL: leere Domains (Firmen ohne Website, z. B.
+    // Arbeitgeber aus Job-Anzeigen) müssen mehrfach erlaubt sein. Früher wurde hier
+    // fälschlich ein voller Unique-Index angelegt → mehrere '' kollidierten. Reparieren.
+    try {
+        const existing = database.prepare("SELECT sql FROM sqlite_master WHERE type='index' AND name='idx_radar_companies_domain'").get();
+        if (existing && !/where/i.test(existing.sql || '')) database.prepare('DROP INDEX idx_radar_companies_domain').run();
+        database.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_radar_companies_domain ON radar_companies(domain) WHERE domain != ''").run();
+    } catch { /* bestehende Duplikate → createCompany-Dedupe schützt weiterhin */ }
 }
 
 export function getContentDb() {
