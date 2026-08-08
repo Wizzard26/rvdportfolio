@@ -60,12 +60,13 @@ export function eignungOf(c) {
     return 'unklar';
 }
 
-// Gemeinsamer WHERE-Bau für Liste + Zähler (Suche, Typ, Status, Plattform, PLZ, Eignung).
-function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '' }) {
+// Gemeinsamer WHERE-Bau für Liste + Zähler (Suche, Typ, Status, Plattform, PLZ, Eignung, Quelle).
+function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '' }) {
     const where = ['1=1'];
     const p = {};
     if (q) { where.push('(c.name LIKE @q OR c.domain LIKE @q OR c.ort LIKE @q OR c.themengebiete LIKE @q)'); p.q = `%${q}%`; }
     if (typ) { where.push('c.typ = @typ'); p.typ = typ; }
+    if (quelle) { where.push('c.quelle = @quelle'); p.quelle = quelle; }
     if (plz) { where.push('c.plz LIKE @plz'); p.plz = `${plz}%`; } // PLZ-Bereich (Präfix)
     if (status === 'aktiv') where.push('c.aktiv = 1 AND c.archiviert = 0');
     else if (status === 'verworfen') where.push("c.verworfen_grund != '' AND c.archiviert = 0");
@@ -81,14 +82,14 @@ function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '',
     return { where, p };
 }
 
-export function countCompanies({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '' } = {}) {
-    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung });
+export function countCompanies({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '' } = {}) {
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle });
     return getContentDb().prepare(`SELECT COUNT(*) n FROM radar_companies c WHERE ${where.join(' AND ')}`).get(p).n;
 }
 
-export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv', plattform = '', plz = '', eignung = '', limit = 0, offset = 0 } = {}) {
+export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', limit = 0, offset = 0 } = {}) {
     const db = getContentDb();
-    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung });
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle });
     const order = sort === 'prio' ? 'c.prio_score DESC, c.updated_at DESC' : 'c.updated_at DESC, c.id DESC';
     const lim = limit ? `LIMIT ${Math.max(1, Number(limit) || 50)} OFFSET ${Math.max(0, Number(offset) || 0)}` : '';
     const params = { ...p };

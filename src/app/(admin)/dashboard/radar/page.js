@@ -22,6 +22,10 @@ const PLAT_LABEL = {
     shopware6: 'Shopware 6', shopware5: 'Shopware 5', shopify: 'Shopify',
     woocommerce: 'WooCommerce', magento: 'Magento', oxid: 'Oxid', custom: 'Custom', unbekannt: '—',
 };
+const QUELLE_LABEL = {
+    manuell: 'manuell', scan: 'Scan', builtwith: 'BuiltWith', publicwww: 'PublicWWW',
+    bundesagentur: 'Bundesagentur', partnerverzeichnis: 'Partnerverzeichnis', commoncrawl: 'Common Crawl', liste: 'Liste',
+};
 const EIGNUNG = {
     bewerbung: { label: 'Bewerbung', cls: 'an-badge--ok', title: 'Inhouse-Team / Agentur / Karriereseite → Bewerbung lohnt' },
     akquise: { label: 'Akquise', cls: 'an-badge--warn', title: 'Shop ohne Inhouse-Team oder EOL-Plattform → Akquise/Migration lohnt' },
@@ -37,12 +41,13 @@ export default async function RadarPage({ searchParams }) {
     const plattform = (sp?.plattform || '').toString();
     const plz = (sp?.plz || '').toString();
     const eignung = ['bewerbung', 'akquise', 'beides'].includes(sp?.eignung) ? sp.eignung : '';
+    const quelle = (sp?.quelle || '').toString();
 
     const PAGE_SIZE = 50;
-    const total = countCompanies({ q, typ, status, plattform, plz, eignung });
+    const total = countCompanies({ q, typ, status, plattform, plz, eignung, quelle });
     const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const page = Math.min(pages, Math.max(1, parseInt(sp?.page, 10) || 1));
-    const companies = getCompanies({ q, typ, status, plattform, plz, eignung, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
+    const companies = getCompanies({ q, typ, status, plattform, plz, eignung, quelle, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
 
     const opps = getOpportunities({});
     const offene = opps.filter((o) => !['absage', 'verworfen'].includes(o.status));
@@ -56,7 +61,7 @@ export default async function RadarPage({ searchParams }) {
     const prioClass = (s) => (s >= 70 ? 'an-badge--ok' : s >= 40 ? 'an-badge--warn' : '');
     // Query-String für Pagination-Links (aktuelle Filter behalten, page setzen).
     const qs = (over = {}) => {
-        const o = { q, typ, status, plattform, plz, eignung, page, ...over };
+        const o = { q, typ, status, plattform, plz, eignung, quelle, page, ...over };
         const parts = Object.entries(o).filter(([, v]) => v !== '' && v != null).map(([k, v]) => `${k}=${encodeURIComponent(v)}`);
         return `?${parts.join('&')}`;
     };
@@ -196,6 +201,10 @@ export default async function RadarPage({ searchParams }) {
                         <option value="akquise">wo Akquise lohnt</option>
                         <option value="beides">beides denkbar</option>
                     </select>
+                    <select name="quelle" defaultValue={quelle}>
+                        <option value="">Alle Quellen</option>
+                        {Object.entries(QUELLE_LABEL).map(([val, lbl]) => <option key={val} value={val}>{lbl}</option>)}
+                    </select>
                     <button type="submit" className="an-btn-secondary an-btn-small">Filtern</button>
                 </form>
                 <p className="an-muted" style={{ margin: '0 0 12px', fontSize: '0.85em' }}>{formatNumber(total)} Firmen{pages > 1 ? ` · Seite ${page}/${pages}` : ''}</p>
@@ -214,7 +223,9 @@ export default async function RadarPage({ searchParams }) {
                                             <Link href={`/dashboard/radar/${c.id}`}><strong>{c.name || c.domain || '(ohne Name)'}</strong></Link>
                                             {c.blocked && <span className="an-badge an-badge--warn" title="Doppelansprache gesperrt"> <FiLock aria-hidden="true" /> gesperrt</span>}
                                             {c.verworfen_grund && <span className="an-badge an-badge--bad" title={c.verworfen_grund}> verworfen</span>}
-                                            {c.domain && <div className="an-muted"><a href={`https://${c.domain}`} target="_blank" rel="noopener noreferrer">{c.domain} <FiExternalLink aria-hidden="true" /></a></div>}
+                                            {c.domain
+                                                ? <div className="an-muted"><a href={`https://${c.domain}`} target="_blank" rel="noopener noreferrer">{c.domain} <FiExternalLink aria-hidden="true" /></a></div>
+                                                : <div className="an-muted" style={{ fontSize: '0.82em' }}>ohne Website · Quelle: {QUELLE_LABEL[c.quelle] || c.quelle}</div>}
                                             {(c.umsatz_est > 0 || c.tech_spend_est > 0) && (
                                                 <div className="an-muted" style={{ fontSize: '0.82em' }}>
                                                     {c.umsatz_est > 0 ? `Umsatz ~$${formatNumber(c.umsatz_est)}/M` : ''}
