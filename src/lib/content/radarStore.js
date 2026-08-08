@@ -60,13 +60,18 @@ export function eignungOf(c) {
     return 'unklar';
 }
 
-// Gemeinsamer WHERE-Bau für Liste + Zähler (Suche, Typ, Status, Plattform, PLZ, Eignung, Quelle).
-function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '' }) {
+// Firma gilt als „beworben", wenn eine Chance im Bewerbungs-/Nachgang-Status ist.
+const BEWORBEN_EXISTS = "EXISTS (SELECT 1 FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN ('beworben','gespraech','angebot','absage'))";
+
+// Gemeinsamer WHERE-Bau für Liste + Zähler (Suche, Typ, Status, Plattform, PLZ, Eignung, Quelle, Beworben).
+function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '' }) {
     const where = ['1=1'];
     const p = {};
     if (q) { where.push('(c.name LIKE @q OR c.domain LIKE @q OR c.ort LIKE @q OR c.themengebiete LIKE @q)'); p.q = `%${q}%`; }
     if (typ) { where.push('c.typ = @typ'); p.typ = typ; }
     if (quelle) { where.push('c.quelle = @quelle'); p.quelle = quelle; }
+    if (beworben === 'ja') where.push(BEWORBEN_EXISTS);
+    else if (beworben === 'nein') where.push(`NOT ${BEWORBEN_EXISTS}`);
     if (plz) { where.push('c.plz LIKE @plz'); p.plz = `${plz}%`; } // PLZ-Bereich (Präfix)
     if (status === 'aktiv') where.push('c.aktiv = 1 AND c.archiviert = 0');
     else if (status === 'verworfen') where.push("c.verworfen_grund != '' AND c.archiviert = 0");
@@ -82,14 +87,14 @@ function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '',
     return { where, p };
 }
 
-export function countCompanies({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '' } = {}) {
-    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle });
+export function countCompanies({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '' } = {}) {
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle, beworben });
     return getContentDb().prepare(`SELECT COUNT(*) n FROM radar_companies c WHERE ${where.join(' AND ')}`).get(p).n;
 }
 
-export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', limit = 0, offset = 0 } = {}) {
+export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', limit = 0, offset = 0 } = {}) {
     const db = getContentDb();
-    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle });
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle, beworben });
     const order = sort === 'prio' ? 'c.prio_score DESC, c.updated_at DESC' : 'c.updated_at DESC, c.id DESC';
     const lim = limit ? `LIMIT ${Math.max(1, Number(limit) || 50)} OFFSET ${Math.max(0, Number(offset) || 0)}` : '';
     const params = { ...p };
@@ -97,6 +102,7 @@ export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', s
     const rows = db.prepare(`
         SELECT c.*,
             (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id) AS opp_count,
+            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN ('beworben','gespraech','angebot','absage')) AS beworben_count,
             (SELECT plattform FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS plattform,
             (SELECT version FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS version,
             (SELECT version_eol FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS version_eol,

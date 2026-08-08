@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw } from 'react-icons/fi';
+import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw, FiCheckCircle } from 'react-icons/fi';
 import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies, countCompaniesForJobScan } from '@/lib/content/radarStore';
 import { deleteCompanyAction, deleteContactAction, archiveCompanyAction } from '@/lib/content/radarActions';
 import { formatNumber } from '@/lib/analytics/format';
@@ -33,37 +33,51 @@ const EIGNUNG = {
     unklar: { label: '?', cls: '', title: 'Zu wenig Signal — per Re-Scan (Karriereseite/Inhouse) klären' },
 };
 
+// Tabs = primäre Sichten. Jeder Tab setzt Status/Eignung/Beworben; Suche/Plattform/
+// PLZ/Typ/Quelle bleiben als Feinfilter je Tab. So bleibt die Liste übersichtlich,
+// ohne die Filtermöglichkeiten zu verlieren.
+const TABS = [
+    { key: 'alle', label: 'Aktive', preset: { status: 'aktiv' } },
+    { key: 'bewerbung', label: 'Bewerbung', preset: { status: 'aktiv', eignung: 'bewerbung' } },
+    { key: 'akquise', label: 'Akquise', preset: { status: 'aktiv', eignung: 'akquise' } },
+    { key: 'beworben', label: 'Beworben', preset: { status: 'alle', beworben: 'ja' } },
+    { key: 'archiviert', label: 'Archiviert', preset: { status: 'archiviert' } },
+    { key: 'verworfen', label: 'Verworfen', preset: { status: 'verworfen' } },
+];
+
 export default async function RadarPage({ searchParams }) {
     const sp = await searchParams;
     const q = (sp?.q || '').toString();
     const typ = (sp?.typ || '').toString();
-    const status = ['aktiv', 'verworfen', 'archiviert', 'alle'].includes(sp?.status) ? sp.status : 'aktiv';
     const plattform = (sp?.plattform || '').toString();
     const plz = (sp?.plz || '').toString();
-    const eignung = ['bewerbung', 'akquise', 'beides'].includes(sp?.eignung) ? sp.eignung : '';
     const quelle = (sp?.quelle || '').toString();
 
+    // Feinfilter (gelten in jedem Tab, fließen auch in die Tab-Zähler ein).
+    const sec = { q, typ, plattform, plz, quelle };
+    const tabKey = TABS.find((t) => t.key === sp?.tab)?.key || 'alle';
+    const preset = TABS.find((t) => t.key === tabKey).preset;
+    const { status = 'aktiv', eignung = '', beworben = '' } = preset;
+    const tabCounts = Object.fromEntries(TABS.map((t) => [t.key, countCompanies({ ...sec, ...t.preset })]));
+
     const PAGE_SIZE = 50;
-    const total = countCompanies({ q, typ, status, plattform, plz, eignung, quelle });
+    const total = tabCounts[tabKey];
     const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const page = Math.min(pages, Math.max(1, parseInt(sp?.page, 10) || 1));
-    const companies = getCompanies({ q, typ, status, plattform, plz, eignung, quelle, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
+    const companies = getCompanies({ ...sec, status, eignung, beworben, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
 
     const opps = getOpportunities({});
-    const offene = opps.filter((o) => !['absage', 'verworfen'].includes(o.status));
     const dueContacts = getContactsDueForDeletion(14);
-    const verworfenCount = countCompanies({ status: 'verworfen' });
-    const archivedCount = countCompanies({ status: 'archiviert' });
     const unscanned = countCompaniesToRescan('unscanned');
     const jobScanPending = countCompaniesForJobScan();
     const jetzt = Date.now();
 
     const prioClass = (s) => (s >= 70 ? 'an-badge--ok' : s >= 40 ? 'an-badge--warn' : '');
-    // Query-String für Pagination-Links (aktuelle Filter behalten, page setzen).
+    // Query-String für Pagination/Tab-Links (aktuellen Tab + Feinfilter behalten).
     const qs = (over = {}) => {
-        const o = { q, typ, status, plattform, plz, eignung, quelle, page, ...over };
-        const parts = Object.entries(o).filter(([, v]) => v !== '' && v != null).map(([k, v]) => `${k}=${encodeURIComponent(v)}`);
-        return `?${parts.join('&')}`;
+        const o = { tab: tabKey, ...sec, page, ...over };
+        const parts = Object.entries(o).filter(([k, v]) => v !== '' && v != null && !(k === 'page' && Number(v) <= 1) && !(k === 'tab' && v === 'alle')).map(([k, v]) => `${k}=${encodeURIComponent(v)}`);
+        return parts.length ? `?${parts.join('&')}` : '?';
     };
 
     return (
@@ -138,8 +152,8 @@ export default async function RadarPage({ searchParams }) {
             <div className="an-tiles">
                 <StatTile value={formatNumber(companies.filter((c) => c.typ === 'inhouse_shop').length)} label="Inhouse-Shops" />
                 <StatTile value={formatNumber(companies.filter((c) => c.typ === 'agentur').length)} label="Agenturen" />
-                <StatTile value={formatNumber(verworfenCount)} label="Verworfen / Karteileichen" />
-                <StatTile value={formatNumber(archivedCount)} label="Archiviert" />
+                <StatTile value={formatNumber(tabCounts.verworfen)} label="Verworfen / Karteileichen" />
+                <StatTile value={formatNumber(tabCounts.archiviert)} label="Archiviert" />
             </div>
 
             {dueContacts.length > 0 && (
@@ -178,7 +192,16 @@ export default async function RadarPage({ searchParams }) {
             )}
 
             <section className="an-card an-full">
+                <div className="an-tabs" style={{ display: 'flex', flexWrap: 'wrap', maxWidth: '100%' }}>
+                    {TABS.map((t) => (
+                        <Link key={t.key} href={qs({ tab: t.key, page: 1 })} className={`an-tab${t.key === tabKey ? ' is-active' : ''}`}>
+                            {t.label} <span className="an-muted" style={{ fontSize: '0.85em' }}>({formatNumber(tabCounts[t.key])})</span>
+                        </Link>
+                    ))}
+                </div>
+
                 <form className="an-filters" style={{ marginBottom: 6 }}>
+                    <input type="hidden" name="tab" value={tabKey} />
                     <input name="q" defaultValue={q} placeholder="Suche: Name, Domain, Ort, Thema" className="an-input" />
                     <select name="plattform" defaultValue={plattform}>
                         <option value="">Alle Plattformen</option>
@@ -188,18 +211,6 @@ export default async function RadarPage({ searchParams }) {
                     <select name="typ" defaultValue={typ}>
                         <option value="">Alle Typen</option>
                         {Object.entries(TYP_LABEL).map(([val, lbl]) => <option key={val} value={val}>{lbl}</option>)}
-                    </select>
-                    <select name="status" defaultValue={status}>
-                        <option value="aktiv">Aktive</option>
-                        <option value="verworfen">Verworfen / Karteileichen</option>
-                        <option value="archiviert">Archiviert</option>
-                        <option value="alle">Alle</option>
-                    </select>
-                    <select name="eignung" defaultValue={eignung}>
-                        <option value="">Eignung: alle</option>
-                        <option value="bewerbung">wo Bewerbung lohnt</option>
-                        <option value="akquise">wo Akquise lohnt</option>
-                        <option value="beides">beides denkbar</option>
                     </select>
                     <select name="quelle" defaultValue={quelle}>
                         <option value="">Alle Quellen</option>
@@ -221,6 +232,7 @@ export default async function RadarPage({ searchParams }) {
                                         <td><span className={`an-badge ${prioClass(c.prio_score)}`} title={c.prio_grund || ''}>{formatNumber(c.prio_score || 0)}</span></td>
                                         <td>
                                             <Link href={`/dashboard/radar/${c.id}`}><strong>{c.name || c.domain || '(ohne Name)'}</strong></Link>
+                                            {c.beworben_count > 0 && <span className="an-badge an-badge--ok" title={`Hier bereits beworben (${c.beworben_count} ${c.beworben_count === 1 ? 'Chance' : 'Chancen'}) — nicht doppelt bewerben`}> <FiCheckCircle aria-hidden="true" /> beworben</span>}
                                             {c.blocked && <span className="an-badge an-badge--warn" title="Doppelansprache gesperrt"> <FiLock aria-hidden="true" /> gesperrt</span>}
                                             {c.verworfen_grund && <span className="an-badge an-badge--bad" title={c.verworfen_grund}> verworfen</span>}
                                             {c.domain
@@ -242,7 +254,7 @@ export default async function RadarPage({ searchParams }) {
                                                 : <span className="an-muted">nicht erkannt</span>}
                                         </td>
                                         <td>{[c.plz, c.ort].filter(Boolean).join(' ') || '—'}</td>
-                                        <td>{formatNumber(c.opp_count)}</td>
+                                        <td>{formatNumber(c.opp_count)}{c.beworben_count > 0 ? <span className="an-muted" title="davon beworben"> · {formatNumber(c.beworben_count)} bew.</span> : ''}</td>
                                         <td style={{ whiteSpace: 'nowrap' }}>
                                             <Link href={`/dashboard/radar/${c.id}`} className="an-btn-secondary an-btn-small">Öffnen</Link>
                                             {c.archiviert ? (
