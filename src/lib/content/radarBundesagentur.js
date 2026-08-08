@@ -30,3 +30,21 @@ export async function searchArbeitsagentur({ was = 'Shopware', wo = '', umkreis 
     });
     return { ok: true, total: d.maxErgebnisse ?? jobs.length, jobs };
 }
+
+// Detailabruf einer Anzeige (Beschreibung fürs Anschreiben). refnr wird base64-kodiert.
+export async function fetchJobDetail(referenznummer) {
+    const ref = (referenznummer || '').trim();
+    if (!ref) return { ok: false, error: 'Keine Referenznummer.' };
+    const b64 = Buffer.from(ref, 'utf8').toString('base64');
+    const url = `https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobdetails/${encodeURIComponent(b64)}`;
+    let res;
+    try { res = await fetch(url, { headers: HEADERS, cache: 'no-store' }); }
+    catch (e) { return { ok: false, error: `Detail nicht erreichbar (${e?.message || 'Fetch-Fehler'}).` }; }
+    if (!res.ok) return { ok: false, error: `Detail-API antwortete ${res.status}.` };
+    let d;
+    try { d = await res.json(); } catch { return { ok: false, error: 'Antwort nicht lesbar.' }; }
+    const beschreibung = String(d.stellenangebotsBeschreibung || '')
+        .replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+    const verguetung = d.verguetungsangabe && d.verguetungsangabe !== 'KEINE_ANGABEN' ? d.verguetungsangabe : '';
+    return { ok: true, beschreibung: beschreibung.slice(0, 6000), verguetung, homeoffice: !!d.homeofficemoeglich, partner: d.allianzpartnerName || '' };
+}

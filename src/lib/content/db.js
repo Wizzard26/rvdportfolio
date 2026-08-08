@@ -602,6 +602,8 @@ function migrate(database) {
     ensureColumn(database, 'radar_companies', 'archiviert', 'INTEGER NOT NULL DEFAULT 0'); // manuell weggelegt (nicht loeschen)
     ensureColumn(database, 'radar_companies', 'archiviert_am', 'INTEGER NOT NULL DEFAULT 0');
     ensureColumn(database, 'radar_companies', 'last_job_scan', 'INTEGER NOT NULL DEFAULT 0'); // letzter Karriereseiten-Job-Scan
+    ensureColumn(database, 'radar_opportunities', 'ba_refnr', "TEXT NOT NULL DEFAULT ''"); // Bundesagentur-Referenz fuer Detailabruf
+    ensureColumn(database, 'radar_opportunities', 'beschreibung', "TEXT NOT NULL DEFAULT ''"); // Stellenbeschreibung (BA-Detail)
     // Domain nur einmal — aber PARTIELL: leere Domains (Firmen ohne Website, z. B.
     // Arbeitgeber aus Job-Anzeigen) müssen mehrfach erlaubt sein. Früher wurde hier
     // fälschlich ein voller Unique-Index angelegt → mehrere '' kollidierten. Reparieren.

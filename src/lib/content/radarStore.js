@@ -236,6 +236,14 @@ export function getOpportunity(id) {
     return getContentDb().prepare('SELECT * FROM radar_opportunities WHERE id = ?').get(Number(id)) || null;
 }
 
+// Stellenbeschreibung (z. B. aus BA-Detail) an einer Chance speichern; leere
+// Gehaltsangabe optional nachtragen.
+export function setOpportunityDescription(id, beschreibung, gehalt = '') {
+    const db = getContentDb();
+    db.prepare('UPDATE radar_opportunities SET beschreibung=?, updated_at=? WHERE id=?').run((beschreibung || '').slice(0, 6000), Date.now(), Number(id));
+    if (gehalt) db.prepare("UPDATE radar_opportunities SET gehalt_angabe=@g WHERE id=@id AND gehalt_angabe=''").run({ g: gehalt, id: Number(id) });
+}
+
 // Batch-Job-Scan: Firmen mit Karriereseite, die abgesucht werden können.
 export function getCompaniesForJobScan({ limit = 5 } = {}) {
     return getContentDb().prepare("SELECT id, karriere_url FROM radar_companies WHERE karriere_url != '' AND archiviert = 0 AND aktiv = 1 ORDER BY last_job_scan ASC, prio_score DESC, id ASC LIMIT ?").all(Math.max(1, Number(limit) || 5));
@@ -831,6 +839,7 @@ export function importJobPostings(jobs, { quelle = 'bundesagentur' } = {}) {
             const c = db.prepare('SELECT typ FROM radar_companies WHERE id=?').get(companyId);
             const oppTyp = c && c.typ === 'agentur' ? 'job_agentur' : 'job_inhouse';
             const oppId = createOpportunity({ company_id: companyId, typ: oppTyp, titel: jb.titel, quell_url: url, quelle, standort: jb.ort, veroeffentlicht_am: jb.veroeffentlicht });
+            if (jb.referenznummer) db.prepare('UPDATE radar_opportunities SET ba_refnr=? WHERE id=?').run(jb.referenznummer, oppId);
             rescoreOpportunity(oppId);
             updateLeadScore(db, companyId);
             newOpps += 1;

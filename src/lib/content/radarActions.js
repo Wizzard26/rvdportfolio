@@ -10,11 +10,11 @@ import {
     parseBuiltWithCsv, importBuiltWith, getCompaniesToRescan, countCompaniesToRescan, applyRescan,
     saveDiscovery, parseDomainList, importDomainList,
     getCompaniesForJobScan, countCompaniesForJobScan, markJobScanned,
-    importJobPostings,
+    importJobPostings, getOpportunity, setOpportunityDescription,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 import { ccDetect } from '@/lib/content/radarCommonCrawl';
-import { searchArbeitsagentur } from '@/lib/content/radarBundesagentur';
+import { searchArbeitsagentur, fetchJobDetail } from '@/lib/content/radarBundesagentur';
 
 // Server Actions für das Bewerbungs-/Akquise-Radar. /dashboard ist per Proxy
 // geschützt; Freigabe-Seiten sind force-dynamic → keine Revalidierung nötig.
@@ -220,6 +220,18 @@ export async function searchBaJobsAction(prevState, formData) {
     const res = importJobPostings(r.jobs, { quelle: 'bundesagentur' });
     revalidatePath('/dashboard/radar');
     return { ok: true, total: r.total, found: r.jobs.length, ...res };
+}
+
+// BA-Detailabruf: Stellenbeschreibung einer Job-Chance nachladen (fürs Anschreiben).
+export async function fetchBaDetailAction(formData) {
+    const id = Number(formData.get('id'));
+    const companyId = Number(formData.get('company_id'));
+    const opp = getOpportunity(id);
+    if (opp && opp.ba_refnr) {
+        const d = await fetchJobDetail(opp.ba_refnr);
+        if (d.ok) setOpportunityDescription(id, d.beschreibung, d.verguetung);
+    }
+    if (companyId) revalidatePath(`/dashboard/radar/${companyId}`);
 }
 
 // Feature 2: Batch-Karriereseiten-Scan — sammelt Shopware-Stellen aus den eigenen

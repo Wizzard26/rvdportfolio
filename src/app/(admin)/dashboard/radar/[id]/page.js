@@ -5,7 +5,7 @@ import { getCompany, getLatestSnapshot, getFindings, OPP_STATUS } from '@/lib/co
 import {
     createOpportunityAction, setOpportunityStatusAction, deleteOpportunityAction,
     addContactAction, deleteContactAction, deleteCompanyAction, createFreigabeFromOpportunityAction,
-    markArt14SentAction,
+    markArt14SentAction, fetchBaDetailAction,
 } from '@/lib/content/radarActions';
 import CareerScrapeButton from '@/components/analytics/CareerScrapeButton';
 
@@ -141,6 +141,20 @@ export default async function RadarCompanyDetail({ params }) {
                                             <strong>{o.titel || '(ohne Titel)'}</strong>
                                             {o.begruendung && <div className="an-muted">{o.begruendung}</div>}
                                             {o.match_luecken && <div className="an-muted">Lücken: {o.match_luecken}</div>}
+                                            {o.quell_url && <div className="an-muted" style={{ fontSize: '0.85em' }}><a href={o.quell_url} target="_blank" rel="noopener noreferrer">Anzeige öffnen <FiExternalLink aria-hidden="true" /></a></div>}
+                                            {o.ba_refnr && !o.beschreibung && (
+                                                <form action={fetchBaDetailAction} style={{ marginTop: 4 }}>
+                                                    <input type="hidden" name="id" value={o.id} />
+                                                    <input type="hidden" name="company_id" value={c.id} />
+                                                    <button type="submit" className="an-btn-secondary an-btn-small" title="Stellenbeschreibung von der Bundesagentur laden">BA-Details laden</button>
+                                                </form>
+                                            )}
+                                            {o.beschreibung && (
+                                                <details style={{ marginTop: 4 }}>
+                                                    <summary className="an-btn-secondary an-btn-small" style={{ display: 'inline-block' }}>Stellenbeschreibung</summary>
+                                                    <pre className="an-input" style={{ whiteSpace: 'pre-wrap', margin: '6px 0 0', maxHeight: 260, overflow: 'auto', fontSize: '0.82em' }}>{o.beschreibung}</pre>
+                                                </details>
+                                            )}
                                         </td>
                                         <td><span className="an-badge">{(OPP_TYP.find((t) => t[0] === o.typ) || [])[1] || o.typ}</span></td>
                                         <td><strong>{o.score_gesamt}</strong></td>
