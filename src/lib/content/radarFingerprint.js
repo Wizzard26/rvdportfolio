@@ -146,7 +146,28 @@ function extractContact(html) {
     // Firmenname/Rechtsform grob aus Impressum-Text.
     const rechts = (html.match(/([A-ZÄÖÜ][\w&.\- ]{2,60}?\s(GmbH(?:\s*&\s*Co\.?\s*KG)?|AG|UG(?:\s*\(haftungsbeschränkt\))?|e\.K\.|GbR|KG|OHG))/) || [])[1] || '';
     const plz = (html.match(/\b(\d{5})\s+([A-ZÄÖÜ][a-zäöüß.\- ]{2,40})/) || []);
-    return { email, rechtsform: rechts ? decodeEntities(rechts).replace(/\s+/g, ' ').trim() : '', plz: plz[1] || '', ort: decodeEntities((plz[2] || '').trim()) };
+    // Für Text-Felder Tags entfernen (Impressum steht oft in <p>/<br>-Blöcken).
+    const text = decodeEntities(html.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ');
+    // Handelsregister: „HRB 12345" / „HRB Nummer: 12345" (+ Amtsgericht wenn nah dabei).
+    const hrm = text.match(/\bHR([AB])\b[\s.:]*(?:Nummer|Nr\.?)?[\s.:]*(\d{1,7})/i);
+    const hr = hrm ? `HR${hrm[1].toUpperCase()} ${hrm[2]}` : '';
+    const gericht = (text.match(/(?:Amtsgericht|Registergericht)\s+([A-ZÄÖÜ][a-zäöüßA-ZÄÖÜ.\- ]{2,30}?)(?=[,.;:]|\s{2}|\sHR|\sUSt|$)/) || [])[1] || '';
+    const handelsregister = [hr, gericht ? `Amtsgericht ${gericht.trim()}` : ''].filter(Boolean).join(' · ');
+    // USt-IdNr: DE + 9 Ziffern (Leerzeichen tolerieren).
+    const ust = (text.match(/\bDE\s?\d{3}\s?\d{3}\s?\d{3}\b/) || [])[0] || '';
+    // Geschäftsführer/Vertreten durch: 1–4 großgeschriebene Namens-Token, aber vor
+    // den nächsten Impressum-Labels stoppen (Zuständiges/Gericht/Sitz/HRB/USt …).
+    const STOP = 'Zuständige\\w*|Gericht|Amtsgericht|Registergericht|Handelsregister|Register|Sitz|USt|Umsatzsteuer|Steuernummer|Telefon|Fax|HRA|HRB|E-?Mail';
+    const gfm = text.match(new RegExp(
+        '(?:Geschäftsführer(?:in|ende[rn]?)?(?:\\s+Gesellschafter)?|Vertretungsberechtigt\\w*|Vertreten durch|Inhaber(?:in)?|Vorstand)\\s*:?\\s+'
+        + `([A-ZÄÖÜ][A-Za-zÄÖÜäöüß.\\-]+(?:\\s+(?!(?:${STOP})\\b)[A-ZÄÖÜ][A-Za-zÄÖÜäöüß.\\-]+){0,3})`,
+    ));
+    const geschaeftsfuehrer = gfm ? gfm[1].replace(/\s+/g, ' ').trim() : '';
+    return {
+        email, rechtsform: rechts ? decodeEntities(rechts).replace(/\s+/g, ' ').trim() : '',
+        plz: plz[1] || '', ort: decodeEntities((plz[2] || '').trim()),
+        handelsregister, ust_id: ust.replace(/\s/g, ''), geschaeftsfuehrer,
+    };
 }
 
 // Shop-Check: erzeugt aus dem bereits geholten HTML + Headern einen Fehlerbericht
@@ -245,7 +266,7 @@ export async function fingerprintUrl(rawUrl) {
     const kontaktUrlAbs = pickUrl(sitemapUrls, KONTAKT_RE) || abs(n.origin, findLink(html, KONTAKT_RE));
 
     // Impressum → Kontakt/Rechtsform; wenn dort keine Mail steht, Kontaktseite nachladen.
-    let contact = { email: '', rechtsform: '', plz: '', ort: '' };
+    let contact = { email: '', rechtsform: '', plz: '', ort: '', handelsregister: '', ust_id: '', geschaeftsfuehrer: '' };
     if (imprUrlAbs) {
         try { const impr = await fetchText(imprUrlAbs); contact = extractContact(impr.html); } catch { /* egal */ }
     }
@@ -277,6 +298,7 @@ export async function fingerprintUrl(rawUrl) {
         ok: true,
         company: {
             domain: n.domain, name, rechtsform: contact.rechtsform, plz: contact.plz, ort: contact.ort,
+            handelsregister: contact.handelsregister, ust_id: contact.ust_id, geschaeftsfuehrer: contact.geschaeftsfuehrer,
             karriere_url, linkedin_url, github_org, inhouse_team: team_signal,
             notiz: `Auto-Scan ${new Date().toISOString().slice(0, 10)}: ${platform.plattform}${platform.version ? ' ' + platform.version : ''}${agentur_credit ? ' · ' + agentur_credit : ''}`,
         },
