@@ -788,6 +788,57 @@ export function importDomainList(domains, { plattformHint = '', source = 'liste'
     return { created, updated, skipped, archived, total: created + updated };
 }
 
+// ─── Stellenanzeigen importieren (Bundesagentur u. Ä.) ───────────────────────
+export function getCompanyByName(name) {
+    const n = (name || '').trim().toLowerCase();
+    if (!n) return null;
+    return getContentDb().prepare('SELECT * FROM radar_companies WHERE lower(trim(name)) = ?').get(n) || null;
+}
+
+// Job-Anzeigen → Arbeitgeber-Firma (dedupe per Name; Inhouse-Team=ja → Eignung
+// „Bewerbung") + Job-Chance (dedupe per Quell-URL). Ein Arbeitgeber, der einen
+// Shopware-Dev sucht, ist ein Bewerbungsziel.
+export function importJobPostings(jobs, { quelle = 'bundesagentur' } = {}) {
+    const db = getContentDb();
+    const now = Date.now();
+    let newCompanies = 0; let newOpps = 0; let skipped = 0; let archived = 0;
+    const seenComp = new Map();
+    const run = db.transaction(() => {
+        for (const jb of (jobs || [])) {
+            if (!jb.titel || !jb.firma) { skipped += 1; continue; }
+            const key = jb.firma.trim().toLowerCase();
+            let companyId = seenComp.get(key);
+            if (!companyId) {
+                const ex = getCompanyByName(jb.firma);
+                if (ex && ex.archiviert) { archived += 1; continue; }
+                if (ex) {
+                    companyId = ex.id;
+                    db.prepare("UPDATE radar_companies SET plz=CASE WHEN plz='' THEN @plz ELSE plz END, ort=CASE WHEN ort='' THEN @ort ELSE ort END, region=CASE WHEN region='' THEN @region ELSE region END, inhouse_team=CASE WHEN inhouse_team='unklar' THEN 'ja' ELSE inhouse_team END, updated_at=@now WHERE id=@id")
+                        .run({ plz: jb.plz, ort: jb.ort, region: jb.region, now, id: companyId });
+                } else {
+                    companyId = createCompany({ name: jb.firma, plz: jb.plz, ort: jb.ort, region: jb.region, typ: 'unbekannt', inhouse_team: 'ja', aktiv: 1 });
+                    db.prepare('UPDATE radar_companies SET quelle=? WHERE id=?').run(quelle, companyId);
+                    newCompanies += 1;
+                }
+                seenComp.set(key, companyId);
+            }
+            const url = jb.url || '';
+            const dup = url
+                ? db.prepare('SELECT 1 FROM radar_opportunities WHERE company_id=? AND quell_url=?').get(companyId, url)
+                : db.prepare('SELECT 1 FROM radar_opportunities WHERE company_id=? AND titel=?').get(companyId, jb.titel);
+            if (dup) { skipped += 1; continue; }
+            const c = db.prepare('SELECT typ FROM radar_companies WHERE id=?').get(companyId);
+            const oppTyp = c && c.typ === 'agentur' ? 'job_agentur' : 'job_inhouse';
+            const oppId = createOpportunity({ company_id: companyId, typ: oppTyp, titel: jb.titel, quell_url: url, quelle, standort: jb.ort, veroeffentlicht_am: jb.veroeffentlicht });
+            rescoreOpportunity(oppId);
+            updateLeadScore(db, companyId);
+            newOpps += 1;
+        }
+    });
+    run();
+    return { newCompanies, newOpps, skipped, archived };
+}
+
 // ─── Batch-Re-Scan ───────────────────────────────────────────────────────────
 export function getCompaniesToRescan({ limit = 5, mode = 'unscanned' } = {}) {
     const db = getContentDb();

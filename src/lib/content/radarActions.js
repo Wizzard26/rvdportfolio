@@ -10,9 +10,11 @@ import {
     parseBuiltWithCsv, importBuiltWith, getCompaniesToRescan, countCompaniesToRescan, applyRescan,
     saveDiscovery, parseDomainList, importDomainList,
     getCompaniesForJobScan, countCompaniesForJobScan, markJobScanned,
+    importJobPostings,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 import { ccDetect } from '@/lib/content/radarCommonCrawl';
+import { searchArbeitsagentur } from '@/lib/content/radarBundesagentur';
 
 // Server Actions für das Bewerbungs-/Akquise-Radar. /dashboard ist per Proxy
 // geschützt; Freigabe-Seiten sind force-dynamic → keine Revalidierung nötig.
@@ -207,8 +209,21 @@ export async function rescanBatchAction(prevState, formData) {
     return { ok: true, scanned: results.length, remaining: countCompaniesToRescan(mode), results };
 }
 
+// Bundesagentur-Jobsuche → Job-Chancen (Arbeitgeber + Ort). Offizielle API.
+export async function searchBaJobsAction(prevState, formData) {
+    const was = ((formData.get('was') || 'Shopware').toString().trim()) || 'Shopware';
+    const wo = (formData.get('wo') || '').toString().trim();
+    const umkreis = (formData.get('umkreis') || '').toString().trim();
+    const size = Math.min(100, Math.max(10, Number(formData.get('size')) || 50));
+    const r = await searchArbeitsagentur({ was, wo, umkreis, size });
+    if (!r.ok) return { error: r.error || 'Bundesagentur-Suche fehlgeschlagen.' };
+    const res = importJobPostings(r.jobs, { quelle: 'bundesagentur' });
+    revalidatePath('/dashboard/radar');
+    return { ok: true, total: r.total, found: r.jobs.length, ...res };
+}
+
 // Feature 2: Batch-Karriereseiten-Scan — sammelt Shopware-Stellen aus den eigenen
-// Karriereseiten der Firmen (legitim, keine Portale/BA) als Job-Chancen. Häppchen.
+// Karriereseiten der Firmen (legitim) als Job-Chancen. Häppchen.
 export async function jobScanBatchAction(prevState, formData) {
     const limit = Math.min(8, Math.max(1, Number(formData.get('limit')) || 5));
     const targets = getCompaniesForJobScan({ limit });

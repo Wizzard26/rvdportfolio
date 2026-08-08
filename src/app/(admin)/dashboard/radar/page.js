@@ -10,6 +10,7 @@ import RadarBatchRescan from '@/components/analytics/RadarBatchRescan';
 import RadarCcDiscover from '@/components/analytics/RadarCcDiscover';
 import RadarListImport from '@/components/analytics/RadarListImport';
 import RadarJobScan from '@/components/analytics/RadarJobScan';
+import RadarBaSearch from '@/components/analytics/RadarBaSearch';
 
 export const dynamic = 'force-dynamic';
 
@@ -105,8 +106,14 @@ export default async function RadarPage({ searchParams }) {
                 </div>
                 <div style={{ marginTop: 18 }}>
                     <p className="an-card-note" style={{ margin: '0 0 8px' }}>
-                        <strong>Stellen-Suche</strong> über die Karriereseiten der Firmen → Job-Chancen (legitim, keine Portale).
-                        Stepstone/Indeed und die Bundesagentur-API sind tabu bzw. blockiert — Quelle sind die Firmen selbst.
+                        <strong>Stellen-Suche Bundesagentur für Arbeit</strong> (offizielle API) → Anzeigen als Job-Chancen mit Arbeitgeber + Ort.
+                        Der Arbeitgeber wird als Firma angelegt (Eignung „Bewerbung"), dedupliziert.
+                    </p>
+                    <RadarBaSearch />
+                </div>
+                <div style={{ marginTop: 18 }}>
+                    <p className="an-card-note" style={{ margin: '0 0 8px' }}>
+                        <strong>Karriereseiten-Scan</strong> der bereits erfassten Firmen → zusätzliche Stellen direkt von den Firmen (ergänzt die BA-Suche).
                     </p>
                     <RadarJobScan pendingCount={jobScanPending} />
                 </div>
