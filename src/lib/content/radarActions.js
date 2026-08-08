@@ -10,7 +10,7 @@ import {
     parseBuiltWithCsv, importBuiltWith, getCompaniesToRescan, countCompaniesToRescan, applyRescan,
     saveDiscovery, parseDomainList, importDomainList,
     getCompaniesForJobScan, countCompaniesForJobScan, markJobScanned,
-    importJobPostings, getOpportunity, setOpportunityDescription,
+    importJobPostings, getOpportunity, setOpportunityDescription, setArbeitgeberInfo,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 import { ccDetect } from '@/lib/content/radarCommonCrawl';
@@ -302,5 +302,17 @@ export async function deleteContactAction(formData) {
 export async function markArt14SentAction(formData) {
     const companyId = Number(formData.get('company_id'));
     markArt14Sent(Number(formData.get('id')), formData.get('sent') === '1');
+    if (companyId) revalidatePath(`/dashboard/radar/${companyId}`);
+}
+
+// Arbeitgeber-Recherche speichern (manuelle kununu-Funde + korrigierte Firmenidentität).
+export async function saveArbeitgeberInfoAction(formData) {
+    const companyId = Number(formData.get('company_id'));
+    setArbeitgeberInfo(companyId, {
+        rechtsform: formData.get('rechtsform'), handelsregister: formData.get('handelsregister'),
+        ust_id: formData.get('ust_id'), geschaeftsfuehrer: formData.get('geschaeftsfuehrer'),
+        kununu_url: formData.get('kununu_url'), kununu_score: formData.get('kununu_score'),
+        kununu_gehalt: formData.get('kununu_gehalt'),
+    });
     if (companyId) revalidatePath(`/dashboard/radar/${companyId}`);
 }

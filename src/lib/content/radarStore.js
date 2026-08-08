@@ -26,6 +26,9 @@ function companyFields(d) {
         domain: normalizeDomain(d.domain),
         name: (d.name || '').trim(),
         rechtsform: (d.rechtsform || '').trim(),
+        handelsregister: (d.handelsregister || '').trim(),
+        ust_id: (d.ust_id || '').trim(),
+        geschaeftsfuehrer: (d.geschaeftsfuehrer || '').trim(),
         strasse: (d.strasse || '').trim(),
         plz: (d.plz || '').trim(),
         ort: (d.ort || '').trim(),
@@ -137,6 +140,9 @@ export function createCompany(data) {
             db.prepare(`UPDATE radar_companies SET
                 name=CASE WHEN name='' THEN @name ELSE name END,
                 rechtsform=CASE WHEN rechtsform='' THEN @rechtsform ELSE rechtsform END,
+                handelsregister=CASE WHEN handelsregister='' THEN @handelsregister ELSE handelsregister END,
+                ust_id=CASE WHEN ust_id='' THEN @ust_id ELSE ust_id END,
+                geschaeftsfuehrer=CASE WHEN geschaeftsfuehrer='' THEN @geschaeftsfuehrer ELSE geschaeftsfuehrer END,
                 strasse=CASE WHEN strasse='' THEN @strasse ELSE strasse END,
                 plz=CASE WHEN plz='' THEN @plz ELSE plz END,
                 ort=CASE WHEN ort='' THEN @ort ELSE ort END,
@@ -151,9 +157,11 @@ export function createCompany(data) {
         }
     }
     return db.prepare(`
-        INSERT INTO radar_companies (domain, name, rechtsform, strasse, plz, ort, region, distanz_km, typ,
+        INSERT INTO radar_companies (domain, name, rechtsform, handelsregister, ust_id, geschaeftsfuehrer,
+            strasse, plz, ort, region, distanz_km, typ,
             themengebiete, inhouse_team, karriere_url, linkedin_url, github_org, notiz, aktiv, created_at, updated_at)
-        VALUES (@domain, @name, @rechtsform, @strasse, @plz, @ort, @region, @distanz_km, @typ,
+        VALUES (@domain, @name, @rechtsform, @handelsregister, @ust_id, @geschaeftsfuehrer,
+            @strasse, @plz, @ort, @region, @distanz_km, @typ,
             @themengebiete, @inhouse_team, @karriere_url, @linkedin_url, @github_org, @notiz, @aktiv, @now, @now)
     `).run(f).lastInsertRowid;
 }
@@ -166,6 +174,23 @@ export function updateCompany(id, data) {
             inhouse_team=@inhouse_team, karriere_url=@karriere_url, linkedin_url=@linkedin_url,
             github_org=@github_org, notiz=@notiz, aktiv=@aktiv, updated_at=@now WHERE id=@id
     `).run({ id: Number(id), ...f });
+}
+
+// Arbeitgeber-Recherche: manuell erfasste Felder (kununu-Fund + korrigierte
+// Firmenidentität). Bewusst getrennt von updateCompany, damit der Scan diese
+// Handrecherche nie überschreibt und das Bewerbungsformular schlank bleibt.
+export function setArbeitgeberInfo(id, data = {}) {
+    const norm = (v) => (v || '').toString().trim();
+    getContentDb().prepare(`UPDATE radar_companies SET
+        rechtsform=@rechtsform, handelsregister=@handelsregister, ust_id=@ust_id, geschaeftsfuehrer=@geschaeftsfuehrer,
+        kununu_url=@kununu_url, kununu_score=@kununu_score, kununu_gehalt=@kununu_gehalt, updated_at=@now WHERE id=@id`)
+        .run({
+            id: Number(id),
+            rechtsform: norm(data.rechtsform), handelsregister: norm(data.handelsregister),
+            ust_id: norm(data.ust_id), geschaeftsfuehrer: norm(data.geschaeftsfuehrer),
+            kununu_url: norm(data.kununu_url), kununu_score: norm(data.kununu_score),
+            kununu_gehalt: norm(data.kununu_gehalt), now: Date.now(),
+        });
 }
 
 export function deleteCompany(id) {
@@ -484,6 +509,9 @@ export function saveFingerprint(result, typ) {
             db.prepare(`UPDATE radar_companies SET
                 name = CASE WHEN name='' THEN @name ELSE name END,
                 rechtsform = CASE WHEN rechtsform='' THEN @rechtsform ELSE rechtsform END,
+                handelsregister = CASE WHEN handelsregister='' THEN @handelsregister ELSE handelsregister END,
+                ust_id = CASE WHEN ust_id='' THEN @ust_id ELSE ust_id END,
+                geschaeftsfuehrer = CASE WHEN geschaeftsfuehrer='' THEN @geschaeftsfuehrer ELSE geschaeftsfuehrer END,
                 plz = CASE WHEN plz='' THEN @plz ELSE plz END,
                 ort = CASE WHEN ort='' THEN @ort ELSE ort END,
                 typ = @typ, inhouse_team = @inhouse_team,
@@ -492,6 +520,7 @@ export function saveFingerprint(result, typ) {
                 github_org = CASE WHEN github_org='' THEN @github_org ELSE github_org END,
                 updated_at=@now WHERE id=@id`).run({
                 id: company.id, name: r.company.name || '', rechtsform: r.company.rechtsform || '',
+                handelsregister: r.company.handelsregister || '', ust_id: r.company.ust_id || '', geschaeftsfuehrer: r.company.geschaeftsfuehrer || '',
                 plz: r.company.plz || '', ort: r.company.ort || '', typ: companyType,
                 inhouse_team: r.company.inhouse_team || 'unklar', karriere_url: r.company.karriere_url || '',
                 linkedin_url: r.company.linkedin_url || '', github_org: r.company.github_org || '', now,
@@ -896,13 +925,19 @@ export function applyRescan(companyId, result) {
         } else {
             db.prepare(`UPDATE radar_companies SET aktiv=1, verworfen_grund='',
                 name = CASE WHEN name='' THEN @name ELSE name END,
+                rechtsform = CASE WHEN rechtsform='' THEN @rechtsform ELSE rechtsform END,
+                handelsregister = CASE WHEN handelsregister='' THEN @handelsregister ELSE handelsregister END,
+                ust_id = CASE WHEN ust_id='' THEN @ust_id ELSE ust_id END,
+                geschaeftsfuehrer = CASE WHEN geschaeftsfuehrer='' THEN @geschaeftsfuehrer ELSE geschaeftsfuehrer END,
                 plz = CASE WHEN plz='' THEN @plz ELSE plz END,
                 ort = CASE WHEN ort='' THEN @ort ELSE ort END,
                 karriere_url = CASE WHEN karriere_url='' THEN @karriere ELSE karriere_url END,
                 linkedin_url = CASE WHEN linkedin_url='' THEN @linkedin ELSE linkedin_url END,
                 inhouse_team = CASE WHEN inhouse_team='unklar' THEN @team ELSE inhouse_team END
                 WHERE id=@id`).run({
-                name: r.company.name || '', plz: r.company.plz || '', ort: r.company.ort || '',
+                name: r.company.name || '', rechtsform: r.company.rechtsform || '',
+                handelsregister: r.company.handelsregister || '', ust_id: r.company.ust_id || '', geschaeftsfuehrer: r.company.geschaeftsfuehrer || '',
+                plz: r.company.plz || '', ort: r.company.ort || '',
                 karriere: r.company.karriere_url || '', linkedin: r.company.linkedin_url || '',
                 team: r.company.inhouse_team || 'unklar', id: cid,
             });

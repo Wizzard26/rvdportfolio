@@ -604,6 +604,14 @@ function migrate(database) {
     ensureColumn(database, 'radar_companies', 'last_job_scan', 'INTEGER NOT NULL DEFAULT 0'); // letzter Karriereseiten-Job-Scan
     ensureColumn(database, 'radar_opportunities', 'ba_refnr', "TEXT NOT NULL DEFAULT ''"); // Bundesagentur-Referenz fuer Detailabruf
     ensureColumn(database, 'radar_opportunities', 'beschreibung', "TEXT NOT NULL DEFAULT ''"); // Stellenbeschreibung (BA-Detail)
+    // Firmenidentität aus dem Impressum (§5 DDG öffentlich) + manuelle Arbeitgeber-Recherche (kununu etc.).
+    // Rechtsträger-Name steckt bereits im vorhandenen Feld `rechtsform` (z. B. „TC-Innovations GmbH").
+    ensureColumn(database, 'radar_companies', 'handelsregister', "TEXT NOT NULL DEFAULT ''"); // HRB/HRA + Amtsgericht
+    ensureColumn(database, 'radar_companies', 'geschaeftsfuehrer', "TEXT NOT NULL DEFAULT ''");
+    ensureColumn(database, 'radar_companies', 'ust_id', "TEXT NOT NULL DEFAULT ''"); // USt-IdNr
+    ensureColumn(database, 'radar_companies', 'kununu_url', "TEXT NOT NULL DEFAULT ''"); // manuell: gefundenes Profil
+    ensureColumn(database, 'radar_companies', 'kununu_score', "TEXT NOT NULL DEFAULT ''"); // manuell: Gesamtbewertung
+    ensureColumn(database, 'radar_companies', 'kununu_gehalt', "TEXT NOT NULL DEFAULT ''"); // manuell: Entwickler-Gehalt/Notiz
     // Domain nur einmal — aber PARTIELL: leere Domains (Firmen ohne Website, z. B.
     // Arbeitgeber aus Job-Anzeigen) müssen mehrfach erlaubt sein. Früher wurde hier
     // fälschlich ein voller Unique-Index angelegt → mehrere '' kollidierten. Reparieren.

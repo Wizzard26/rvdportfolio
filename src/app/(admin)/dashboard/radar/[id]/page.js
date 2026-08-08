@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { FiArrowLeft, FiEdit2, FiTrash2, FiExternalLink, FiLock, FiSend, FiShield, FiCheck } from 'react-icons/fi';
+import { FiArrowLeft, FiEdit2, FiTrash2, FiExternalLink, FiLock, FiSend, FiShield, FiCheck, FiSearch, FiStar } from 'react-icons/fi';
 import { getCompany, getLatestSnapshot, getFindings, OPP_STATUS } from '@/lib/content/radarStore';
 import {
     createOpportunityAction, setOpportunityStatusAction, deleteOpportunityAction,
     addContactAction, deleteContactAction, deleteCompanyAction, createFreigabeFromOpportunityAction,
-    markArt14SentAction, fetchBaDetailAction,
+    markArt14SentAction, fetchBaDetailAction, saveArbeitgeberInfoAction,
 } from '@/lib/content/radarActions';
 import CareerScrapeButton from '@/components/analytics/CareerScrapeButton';
 
@@ -33,6 +33,17 @@ export default async function RadarCompanyDetail({ params }) {
     const findings = getFindings(c.id);
     const sec = snap && snap.security_header ? (() => { try { return JSON.parse(snap.security_header); } catch { return {}; } })() : {};
     const SCHWERE = { hoch: 'bad', mittel: 'warn', info: 'ok' };
+
+    // Deep-Links für die Handrecherche (im Browser geöffnet, nicht von uns abgerufen):
+    // kununu ist bot-geschützt (leerer 202-Body) und der Slug nicht aus dem Namen
+    // ableitbar → wir verlinken die Suche, du liest Bewertung/Gehalt selbst.
+    const brand = c.name || c.rechtsform || c.domain || '';
+    const legal = c.rechtsform || c.name || '';
+    const kununuSearch = brand ? `https://www.kununu.com/de/search?q=${encodeURIComponent(brand)}` : '';
+    const kununuProfil = (c.kununu_url || '').trim();
+    const kununuGehalt = kununuProfil ? `${kununuProfil.replace(/\/+$/, '')}/gehalt` : '';
+    const northdata = legal ? `https://www.northdata.de/?query=${encodeURIComponent([legal, c.ort].filter(Boolean).join(' '))}` : '';
+    const hasIdentitaet = c.rechtsform || c.handelsregister || c.ust_id || c.geschaeftsfuehrer;
 
     return (
         <div className="an-dashboard">
@@ -68,6 +79,57 @@ export default async function RadarCompanyDetail({ params }) {
                     {c.linkedin_url && <a href={c.linkedin_url} target="_blank" rel="noopener noreferrer"> · LinkedIn ↗ </a>}
                     {c.github_org && <span> · GitHub: {c.github_org}</span>}
                 </p>
+            </section>
+
+            {/* Arbeitgeber-Recherche: Firmenidentität (aus Impressum) + kununu/Northdata-Deep-Links + Handnotizen */}
+            <section className="an-card an-full">
+                <h2>Arbeitgeber-Recherche</h2>
+                <p className="an-card-note" style={{ marginTop: 0 }}>
+                    Firmenidentität aus dem Impressum (öffentlich, § 5 DDG). kununu &amp; North Data öffnest du im
+                    Browser — kununu ist bot-geschützt und liefert einem automatischen Abruf nichts, im Browser aber
+                    alles: <strong>Bewertung und Gehälter</strong> liest du dort selbst und hältst den Fund unten fest.
+                </p>
+
+                {hasIdentitaet ? (
+                    <div className="an-tiles">
+                        <div className="an-tile"><div className="an-tile-label">Rechtsträger</div><div className="an-tile-value" style={{ fontSize: '1rem' }}>{c.rechtsform || '—'}</div></div>
+                        <div className="an-tile"><div className="an-tile-label">Handelsregister</div><div className="an-tile-value" style={{ fontSize: '1rem' }}>{c.handelsregister || '—'}</div></div>
+                        <div className="an-tile"><div className="an-tile-label">Geschäftsführung</div><div className="an-tile-value" style={{ fontSize: '1rem' }}>{c.geschaeftsfuehrer || '—'}</div></div>
+                        <div className="an-tile"><div className="an-tile-label">USt-IdNr</div><div className="an-tile-value" style={{ fontSize: '1rem' }}>{c.ust_id || '—'}</div></div>
+                    </div>
+                ) : (
+                    <p className="an-card-note">Noch keine Firmenidentität erfasst — beim (Re-)Scan aus dem Impressum gefüllt oder unten von Hand ergänzen.</p>
+                )}
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, margin: '12px 0' }}>
+                    {kununuSearch && <a href={kununuSearch} target="_blank" rel="noopener noreferrer" className="an-btn-secondary an-btn-small"><FiSearch aria-hidden="true" /> kununu suchen</a>}
+                    {kununuProfil && <a href={kununuProfil} target="_blank" rel="noopener noreferrer" className="an-btn-secondary an-btn-small"><FiStar aria-hidden="true" /> kununu-Profil</a>}
+                    {kununuGehalt && <a href={kununuGehalt} target="_blank" rel="noopener noreferrer" className="an-btn-secondary an-btn-small">kununu-Gehälter ↗</a>}
+                    {northdata && <a href={northdata} target="_blank" rel="noopener noreferrer" className="an-btn-secondary an-btn-small"><FiExternalLink aria-hidden="true" /> North Data</a>}
+                </div>
+
+                {(c.kununu_score || c.kununu_gehalt) && (
+                    <p className="an-card-note" style={{ marginTop: 0 }}>
+                        {c.kununu_score && <span><strong>kununu-Score:</strong> {c.kununu_score}</span>}
+                        {c.kununu_score && c.kununu_gehalt ? ' · ' : ''}
+                        {c.kununu_gehalt && <span><strong>Gehalt (Notiz):</strong> {c.kununu_gehalt}</span>}
+                    </p>
+                )}
+
+                <details>
+                    <summary className="an-btn-secondary an-btn-small" style={{ display: 'inline-block' }}>Recherche erfassen / korrigieren</summary>
+                    <form action={saveArbeitgeberInfoAction} style={{ marginTop: 12, display: 'grid', gap: 8, maxWidth: 640 }}>
+                        <input type="hidden" name="company_id" value={c.id} />
+                        <label className="an-field"><span>kununu-Score (z. B. 3,8)</span><input name="kununu_score" defaultValue={c.kununu_score || ''} className="an-input" placeholder="Gesamtbewertung" /></label>
+                        <label className="an-field"><span>Entwickler-Gehalt / Notiz</span><input name="kununu_gehalt" defaultValue={c.kununu_gehalt || ''} className="an-input" placeholder="z. B. Softwareentwickler ~58–66 T€" /></label>
+                        <label className="an-field"><span>kununu-Profil-URL</span><input name="kununu_url" defaultValue={c.kununu_url || ''} className="an-input" placeholder="https://www.kununu.com/de/…" /></label>
+                        <label className="an-field"><span>Rechtsträger</span><input name="rechtsform" defaultValue={c.rechtsform || ''} className="an-input" /></label>
+                        <label className="an-field"><span>Handelsregister</span><input name="handelsregister" defaultValue={c.handelsregister || ''} className="an-input" placeholder="HRB 12345 · Amtsgericht …" /></label>
+                        <label className="an-field"><span>Geschäftsführung</span><input name="geschaeftsfuehrer" defaultValue={c.geschaeftsfuehrer || ''} className="an-input" /></label>
+                        <label className="an-field"><span>USt-IdNr</span><input name="ust_id" defaultValue={c.ust_id || ''} className="an-input" placeholder="DE123456789" /></label>
+                        <div><button type="submit" className="an-btn-primary an-btn-small"><FiCheck aria-hidden="true" /> Speichern</button></div>
+                    </form>
+                </details>
             </section>
 
             {/* Technikprofil (aus dem Fingerprint) */}
