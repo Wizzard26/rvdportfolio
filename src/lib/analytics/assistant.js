@@ -19,8 +19,10 @@ import {
 //   name = 'ask'  → eine Frage wurde gestellt; meta = { q, hit }
 //     q   = Fragetext (gekürzt) – der Besucher tippt ihn selbst
 //     hit = 'grounded' (echter Treffer) | 'soft' (Überblick-Thema) | 'none' (kein Treffer)
+//         | 'spielerei' (Taschenrechner/Jailbreak-/KI-Test → gekontert, keine Content-Lücke)
+//     kind = bei 'spielerei': 'math' | 'injection' | 'meta' (optional, für die Auswertung)
 
-const HIT_CLASSES = new Set(['grounded', 'soft', 'none']);
+const HIT_CLASSES = new Set(['grounded', 'soft', 'none', 'spielerei']);
 const MAX_Q = 200; // Fragetext defensiv kürzen
 
 function dayUtc(ts) {
@@ -35,7 +37,7 @@ function monthUtc(ts) {
  * Protokolliert ein anonymes Assistent-Nutzungs-Event. Fehler werden geschluckt
  * – Tracking darf den Assistenten nie stören.
  */
-export function recordAssistantEvent({ headers, sid, event, question, hit, path }) {
+export function recordAssistantEvent({ headers, sid, event, question, hit, kind, path }) {
     try {
         if (event !== 'open' && event !== 'ask') return;
 
@@ -45,10 +47,12 @@ export function recordAssistantEvent({ headers, sid, event, question, hit, path 
         const ts = Date.now();
         const ip = clientIp(headers); // nur transient, wird nicht gespeichert
 
+        const cls = HIT_CLASSES.has(hit) ? hit : 'none';
         const meta = event === 'ask'
             ? {
-                hit: HIT_CLASSES.has(hit) ? hit : 'none',
+                hit: cls,
                 q: typeof question === 'string' ? question.trim().slice(0, MAX_Q) : '',
+                ...(cls === 'spielerei' && ['math', 'injection', 'meta'].includes(kind) ? { kind } : {}),
             }
             : null;
 

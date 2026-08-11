@@ -14,14 +14,19 @@ const HIT_META = {
     grounded: { label: 'Treffer aus den Unterlagen', tone: 'ok' },
     soft: { label: 'Überblick-Thema (profil-nah)', tone: 'mid' },
     none: { label: 'Kein Treffer', tone: 'bad' },
+    spielerei: { label: 'Spielerei / Test (gekontert)', tone: 'mid' },
+};
+
+const KIND_LABEL = {
+    math: 'Rechenaufgabe', injection: 'Jailbreak-Versuch', meta: 'KI-/API-Test', '': 'Spielerei',
 };
 
 export default async function AssistantPage({ searchParams }) {
     const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const {
         opens, asks, openSessions,
-        grounded, soft, none, answeredRate,
-        topQuestions, misses,
+        grounded, soft, none, spielerei, answeredRate,
+        topQuestions, misses, playful,
     } = getAssistantData(range);
 
     // Für die Datenverwaltung zählt der gesamte Bestand (unabhängig vom Zeitraum).
@@ -31,6 +36,7 @@ export default async function AssistantPage({ searchParams }) {
         { key: 'grounded', n: grounded },
         { key: 'soft', n: soft },
         { key: 'none', n: none },
+        { key: 'spielerei', n: spielerei },
     ];
 
     return (
@@ -52,8 +58,9 @@ export default async function AssistantPage({ searchParams }) {
             <div className="an-tiles">
                 <StatTile value={formatNumber(opens)} label="Geöffnet" hint={`${formatNumber(openSessions)} ${openSessions === 1 ? 'Sitzung' : 'Sitzungen'}`} />
                 <StatTile value={formatNumber(asks)} label="Fragen gestellt" />
-                <StatTile value={`${answeredRate}%`} label="Beantwortet" hint="Treffer oder Überblick" />
+                <StatTile value={`${answeredRate}%`} label="Beantwortet" hint="Treffer/Überblick, ohne Spielereien" />
                 <StatTile value={formatNumber(none)} label="Ohne Treffer" hint="Lücken in den Unterlagen" />
+                {spielerei > 0 && <StatTile value={formatNumber(spielerei)} label="Spielereien / Tests" hint="Rechner, Jailbreak, KI-Proben" />}
             </div>
 
             {/* Treffer-Verteilung */}
@@ -93,6 +100,31 @@ export default async function AssistantPage({ searchParams }) {
                             <tbody>
                                 {misses.map((m, i) => (
                                     <tr key={`${m.q}-${i}`}><td>{m.q}</td><td>{formatNumber(m.n)}</td></tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            ) : null}
+
+            {/* Spielereien & Tests – zur Belustigung, nicht als Content-Lücke */}
+            {playful?.length ? (
+                <section className="an-card an-full">
+                    <h2>Spielereien &amp; Tests · {formatNumber(playful.length)}</h2>
+                    <p className="an-card-note">
+                        Versuche, den Assistenten als Taschenrechner zu missbrauchen, ihn zu „jailbreaken" oder zu testen,
+                        ob ein LLM dahintersteckt. Er kontert das schlagfertig – hier nur zur Belustigung, nicht als To-do.
+                    </p>
+                    <div className="an-table-wrap">
+                        <table className="an-table">
+                            <thead><tr><th>Eingabe</th><th>Art</th><th>Anzahl</th></tr></thead>
+                            <tbody>
+                                {playful.map((m, i) => (
+                                    <tr key={`${m.q}-${i}`}>
+                                        <td>{m.q}</td>
+                                        <td><span className="an-badge">{KIND_LABEL[m.kind] ?? KIND_LABEL['']}</span></td>
+                                        <td>{formatNumber(m.n)}</td>
+                                    </tr>
                                 ))}
                             </tbody>
                         </table>

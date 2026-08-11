@@ -410,6 +410,10 @@ export function getAssistantData(range) {
     const grounded = hitMap.grounded || 0;
     const soft = hitMap.soft || 0;
     const none = hitMap.none || 0;
+    const spielerei = hitMap.spielerei || 0;
+    // Antwortquote nur über „echte" Fragen – Spielereien (Rechner/Jailbreak/KI-Test)
+    // verfälschen die Content-Qualität nicht.
+    const genuineAsks = Math.max(0, asks - spielerei);
 
     // Meistgestellte Fragen (case-insensitiv zusammengefasst).
     const topQuestions = db.prepare(`
@@ -422,12 +426,26 @@ export function getAssistantData(range) {
         ORDER BY n DESC, q ASC LIMIT @limit
     `).all({ ...range, limit: 50 });
 
-    // Fehlschüsse: Fragen ohne Treffer = die Verbesserungsliste.
+    // Fehlschüsse: Fragen ohne Treffer = die Verbesserungsliste (Spielereien sind
+    // per hit='spielerei' hier automatisch außen vor).
     const misses = db.prepare(`
         SELECT json_extract(meta, '$.q') AS q, COUNT(*) AS n
         FROM events
         WHERE ${RANGE} AND type='assistant' AND name='ask'
           AND COALESCE(json_extract(meta, '$.hit'), 'none') = 'none'
+          AND json_extract(meta, '$.q') <> ''
+        GROUP BY lower(json_extract(meta, '$.q'))
+        ORDER BY n DESC, q ASC LIMIT @limit
+    `).all({ ...range, limit: 50 });
+
+    // Spielereien & Tests: Rechenaufgaben, Jailbreak-Versuche, KI-/API-Proben.
+    const playful = db.prepare(`
+        SELECT json_extract(meta, '$.q') AS q,
+               COALESCE(json_extract(meta, '$.kind'), '') AS kind,
+               COUNT(*) AS n
+        FROM events
+        WHERE ${RANGE} AND type='assistant' AND name='ask'
+          AND COALESCE(json_extract(meta, '$.hit'), '') = 'spielerei'
           AND json_extract(meta, '$.q') <> ''
         GROUP BY lower(json_extract(meta, '$.q'))
         ORDER BY n DESC, q ASC LIMIT @limit
@@ -440,9 +458,11 @@ export function getAssistantData(range) {
         grounded,
         soft,
         none,
-        answeredRate: asks ? Math.round(((grounded + soft) / asks) * 100) : 0,
+        spielerei,
+        answeredRate: genuineAsks ? Math.round(((grounded + soft) / genuineAsks) * 100) : 0,
         topQuestions,
         misses,
+        playful,
     };
 }
 
