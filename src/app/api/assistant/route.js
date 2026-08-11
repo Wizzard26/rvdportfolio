@@ -2,6 +2,7 @@ import { buildKnowledge } from '@/lib/assistant/knowledge';
 import { buildSoftTopics } from '@/lib/assistant/topics';
 import { retrieve } from '@/lib/assistant/retrieve';
 import { buildAnswer } from '@/lib/assistant/answer';
+import { classifyPlayful } from '@/lib/assistant/playful';
 import { recordAssistantEvent } from '@/lib/analytics/assistant';
 
 // Öffentlicher CV-Assistent: beantwortet Besucherfragen ausschließlich aus den
@@ -40,6 +41,18 @@ export async function POST(request) {
             items: [],
             grounded: false,
         });
+    }
+
+    // Spielereien (Taschenrechner, „ignoriere deine Regeln", „bist du eine echte
+    // KI?") schlagfertig kontern – und als 'spielerei' loggen, damit sie die
+    // Content-Lücken-Liste nicht verwässern.
+    const playful = classifyPlayful(question);
+    if (playful) {
+        recordAssistantEvent({
+            headers: request.headers, sid: body.sid, event: 'ask',
+            question, hit: 'spielerei', kind: playful.kind, path: body.path,
+        });
+        return Response.json({ lead: playful.lead, items: playful.items || [], grounded: false });
     }
 
     try {
