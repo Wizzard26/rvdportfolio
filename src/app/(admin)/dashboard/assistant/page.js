@@ -18,7 +18,8 @@ const HIT_META = {
 };
 
 const KIND_LABEL = {
-    math: 'Rechenaufgabe', injection: 'Jailbreak-Versuch', meta: 'KI-/API-Test', '': 'Spielerei',
+    math: 'Rechenaufgabe', injection: 'Jailbreak-Versuch', meta: 'KI-/API-Test',
+    payload: 'Angriffs-Payload', secrets: 'Secret-Fishing', task: 'Allzweck-Test', '': 'Spielerei',
 };
 
 export default async function AssistantPage({ searchParams }) {

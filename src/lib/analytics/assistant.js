@@ -52,7 +52,7 @@ export function recordAssistantEvent({ headers, sid, event, question, hit, kind,
             ? {
                 hit: cls,
                 q: typeof question === 'string' ? question.trim().slice(0, MAX_Q) : '',
-                ...(cls === 'spielerei' && ['math', 'injection', 'meta'].includes(kind) ? { kind } : {}),
+                ...(cls === 'spielerei' && ['math', 'injection', 'meta', 'payload', 'secrets', 'task'].includes(kind) ? { kind } : {}),
             }
             : null;
 

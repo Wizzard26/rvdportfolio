@@ -1,16 +1,16 @@
 // Erkennt „Spielereien" am CV-Assistenten – Besucher, die ihn als Taschenrechner
-// missbrauchen, ihn zu „jailbreaken" versuchen oder testen, ob ein LLM/eine API
-// dahintersteckt. Antwort: schlagfertig, aber professionell – und ganz nebenbei
-// Positionierung (der Assistent ist bewusst grounded, kein halluzinierendes LLM).
+// missbrauchen, ihn zu „jailbreaken" versuchen, Angriffs-Payloads reinwerfen,
+// nach Secrets fischen oder testen, ob ein Allzweck-LLM dahintersteckt. Antwort:
+// schlagfertig, aber professionell – und ganz nebenbei Positionierung (der
+// Assistent ist bewusst grounded, René baut sicher).
 //
 // Wird VOR dem Retrieval aufgerufen. Gibt bei Treffer { kind, lead, items }
-// zurück, sonst null. kind ∈ { injection, meta, math } → landet als hit
-// 'spielerei' im Log und damit NICHT in der Content-Lücken-Liste.
+// zurück, sonst null. kind landet als hit 'spielerei' im Log und damit NICHT in
+// der Content-Lücken-Liste. Reihenfolge = Priorität (spezifischste zuerst).
 
 const SHOWCASE_CHIP = { text: '', label: 'Renés Projekte ansehen', url: '/showcase' };
 
-// Einfache, sichere Zwei-Operanden-Rechnung (kein eval!). Gibt Ergebnis als
-// String zurück oder null, wenn es keine saubere a∘b-Aufgabe ist.
+// ── Sichere Zwei-Operanden-Rechnung (kein eval!) ────────────────────────────
 function calc(expr) {
     const m = expr.match(/(-?\d+(?:[.,]\d+)?)\s*([+\-*x×·/:])\s*(-?\d+(?:[.,]\d+)?)/);
     if (!m) return null;
@@ -44,42 +44,86 @@ function mathHit(q) {
     return { kind: 'math', lead, items: [SHOWCASE_CHIP] };
 }
 
-// „Ignoriere deine Regeln / Prompt / Guardrails …", Jailbreak-Versuche.
+// ── Muster-Regeln (Reihenfolge = Priorität) ─────────────────────────────────
+
+// Klassische Angriffs-Payloads: XSS, SQLi, Command-Injection, Path-Traversal,
+// Template-Injection (SSTI). Für einen Eingabe-Feld-Test unverkennbar.
+const PAYLOAD = [
+    /<\s*script\b|on(error|load|click|mouseover)\s*=|<\s*(img|svg|iframe|body)\b[^>]*=|javascript:\s*\w/i, // XSS
+    /(['"]|\b)\s*(or|and)\s+['"]?\d+['"]?\s*=\s*['"]?\d+/i, // ' OR 1=1
+    /\bunion\s+select\b|\bdrop\s+table\b|\binsert\s+into\b|\bselect\s+.*\bfrom\b.*\bwhere\b|--\s*$|;\s*--/i, // SQLi
+    /(\.\.[/\\]){2,}|\/etc\/passwd|\/proc\/self|boot\.ini|c:\\windows/i, // Path-Traversal / LFI
+    /\$\(\s*\w|;\s*(rm|ls|cat|whoami|id|curl|wget|nc|bash|sh)\b|\|\s*(sh|bash)\b|&&\s*(rm|curl|wget)\b/i, // Command-Injection
+    /\{\{\s*[\d'"].*\}\}|\$\{\s*[\d'"]|#\{\s*\d/i, // SSTI: {{7*7}} ${7*7}
+    /<\?php\b|\beval\s*\(|\bsystem\s*\(|\bexec\s*\(/i, // Code-Ausführung
+];
+
+// Nach Geheimnissen fischen: Keys, Passwörter, .env, Zugangsdaten.
+const SECRETS = [
+    /\.env\b/i,
+    /(gib|zeig|nenn|verrat|sag|list|dump|leak|show|reveal|her mit|druck|print)\w*.{0,30}(api[- ]?key|api[- ]?schlüssel|secret|passwor|passwort|credential|zugangsdaten|token|private[- ]?key|ssh[- ]?key)/i,
+    /(deine?|the|your)\b.{0,15}(api[- ]?key|api[- ]?schlüssel|passwor|passwort|credentials|zugangsdaten|secret[- ]?key)/i,
+];
+
+// Prompt-Manipulation / -Leak / Rollenwechsel / „Modi".
 const INJECTION = [
     /(ignor|vergiss|missachte|überschreib|umgeh|bypass)\w*.{0,40}(guardrail|leitplanke|regel|anweisung|vorgab|prompt|system|instruction|filter|einschränk|beschränk|richtlinie)/i,
-    /\b(jailbreak|prompt[- ]?injection|dan[- ]?mode|do anything now|system[- ]?prompt|systemprompt)\b/i,
     /ignore (all|your|previous|the above).{0,20}(instruction|rule|prompt)/i,
+    /(zeig|verrat|nenn|gib|repeat|print|wiederhol|output|reveal)\w*.{0,30}(system[- ]?prompt|systemprompt|prompt|deine? (anweisung|instruktion|regeln|vorgaben)|instruction)/i,
+    /\b(jailbreak|prompt[- ]?injection|dan[- ]?mode|do anything now|developer mode|entwicklermodus|admin[- ]?mod(e|us)|sudo\b|root[- ]?zugriff|system[- ]?prompt|systemprompt)\b/i,
+    /\b(act as|so tun als|tu so als|pretend (you|to be)|verhalte dich wie|spiele die rolle|you are now)\b/i,
 ];
 
 // „Bist du eine echte KI? Welches Modell? Steckt da eine API/GPT dahinter?"
 const META = [
     /(bist du|seid ihr|are you|is this).{0,30}(echte?r? |wirklich(e)? )?(ki|k\.i\.|\bai\b|bot|chatbot|mensch|gpt|chatgpt|claude|llm|sprachmodell|language model)/i,
     /(welches|which)\s+(ki[- ]?)?(modell|model)/i,
-    /(api|schnittstelle|backend|llm|gpt|chatgpt|openai|anthropic).{0,25}(dahinter|hinter dir|dahinter steckt|verwendest du|nutzt du|läuft)/i,
-    /(steckt|läuft|verbirgt).{0,25}(eine? )?(api|ki|llm|gpt|chatgpt|sprachmodell)/i,
+    /(api|schnittstelle|backend|llm|gpt|chatgpt|openai|anthropic).{0,25}(dahinter|hinter dir|verwendest du|nutzt du|läuft)/i,
+    /(steckt|läuft|verbirgt)\b.{0,25}(eine? )?(api|ki|llm|gpt|chatgpt|sprachmodell)/i,
+    /\b(temperature|token[- ]?limit|kontextfenster|context window|welche version von (gpt|claude))\b/i,
+];
+
+// Allzweck-Aufgaben: der Test, ob ein generelles LLM dahintersteckt.
+const TASK = [
+    /\b(gedicht|witz|joke|poem|limerick|rezept|kochrezept|wetter|sinn des lebens|meaning of life|hausaufgabe|homework|tic[- ]?tac[- ]?toe)\b/i,
+    /(schreib|erzähl|generier|dichte?|mal|schreibe)\s+(mir\s+)?(ein|eine|einen|mal ein)\b/i,
+    /\b(write|tell) me an? \b/i,
+    /(übersetz\w*|translate)/i,
+];
+
+const RULES = [
+    {
+        kind: 'payload', res: PAYLOAD,
+        lead: 'Sauberer Versuch 😄 – aber Eingaben werden hier escaped und Datenbank-Abfragen laufen parametrisiert; XSS, SQL-Injection & Co. gehen ins Leere (und eine Nutzer-Tabelle zum „droppen" gibt es hier ohnehin nicht). Genau so baut René: Sicherheit ist kein Nachgedanke. Frag mich lieber etwas zu seiner Arbeit.',
+    },
+    {
+        kind: 'secrets', res: SECRETS,
+        lead: 'Nice try 😄 – hier liegen keine API-Keys, Passwörter oder .env-Dateien. Der Assistent kennt ausschließlich Renés öffentliche Portfolio-Inhalte; Secrets gehören serverseitig und nie in den Browser. Frag mich gern etwas zu seinen Projekten.',
+    },
+    {
+        kind: 'injection', res: INJECTION,
+        lead: 'Nett versucht 😄 – aber hier gibt es keine Guardrails zu umgehen und keinen System-Prompt zu leaken: Hinter mir steckt kein Sprachmodell, das man überreden könnte, sondern eine Suche über Renés echte Projektunterlagen. Genau deshalb erfinde ich nichts. Frag mich etwas Konkretes zu seiner Arbeit.',
+    },
+    {
+        kind: 'meta', res: META,
+        lead: 'Ehrliche Antwort: Ich bin kein LLM und keine externe API, sondern eine schlanke Suche über Renés echte Portfolio-Inhalte – bewusst so gebaut, dass ich nichts halluziniere, sondern nur belege, was wirklich dokumentiert ist. Frag mich gern nach seinen Projekten, seiner Vita oder seiner Verfügbarkeit.',
+    },
+    {
+        kind: 'task', res: TASK,
+        lead: 'Ich bin kein Allzweck-Chatbot – Gedichte, Rätsel, Übersetzungen oder fremde Coding-Aufgaben sind nicht mein Ding. Ich bin Renés Portfolio-Guide. Solche React-/Shopware-Lösungen baut aber genau er – wirf einen Blick ins Showcase oder frag mich nach seinem Tech-Stack.',
+    },
 ];
 
 export function classifyPlayful(question) {
     const q = (question || '').toString();
     if (!q.trim()) return null;
 
-    // Injection zuerst: „ignoriere Regeln und rechne 4+6" soll als Injection
-    // erkannt werden, nicht als Mathe.
-    if (INJECTION.some((re) => re.test(q))) {
-        return {
-            kind: 'injection',
-            lead: 'Nett versucht 😄 – aber hier gibt es keine Guardrails zu umgehen: Hinter mir steckt kein Sprachmodell, das man überreden könnte, sondern eine Suche über Renés echte Projektunterlagen. Genau deshalb erfinde ich nichts und plaudere auch keine „Systemregeln" aus. Frag mich etwas Konkretes zu seiner Arbeit.',
-            items: [SHOWCASE_CHIP],
-        };
+    for (const rule of RULES) {
+        if (rule.res.some((re) => re.test(q))) {
+            return { kind: rule.kind, lead: rule.lead, items: [SHOWCASE_CHIP] };
+        }
     }
-
-    if (META.some((re) => re.test(q))) {
-        return {
-            kind: 'meta',
-            lead: 'Ehrliche Antwort: Ich bin kein LLM und keine externe API, sondern eine schlanke Suche über Renés echte Portfolio-Inhalte – bewusst so gebaut, dass ich nichts halluziniere, sondern nur belege, was wirklich dokumentiert ist. Frag mich gern nach seinen Projekten, seiner Vita oder seiner Verfügbarkeit.',
-            items: [SHOWCASE_CHIP],
-        };
-    }
-
+    // Reine Rechenaufgabe zuletzt (damit „ignoriere Regeln und rechne 4+6" als
+    // Injection zählt, nicht als Mathe).
     return mathHit(q);
 }
