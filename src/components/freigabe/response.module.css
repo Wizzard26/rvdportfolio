@@ -1,14 +1,14 @@
 .aside { display: flex; flex-direction: column; gap: 18px; }
 
 .panel {
-    padding: 18px; border: 1px solid var(--dark-light); border-radius: 12px; background: #fff;
+    padding: 18px; border: 1px solid var(--dark-light); border-radius: 12px; background: var(--light);
 }
 .panelTitle {
     display: flex; align-items: center; gap: 8px;
     font-size: 1.05rem; margin: 0 0 14px;
 }
 .hint { color: var(--dark-6, #667); font-size: 0.88rem; margin: 0; }
-.leadText { color: var(--dark); font-size: 0.95rem; line-height: 1.5; margin: 0; }
+.leadText { color: var(--ink); font-size: 0.95rem; line-height: 1.5; margin: 0; }
 .note { color: var(--dark-6, #889); font-size: 0.8rem; margin: 0; }
 
 .confirmed {
@@ -20,7 +20,7 @@
 .blockBtn {
     width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     padding: 11px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem;
-    border: 1px solid var(--primary); background: transparent; color: var(--primary);
+    border: 1px solid var(--primary); background: transparent; color: var(--accent);
     transition: background .15s ease, color .15s ease;
 }
 .blockBtn:hover { background: var(--primary); color: #fff; }
@@ -30,7 +30,7 @@
 .miniForm { display: flex; flex-direction: column; gap: 10px; }
 .miniForm input[type="datetime-local"], .miniForm input[type="text"], .miniForm textarea {
     padding: 9px 11px; border: 1px solid var(--dark-light); border-radius: 8px;
-    font-family: inherit; font-size: 0.95rem; color: var(--dark); background: #fff;
+    font-family: inherit; font-size: 0.95rem; color: var(--ink); background: var(--light);
 }
 .miniActions { display: flex; gap: 8px; align-items: center; }
 .primary, .reject {

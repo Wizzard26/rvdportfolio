@@ -15,14 +15,14 @@
 .other { align-self: flex-start; background: rgba(0,0,0,0.05); border-bottom-left-radius: 4px; }
 .self  { align-self: flex-end;   background: rgba(63,104,126,0.14); border-bottom-right-radius: 4px; }
 
-.who  { font-size: 11px; font-weight: 700; color: var(--primary, #3f687e); }
+.who  { font-size: 11px; font-weight: 700; color: var(--accent, #3f687e); }
 .body { margin: 0; white-space: pre-line; font-size: 0.95rem; line-height: 1.45; }
 .time { font-size: 10px; color: var(--dark-6, #889); align-self: flex-end; }
 
 .form { display: flex; flex-direction: column; gap: 8px; }
 .form textarea {
     width: 100%; min-height: 96px; padding: 11px 13px; border: 1px solid rgba(0,0,0,0.14);
-    border-radius: 8px; font-family: inherit; font-size: 0.95rem; resize: vertical; background: #fff;
+    border-radius: 8px; font-family: inherit; font-size: 0.95rem; resize: vertical; background: var(--light);
 }
 .form button {
     width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px;

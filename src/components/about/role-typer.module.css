@@ -4,11 +4,11 @@
     font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
     font-size: 1.05rem;
     font-weight: 600;
-    color: var(--dark);
+    color: var(--ink);
     line-height: 1.5;
 }
-.prefix { color: var(--primary); font-weight: 700; margin-right: 9px; }
-.role { color: var(--dark); }
+.prefix { color: var(--accent); font-weight: 700; margin-right: 9px; }
+.role { color: var(--ink); }
 
 .cursor {
     display: inline-block;

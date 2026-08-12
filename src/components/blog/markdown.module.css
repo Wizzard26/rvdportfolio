@@ -2,7 +2,7 @@
    Nutzt die globalen Farbvariablen aus globals.css, damit Light/Dark passt. */
 
 .prose {
-    color: var(--dark);
+    color: var(--ink);
     line-height: 1.7;
     font-size: 1.05rem;
     word-break: break-word;
@@ -14,7 +14,7 @@
 .prose p { margin: 0 0 1.2em; }
 
 .heading {
-    color: var(--primary);
+    color: var(--accent);
     line-height: 1.25;
     margin: 1.8em 0 0.6em;
     scroll-margin-top: 6rem; /* Anker unter dem fixierten Header freihalten */

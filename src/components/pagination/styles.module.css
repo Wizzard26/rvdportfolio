@@ -29,3 +29,10 @@
     width: 35px;
     font-size: 18px;
 }
+
+/* Dark Mode: helle Pills kippen (Light-Look bleibt unverändert). */
+@media (prefers-color-scheme: dark) {
+    .paginationUlLi { background-color: var(--dark-light); }
+    .paginationUlLi:hover,
+    .active { background-color: var(--primary); color: var(--fontlight); }
+}
