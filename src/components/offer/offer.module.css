@@ -11,7 +11,7 @@
 }
 .block { border: 0; padding: 0; margin: 0; }
 .block legend {
-    float: none; width: 100%; padding: 0; margin: 0 0 6px; font-family: inherit; font-weight: 700; font-size: 1.35rem; color: var(--dark);
+    float: none; width: 100%; padding: 0; margin: 0 0 6px; font-family: inherit; font-weight: 700; font-size: 1.35rem; color: var(--ink);
 }
 .hint { color: var(--dark-6, #667); font-size: 0.9rem; margin: 0 0 6px; }
 
@@ -19,10 +19,10 @@
 @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
 
 .field { display: flex; flex-direction: column; margin-bottom: 20px; }
-.field > span { font-size: 1rem; color: var(--dark); margin-bottom: 5px; }
+.field > span { font-size: 1rem; color: var(--ink); margin-bottom: 5px; }
 .field > input, .field > textarea {
     width: 100%; height: 45px; padding: 5px 10px;
-    font-family: inherit; font-size: 1rem; color: var(--dark); resize: vertical;
+    font-family: inherit; font-size: 1rem; color: var(--ink); resize: vertical;
 }
 .field > textarea { height: auto; }
 
@@ -36,15 +36,15 @@
 }
 .check {
     display: inline-flex; align-items: center; gap: 8px; padding: 9px 15px;
-    border: 1px solid var(--dark-light); border-radius: 999px; cursor: pointer; background: #fff;
+    border: 1px solid var(--dark-light); border-radius: 999px; cursor: pointer; background: var(--light);
     font-size: 0.92rem; user-select: none; transition: border-color .15s ease, background .15s ease, color .15s ease;
 }
-.check input { accent-color: var(--primary); margin: 0; }
-.check:has(input:checked) { border-color: var(--primary); background: rgba(63,104,126,0.14); color: var(--primary); font-weight: 600; }
+.check input { accent-color: var(--accent); margin: 0; }
+.check:has(input:checked) { border-color: var(--accent); background: rgba(63,104,126,0.14); color: var(--accent); font-weight: 600; }
 
 /* Schieber */
 .range { display: flex; flex-direction: column; gap: 10px; padding-top: 2px; }
-.rangeValue { font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+.rangeValue { font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 .rangeTrack { position: relative; height: 24px; }
 .rangeTrack::before {
     content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 6px;

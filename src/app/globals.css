@@ -14,6 +14,10 @@
   --light: rgba(250, 250, 250, 1);
   --logo: var(--grey);
   --mainNav: var(--primary);
+  /* Text-Rollen, die im Dark Mode kippen MÜSSEN (im Hellen = Bestandsfarben).
+     --dark und --primary bleiben für Flächen/Buttons; für Text/Icons diese hier. */
+  --ink: var(--dark);        /* Betonungs-/Überschriftentext */
+  --accent: var(--primary);  /* Akzent-Text & Icons */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -33,6 +37,8 @@
     --image-filter: grayscale(50%);
     --logo: var(--fontlight);
     --mainNav: var(--fontlight);
+    --ink: rgb(232, 238, 242);      /* helle Betonungsschrift statt fast-schwarz */
+    --accent: rgb(143, 179, 198);   /* #8fb3c6 – helleres Blaugrau, AA auf dunklem Grund */
   }
 }
 

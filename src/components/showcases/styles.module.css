@@ -23,7 +23,7 @@
     padding: 6px 12px;
     border-radius: 999px;
     border: 1px solid var(--primary);
-    color: var(--primary);
+    color: var(--accent);
     white-space: nowrap;
 }
 
@@ -43,7 +43,7 @@
     border-radius: 999px;
     border: 1px solid var(--primary);
     background: transparent;
-    color: var(--primary);
+    color: var(--accent);
     font-size: 15px;
     line-height: 1;
     cursor: pointer;
@@ -91,7 +91,7 @@
     border-radius: 50%;
     border: 1px solid var(--primary);
     background: transparent;
-    color: var(--primary);
+    color: var(--accent);
     font-size: 22px;
     line-height: 1;
     cursor: pointer;

@@ -10,7 +10,7 @@
 .title {
     font-size: 1.05rem;
     margin: 0 0 16px;
-    color: var(--dark);
+    color: var(--ink);
 }
 
 .card {
@@ -20,10 +20,10 @@
     flex-direction: column;
     gap: 12px;
 }
-.mark { font-size: 18px; color: var(--primary); opacity: 0.55; }
-.quote { margin: 0; line-height: 1.6; color: var(--dark); font-style: italic; }
+.mark { font-size: 18px; color: var(--accent); opacity: 0.55; }
+.quote { margin: 0; line-height: 1.6; color: var(--ink); font-style: italic; }
 .cite { display: flex; flex-direction: column; gap: 2px; }
-.author { font-weight: 700; color: var(--dark); }
+.author { font-weight: 700; color: var(--ink); }
 .meta { font-size: 0.9rem; color: var(--dark-6); }
 
 /* Manuelle Navigation (nur bei mehreren Stimmen) */
@@ -43,11 +43,11 @@
     border: 1px solid var(--dark-light);
     border-radius: 50%;
     background: var(--light);
-    color: var(--dark);
+    color: var(--ink);
     cursor: pointer;
     transition: border-color .15s ease, color .15s ease;
 }
-.arrow:hover { border-color: var(--primary); color: var(--primary); }
+.arrow:hover { border-color: var(--accent); color: var(--accent); }
 .dots { display: flex; align-items: center; gap: 8px; }
 .dot, .dotOn {
     width: 9px;

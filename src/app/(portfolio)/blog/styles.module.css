@@ -16,7 +16,7 @@
 
 .blogEntryBox:hover {
     transform: translateY(-4px);
-    border-color: var(--primary);
+    border-color: var(--accent);
     box-shadow: 0 12px 28px rgba(4, 21, 31, 0.12);
 }
 
@@ -95,11 +95,11 @@
 .blogSidebarUl {
     list-style: none;
     padding: 0;
-    background-color: #f9f9f9;
+    background-color: var(--light);
 }
 
 .blogSidebarUlLi {
-    border-bottom: 1px solid #d3d3d3;
+    border-bottom: 1px solid var(--dark-light);
     padding: 8px 10px;
 }
 

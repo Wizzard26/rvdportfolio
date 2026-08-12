@@ -33,7 +33,7 @@
     margin-bottom: 34px;
 }
 .forWhom {
-    color: var(--primary);
+    color: var(--accent);
     font-weight: 600;
     margin: 4px 0 16px;
 }
@@ -71,12 +71,12 @@
     border: 1px solid var(--dark-light);
     border-radius: 12px;
     text-decoration: none;
-    color: var(--dark);
+    color: var(--ink);
     background: var(--dark-light);
     transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
 }
 .tile:hover {
-    border-color: var(--primary);
+    border-color: var(--accent);
     transform: translateY(-2px);
     box-shadow: 0 8px 22px rgba(4, 21, 31, 0.10);
 }
@@ -94,7 +94,7 @@
     align-items: center;
     gap: 6px;
     font-size: 0.9rem;
-    color: var(--primary);
+    color: var(--accent);
     margin-top: auto;
 }
 
@@ -129,7 +129,7 @@
     cursor: pointer;
     transition: border-color .15s ease, color .15s ease;
 }
-.closeBtn:hover { border-color: var(--primary); color: var(--primary); }
+.closeBtn:hover { border-color: var(--accent); color: var(--accent); }
 .actionsNote {
     margin-top: 10px;
     font-size: 0.85rem;
@@ -153,7 +153,7 @@
 }
 .gateIcon {
     font-size: 40px;
-    color: var(--primary);
+    color: var(--accent);
     margin-bottom: 8px;
 }
 .gateForm {

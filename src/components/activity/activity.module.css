@@ -24,8 +24,8 @@
     border: 1px solid var(--dark-light);
     border-radius: 12px;
 }
-.stat svg { color: var(--primary); font-size: 1.4rem; margin-bottom: 4px; }
-.statNum { font-size: 2rem; font-weight: 700; color: var(--primary); line-height: 1; }
+.stat svg { color: var(--accent); font-size: 1.4rem; margin-bottom: 4px; }
+.statNum { font-size: 2rem; font-weight: 700; color: var(--accent); line-height: 1; }
 .statLabel { font-size: 0.85rem; color: var(--grey); }
 
 /* ── Heatmap ──────────────────────────────────────────────────────────── */

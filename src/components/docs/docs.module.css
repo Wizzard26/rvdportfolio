@@ -31,12 +31,12 @@
     text-decoration: none;
     margin-bottom: 6px;
 }
-.spaceBack:hover { color: var(--primary); }
+.spaceBack:hover { color: var(--accent); }
 .spaceName {
     display: block;
     font-size: 1.05rem;
     font-weight: 700;
-    color: var(--primary);
+    color: var(--accent);
     text-decoration: none;
 }
 
@@ -66,12 +66,12 @@
     border-left: 2px solid transparent;
     transition: color 150ms ease, background 150ms ease;
 }
-.nav li a:hover { color: var(--primary); background: var(--dark-light); }
+.nav li a:hover { color: var(--accent); background: var(--dark-light); }
 
 .navActive {
-    color: var(--primary) !important;
+    color: var(--accent) !important;
     font-weight: 600;
-    border-left-color: var(--primary) !important;
+    border-left-color: var(--accent) !important;
     background: var(--dark-light);
 }
 
@@ -82,7 +82,7 @@
 .article { min-width: 0; }
 
 .docTitle {
-    color: var(--primary);
+    color: var(--accent);
     font-size: 2rem;
     line-height: 1.2;
     margin: 0 0 8px;
@@ -114,7 +114,7 @@
     transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 }
 .spaceCard:hover {
-    border-color: var(--primary);
+    border-color: var(--accent);
     transform: translateY(-3px);
     box-shadow: 0 10px 24px rgba(4, 21, 31, .10);
 }
@@ -128,13 +128,13 @@
     height: 46px;
     border-radius: 12px;
     background: var(--dark-light);
-    color: var(--primary);
+    color: var(--accent);
     font-size: 1.35rem;
     transition: background 160ms ease, color 160ms ease;
 }
 .spaceCard:hover .spaceCardIcon { background: var(--primary); color: var(--light); }
 
-.spaceCardName { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+.spaceCardName { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
 .spaceCardDesc { color: var(--dark-6); font-size: 0.95rem; line-height: 1.5; }
 
 /* Fußzeile: Seitenanzahl links, „Weiterlesen" rechts. `margin-top: auto` schiebt
@@ -162,7 +162,7 @@
 
 /* Index-Übersicht (Bereichs-Startseite) */
 .indexGroup { margin-bottom: 28px; }
-.indexGroupTitle { color: var(--primary); font-size: 1.25rem; margin: 0 0 10px; }
+.indexGroupTitle { color: var(--accent); font-size: 1.25rem; margin: 0 0 10px; }
 .indexList { list-style: none; margin: 0; padding: 0; }
 .indexList li { padding: 8px 0; border-bottom: 1px solid var(--dark-light); }
 .indexList li a { color: var(--secondary); font-weight: 600; text-decoration: none; }
@@ -198,7 +198,7 @@
     border-left: 2px solid var(--dark-light);
     padding-left: 12px;
 }
-.toc li a:hover { color: var(--primary); border-left-color: var(--primary); }
+.toc li a:hover { color: var(--accent); border-left-color: var(--accent); }
 .tocSub a { padding-left: 24px; font-size: 0.82rem; }
 
 /* ── Prev / Next ──────────────────────────────────────────────────────── */
@@ -222,11 +222,11 @@
     max-width: 48%;
     transition: border-color 150ms ease;
 }
-.prevnextLink:hover { border-color: var(--primary); }
+.prevnextLink:hover { border-color: var(--accent); }
 .prevnextRight { text-align: right; margin-left: auto; }
 
 .prevnextDir { font-size: 0.78rem; color: var(--grey); }
-.prevnextTitle { color: var(--primary); font-weight: 600; }
+.prevnextTitle { color: var(--accent); font-weight: 600; }
 
 /* ── Responsive ───────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {

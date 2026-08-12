@@ -21,10 +21,10 @@
     border: 1px solid var(--dark-light);
     background: var(--dark-light);
     font-size: 0.9rem;
-    color: var(--dark);
+    color: var(--ink);
     white-space: nowrap;
 }
-.proof svg { color: var(--primary); flex: 0 0 auto; }
+.proof svg { color: var(--accent); flex: 0 0 auto; }
 
 .grid {
     display: grid;
@@ -51,7 +51,7 @@
     font-size: clamp(2rem, 5vw, 2.9rem);
     font-weight: 700;
     line-height: 1;
-    color: var(--primary);
+    color: var(--accent);
 }
 .statLabel {
     display: block;
