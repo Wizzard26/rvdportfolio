@@ -15,7 +15,7 @@ import { RATING_FACTORS } from '@/lib/applicationStatus';
 // Server Actions für die Freigaben (Dokument-Sammlungen mit geheimem Link).
 
 function revalidate() {
-    revalidatePath('/dashboard/dokumente/freigaben');
+    revalidatePath('/dashboard/freigaben');
     revalidatePath('/dashboard/bewerbungen');
 }
 

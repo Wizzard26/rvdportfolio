@@ -132,7 +132,7 @@ export default async function ApplicationsAdmin() {
                 )}
             </section>
 
-            <p className="an-card-note">Bewerbungen entstehen aus den Freigaben mit Anlass „Bewerbung" oder „Initiativbewerbung" (unter <Link href="/dashboard/dokumente/freigaben">Dokumente → Freigaben</Link>).</p>
+            <p className="an-card-note">Bewerbungen entstehen aus den Freigaben mit Anlass „Bewerbung" oder „Initiativbewerbung" (unter <Link href="/dashboard/freigaben">Dokumente → Freigaben</Link>).</p>
         </div>
     );
 }

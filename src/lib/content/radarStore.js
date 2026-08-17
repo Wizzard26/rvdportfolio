@@ -222,6 +222,56 @@ export function archiveCompany(id, on = true) {
     }
 }
 
+// Manuell verwerfen (kein Interesse/Absage) — landet mit Grund im Verworfen-Tab.
+// Bewusst getrennt vom Archivieren (weglegen) und vom Auto-Verwerfen des Re-Scans
+// (Karteileiche/weg-migriert). Reaktivieren geht über archiveCompany(id, false).
+export function verwerfenCompany(id, grund = '') {
+    const g = (grund || '').toString().trim() || 'manuell verworfen';
+    getContentDb().prepare('UPDATE radar_companies SET verworfen_grund=@g, aktiv=0, archiviert=0, prio_score=0, prio_grund=@g, updated_at=@now WHERE id=@id')
+        .run({ g, now: Date.now(), id: Number(id) });
+}
+
+// ─── Merkliste (kuratierte, sortierbare Bewerbungs-Reihenfolge) ──────────────
+export function toggleMerk(id, on = true) {
+    const db = getContentDb();
+    const cid = Number(id);
+    if (on) {
+        const max = db.prepare('SELECT COALESCE(MAX(merk_order), 0) m FROM radar_companies WHERE merk = 1').get().m;
+        db.prepare('UPDATE radar_companies SET merk=1, merk_order=@ord, updated_at=@now WHERE id=@id').run({ ord: max + 1, now: Date.now(), id: cid });
+    } else {
+        db.prepare('UPDATE radar_companies SET merk=0, merk_order=0, updated_at=@now WHERE id=@id').run({ now: Date.now(), id: cid });
+    }
+}
+
+export function countMerkliste() {
+    return getContentDb().prepare('SELECT COUNT(*) n FROM radar_companies WHERE merk = 1').get().n;
+}
+
+export function getMerkliste() {
+    const rows = getContentDb().prepare(`
+        SELECT c.*,
+            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id) AS opp_count,
+            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN ('beworben','gespraech','angebot','absage')) AS beworben_count,
+            (SELECT plattform FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS plattform,
+            (SELECT version FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS version,
+            (SELECT version_eol FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS version_eol
+        FROM radar_companies c
+        WHERE c.merk = 1
+        ORDER BY c.merk_order ASC, c.id ASC
+    `).all();
+    return rows.map((r) => ({ ...r, eignung: eignungOf(r) }));
+}
+
+export function reorderMerkliste(orderedIds) {
+    const db = getContentDb();
+    const known = new Set(db.prepare('SELECT id FROM radar_companies WHERE merk = 1').all().map((r) => r.id));
+    const ids = orderedIds.map(Number).filter((id) => known.has(id));
+    if (!ids.length) return;
+    const now = Date.now();
+    const upd = db.prepare('UPDATE radar_companies SET merk_order=@ord, updated_at=@now WHERE id=@id');
+    db.transaction(() => { ids.forEach((id, i) => upd.run({ ord: i + 1, now, id })); })();
+}
+
 // ─── Chancen ────────────────────────────────────────────────────────────────
 
 function oppFields(d) {

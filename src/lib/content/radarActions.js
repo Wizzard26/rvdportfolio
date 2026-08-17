@@ -11,6 +11,7 @@ import {
     saveDiscovery, parseDomainList, importDomainList,
     getCompaniesForJobScan, countCompaniesForJobScan, markJobScanned,
     importJobPostings, getOpportunity, setOpportunityDescription, setArbeitgeberInfo,
+    verwerfenCompany, toggleMerk, reorderMerkliste,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 import { ccDetect } from '@/lib/content/radarCommonCrawl';
@@ -121,6 +122,52 @@ export async function deleteOpportunityAction(formData) {
     const companyId = Number(formData.get('company_id'));
     deleteOpportunity(Number(formData.get('id')));
     revalidatePath(`/dashboard/radar/${companyId}`);
+}
+
+// Merkliste: Firma auf die kuratierte Bewerbungs-Reihenfolge legen/entfernen.
+export async function toggleMerklisteAction(formData) {
+    const id = Number(formData.get('id'));
+    toggleMerk(id, formData.get('on') === '1');
+    revalidatePath('/dashboard/radar');
+    revalidatePath('/dashboard/radar/merkliste');
+}
+
+// Neue Reihenfolge der Merkliste persistieren (Drag-&-Drop; Array oben zuerst).
+export async function reorderMerklisteAction(orderedIds) {
+    if (!Array.isArray(orderedIds)) return;
+    reorderMerkliste(orderedIds);
+    revalidatePath('/dashboard/radar/merkliste');
+}
+
+// Firma manuell verwerfen (kein Interesse) — mit Grund, landet im Verworfen-Tab.
+export async function verwerfenCompanyAction(formData) {
+    const id = Number(formData.get('id'));
+    verwerfenCompany(id, formData.get('grund') || '');
+    revalidatePath('/dashboard/radar');
+    revalidatePath(`/dashboard/radar/${id}`);
+}
+
+// Schnell als „beworben" markieren: vorhandene offene Chance nutzen, sonst eine
+// Initiativbewerbung anlegen; Status → beworben + Doppelansprache-Sperre.
+export async function markBeworbenAction(formData) {
+    const id = Number(formData.get('id'));
+    const company = getCompany(id);
+    if (!company) return;
+    const OPEN = ['neu', 'geprueft', 'shortlist'];
+    const open = (company.opportunities || []).find((o) => OPEN.includes(o.status));
+    let oppId;
+    let pipeline;
+    if (open) {
+        oppId = open.id;
+        pipeline = open.pipeline || (open.typ === 'freelance' ? 'akquise' : 'bewerbung');
+    } else {
+        oppId = createOpportunity({ company_id: id, titel: 'Bewerbung', typ: 'initiativ', status: 'neu' });
+        pipeline = 'bewerbung';
+    }
+    setOpportunityStatus(oppId, 'beworben');
+    addOutreachBlock(id, pipeline, `Firma als beworben markiert (Chance #${oppId})`);
+    revalidatePath('/dashboard/radar');
+    revalidatePath(`/dashboard/radar/${id}`);
 }
 
 // Discovery: BuiltWith-CSV importieren → Firmen + Kontakte + Tech-Snapshot + Lead-Prio.

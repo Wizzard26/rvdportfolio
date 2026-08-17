@@ -612,6 +612,9 @@ function migrate(database) {
     ensureColumn(database, 'radar_companies', 'kununu_url', "TEXT NOT NULL DEFAULT ''"); // manuell: gefundenes Profil
     ensureColumn(database, 'radar_companies', 'kununu_score', "TEXT NOT NULL DEFAULT ''"); // manuell: Gesamtbewertung
     ensureColumn(database, 'radar_companies', 'kununu_gehalt', "TEXT NOT NULL DEFAULT ''"); // manuell: Entwickler-Gehalt/Notiz
+    // Merkliste: kuratierte, sortierbare Bewerbungs-Reihenfolge (der Reihe nach bewerben).
+    ensureColumn(database, 'radar_companies', 'merk', 'INTEGER NOT NULL DEFAULT 0'); // auf Merkliste?
+    ensureColumn(database, 'radar_companies', 'merk_order', 'INTEGER NOT NULL DEFAULT 0'); // Sortier-Rang
     // Domain nur einmal — aber PARTIELL: leere Domains (Firmen ohne Website, z. B.
     // Arbeitgeber aus Job-Anzeigen) müssen mehrfach erlaubt sein. Früher wurde hier
     // fälschlich ein voller Unique-Index angelegt → mehrere '' kollidierten. Reparieren.

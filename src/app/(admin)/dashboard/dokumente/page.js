@@ -3,7 +3,6 @@ import { FiPlus } from 'react-icons/fi';
 import { getDocuments, ensureVitaSetting, getVitaButtonText } from '@/lib/content/documentsStore';
 import { setVitaDocumentAction } from '@/lib/content/documentsActions';
 import DocumentList from '@/components/analytics/DocumentList';
-import DocumentsAdminTabs from '@/components/analytics/DocumentsAdminTabs';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,8 +22,6 @@ export default async function DocumentsAdmin() {
                     <FiPlus aria-hidden="true" /> Neues Dokument
                 </Link>
             </div>
-
-            <DocumentsAdminTabs active="documents" />
 
             <section className="an-card">
                 <form action={setVitaDocumentAction} className="an-form an-inline-select">

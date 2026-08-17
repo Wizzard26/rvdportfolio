@@ -16,7 +16,7 @@ export default function NewShare() {
         <div className="an-dashboard">
             <div className="an-head">
                 <div>
-                    <Link href="/dashboard/dokumente/freigaben" className="an-back"><FiArrowLeft aria-hidden="true" /> Zu den Freigaben</Link>
+                    <Link href="/dashboard/freigaben" className="an-back"><FiArrowLeft aria-hidden="true" /> Zu den Freigaben</Link>
                     <h1>Neue Freigabe</h1>
                 </div>
             </div>
