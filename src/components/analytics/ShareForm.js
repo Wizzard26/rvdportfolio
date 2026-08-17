@@ -251,7 +251,7 @@ export default function ShareForm({ action, share, documents = [], testimonials 
 
             <div className="an-form-actions">
                 <button type="submit" className="an-btn-primary" disabled={pending}>{pending ? 'Speichern …' : 'Speichern'}</button>
-                <Link href="/dashboard/dokumente/freigaben" className="an-btn-secondary">Abbrechen</Link>
+                <Link href="/dashboard/freigaben" className="an-btn-secondary">Abbrechen</Link>
             </div>
         </form>
     );

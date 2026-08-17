@@ -28,7 +28,7 @@ export default async function EditShare({ params }) {
         <div className="an-dashboard">
             <div className="an-head">
                 <div>
-                    <Link href="/dashboard/dokumente/freigaben" className="an-back"><FiArrowLeft aria-hidden="true" /> Zu den Freigaben</Link>
+                    <Link href="/dashboard/freigaben" className="an-back"><FiArrowLeft aria-hidden="true" /> Zu den Freigaben</Link>
                     <h1>Freigabe bearbeiten</h1>
                     <ShareLink path={`/freigabe/${share.token}`} />
                 </div>

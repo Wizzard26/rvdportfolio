@@ -197,6 +197,28 @@ export function getShares() {
     `).all();
 }
 
+// Aktiv = eingeschaltet UND nicht abgelaufen. Inaktiv = ausgeschaltet oder abgelaufen.
+// (leeres/NULL expires_at = kein Ablauf → zählt als nicht abgelaufen.)
+function shareTabWhere(tab) {
+    if (tab === 'aktiv') return { clause: "s.is_active = 1 AND (COALESCE(s.expires_at,'') = '' OR s.expires_at >= @today)", params: { today: today() } };
+    if (tab === 'inaktiv') return { clause: "(s.is_active = 0 OR (COALESCE(s.expires_at,'') != '' AND s.expires_at < @today))", params: { today: today() } };
+    return { clause: '1=1', params: {} };
+}
+
+export function countShares(tab = '') {
+    const { clause, params } = shareTabWhere(tab);
+    return getContentDb().prepare(`SELECT COUNT(*) n FROM shares s WHERE ${clause}`).get(params).n;
+}
+
+export function getSharesPage({ tab = '', limit = 25, offset = 0 } = {}) {
+    const { clause, params } = shareTabWhere(tab);
+    const lim = `LIMIT ${Math.max(1, Number(limit) || 25)} OFFSET ${Math.max(0, Number(offset) || 0)}`;
+    return getContentDb().prepare(`
+        SELECT s.*, (SELECT COUNT(*) FROM share_items si WHERE si.share_id = s.id) AS item_count
+        FROM shares s WHERE ${clause} ORDER BY s.updated_at DESC, s.id DESC ${lim}
+    `).all(params);
+}
+
 export function getShare(id) {
     const db = getContentDb();
     const share = db.prepare('SELECT * FROM shares WHERE id = ?').get(id);
