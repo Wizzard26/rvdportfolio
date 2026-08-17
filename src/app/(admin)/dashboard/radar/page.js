@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw, FiCheckCircle } from 'react-icons/fi';
 import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies, countCompaniesForJobScan } from '@/lib/content/radarStore';
-import { deleteCompanyAction, deleteContactAction, archiveCompanyAction } from '@/lib/content/radarActions';
+import { deleteCompanyAction, deleteContactAction, archiveCompanyAction, markBeworbenAction, verwerfenCompanyAction } from '@/lib/content/radarActions';
+import RadarRowActions from '@/components/analytics/RadarRowActions';
 import { formatNumber } from '@/lib/analytics/format';
 import StatTile from '@/components/analytics/StatTile';
 import RadarScanForm from '@/components/analytics/RadarScanForm';
@@ -257,18 +258,26 @@ export default async function RadarPage({ searchParams }) {
                                         <td>{formatNumber(c.opp_count)}{c.beworben_count > 0 ? <span className="an-muted" title="davon beworben"> · {formatNumber(c.beworben_count)} bew.</span> : ''}</td>
                                         <td style={{ whiteSpace: 'nowrap' }}>
                                             <Link href={`/dashboard/radar/${c.id}`} className="an-btn-secondary an-btn-small">Öffnen</Link>
-                                            {c.archiviert ? (
+                                            {(c.archiviert || c.verworfen_grund) ? (
                                                 <form action={archiveCompanyAction} style={{ display: 'inline', marginLeft: 6 }}>
                                                     <input type="hidden" name="id" value={c.id} />
                                                     <input type="hidden" name="on" value="0" />
-                                                    <button type="submit" className="an-icon-btn" title="Reaktivieren"><FiRotateCcw /></button>
+                                                    <button type="submit" className="an-icon-btn" title="Reaktivieren (Verwerfen/Archiv aufheben)"><FiRotateCcw /></button>
                                                 </form>
                                             ) : (
-                                                <form action={archiveCompanyAction} style={{ display: 'inline', marginLeft: 6 }}>
-                                                    <input type="hidden" name="id" value={c.id} />
-                                                    <input type="hidden" name="on" value="1" />
-                                                    <button type="submit" className="an-icon-btn" title="Archivieren (weglegen, nicht löschen)"><FiArchive /></button>
-                                                </form>
+                                                <>
+                                                    <RadarRowActions
+                                                        beworbenAction={markBeworbenAction}
+                                                        verwerfenAction={verwerfenCompanyAction}
+                                                        id={c.id}
+                                                        showBeworben={!c.beworben_count}
+                                                    />
+                                                    <form action={archiveCompanyAction} style={{ display: 'inline', marginLeft: 6 }}>
+                                                        <input type="hidden" name="id" value={c.id} />
+                                                        <input type="hidden" name="on" value="1" />
+                                                        <button type="submit" className="an-icon-btn" title="Archivieren (weglegen, nicht löschen)"><FiArchive /></button>
+                                                    </form>
+                                                </>
                                             )}
                                             <form action={deleteCompanyAction} style={{ display: 'inline', marginLeft: 6 }}>
                                                 <input type="hidden" name="id" value={c.id} />

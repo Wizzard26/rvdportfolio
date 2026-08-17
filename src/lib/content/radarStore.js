@@ -222,6 +222,15 @@ export function archiveCompany(id, on = true) {
     }
 }
 
+// Manuell verwerfen (kein Interesse/Absage) — landet mit Grund im Verworfen-Tab.
+// Bewusst getrennt vom Archivieren (weglegen) und vom Auto-Verwerfen des Re-Scans
+// (Karteileiche/weg-migriert). Reaktivieren geht über archiveCompany(id, false).
+export function verwerfenCompany(id, grund = '') {
+    const g = (grund || '').toString().trim() || 'manuell verworfen';
+    getContentDb().prepare('UPDATE radar_companies SET verworfen_grund=@g, aktiv=0, archiviert=0, prio_score=0, prio_grund=@g, updated_at=@now WHERE id=@id')
+        .run({ g, now: Date.now(), id: Number(id) });
+}
+
 // ─── Chancen ────────────────────────────────────────────────────────────────
 
 function oppFields(d) {

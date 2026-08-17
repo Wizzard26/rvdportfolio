@@ -11,6 +11,7 @@ import {
     saveDiscovery, parseDomainList, importDomainList,
     getCompaniesForJobScan, countCompaniesForJobScan, markJobScanned,
     importJobPostings, getOpportunity, setOpportunityDescription, setArbeitgeberInfo,
+    verwerfenCompany,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 import { ccDetect } from '@/lib/content/radarCommonCrawl';
@@ -121,6 +122,37 @@ export async function deleteOpportunityAction(formData) {
     const companyId = Number(formData.get('company_id'));
     deleteOpportunity(Number(formData.get('id')));
     revalidatePath(`/dashboard/radar/${companyId}`);
+}
+
+// Firma manuell verwerfen (kein Interesse) — mit Grund, landet im Verworfen-Tab.
+export async function verwerfenCompanyAction(formData) {
+    const id = Number(formData.get('id'));
+    verwerfenCompany(id, formData.get('grund') || '');
+    revalidatePath('/dashboard/radar');
+    revalidatePath(`/dashboard/radar/${id}`);
+}
+
+// Schnell als „beworben" markieren: vorhandene offene Chance nutzen, sonst eine
+// Initiativbewerbung anlegen; Status → beworben + Doppelansprache-Sperre.
+export async function markBeworbenAction(formData) {
+    const id = Number(formData.get('id'));
+    const company = getCompany(id);
+    if (!company) return;
+    const OPEN = ['neu', 'geprueft', 'shortlist'];
+    const open = (company.opportunities || []).find((o) => OPEN.includes(o.status));
+    let oppId;
+    let pipeline;
+    if (open) {
+        oppId = open.id;
+        pipeline = open.pipeline || (open.typ === 'freelance' ? 'akquise' : 'bewerbung');
+    } else {
+        oppId = createOpportunity({ company_id: id, titel: 'Bewerbung', typ: 'initiativ', status: 'neu' });
+        pipeline = 'bewerbung';
+    }
+    setOpportunityStatus(oppId, 'beworben');
+    addOutreachBlock(id, pipeline, `Firma als beworben markiert (Chance #${oppId})`);
+    revalidatePath('/dashboard/radar');
+    revalidatePath(`/dashboard/radar/${id}`);
 }
 
 // Discovery: BuiltWith-CSV importieren → Firmen + Kontakte + Tech-Snapshot + Lead-Prio.
