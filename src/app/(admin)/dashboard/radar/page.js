@@ -258,7 +258,7 @@ export default async function RadarPage({ searchParams }) {
                                                 ? <span className={`an-badge ${c.version_eol ? 'an-badge--warn' : ''}`}>{PLAT_LABEL[c.plattform] || c.plattform}{c.version ? ` ${c.version}` : ''}{c.version_eol ? ' ⚠' : ''}</span>
                                                 : <span className="an-muted">nicht erkannt</span>}
                                         </td>
-                                        <td>{[c.plz, c.ort].filter(Boolean).join(' ') || '—'}</td>
+                                        <td style={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }} title={[c.plz, c.ort].filter(Boolean).join(' ')}>{[c.plz, c.ort].filter(Boolean).join(' ') || '—'}</td>
                                         <td>{formatNumber(c.opp_count)}{c.beworben_count > 0 ? <span className="an-muted" title="davon beworben"> · {formatNumber(c.beworben_count)} bew.</span> : ''}</td>
                                         <td style={{ whiteSpace: 'nowrap' }}>
                                             <Link href={`/dashboard/radar/${c.id}`} className="an-btn-secondary an-btn-small">Öffnen</Link>
