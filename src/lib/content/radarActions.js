@@ -11,7 +11,7 @@ import {
     saveDiscovery, parseDomainList, importDomainList,
     getCompaniesForJobScan, countCompaniesForJobScan, markJobScanned,
     importJobPostings, getOpportunity, setOpportunityDescription, setArbeitgeberInfo,
-    verwerfenCompany, toggleMerk, reorderMerkliste,
+    verwerfenCompany, toggleMerk, reorderMerkliste, mergeCompanies,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 import { ccDetect } from '@/lib/content/radarCommonCrawl';
@@ -130,6 +130,7 @@ export async function toggleMerklisteAction(formData) {
     toggleMerk(id, formData.get('on') === '1');
     revalidatePath('/dashboard/radar');
     revalidatePath('/dashboard/radar/merkliste');
+    if (id) revalidatePath(`/dashboard/radar/${id}`);
 }
 
 // Neue Reihenfolge der Merkliste persistieren (Drag-&-Drop; Array oben zuerst).
@@ -137,6 +138,16 @@ export async function reorderMerklisteAction(orderedIds) {
     if (!Array.isArray(orderedIds)) return;
     reorderMerkliste(orderedIds);
     revalidatePath('/dashboard/radar/merkliste');
+}
+
+// Dubletten in die gewählte Sieger-Firma zusammenführen.
+export async function mergeCompaniesAction(formData) {
+    const survivor = Number(formData.get('survivor'));
+    const others = formData.getAll('ids').map(Number).filter((id) => id && id !== survivor);
+    if (survivor && others.length) mergeCompanies(survivor, others);
+    revalidatePath('/dashboard/radar/duplikate');
+    revalidatePath('/dashboard/radar');
+    if (survivor) revalidatePath(`/dashboard/radar/${survivor}`);
 }
 
 // Firma manuell verwerfen (kein Interesse) — mit Grund, landet im Verworfen-Tab.
