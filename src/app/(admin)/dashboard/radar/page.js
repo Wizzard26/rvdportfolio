@@ -273,12 +273,15 @@ export default async function RadarPage({ searchParams }) {
                                                     <form action={toggleMerklisteAction} style={{ display: 'inline', marginLeft: 6 }}>
                                                         <input type="hidden" name="id" value={c.id} />
                                                         <input type="hidden" name="on" value={c.merk ? '0' : '1'} />
-                                                        <button type="submit" className={`an-icon-btn${c.merk ? ' is-active' : ''}`} title={c.merk ? 'Von Merkliste entfernen' : 'Auf Merkliste'} style={c.merk ? { color: 'var(--adm-accent)' } : undefined}><FiBookmark /></button>
+                                                        <button type="submit" className="an-icon-btn" title={c.merk ? 'Auf Merkliste – entfernen' : 'Auf Merkliste setzen'} style={c.merk ? { color: 'var(--adm-accent)' } : undefined}>
+                                                            <FiBookmark style={c.merk ? { fill: 'currentColor' } : undefined} />
+                                                        </button>
                                                     </form>
                                                     <RadarRowActions
                                                         beworbenAction={markBeworbenAction}
                                                         verwerfenAction={verwerfenCompanyAction}
                                                         id={c.id}
+                                                        name={c.name || c.domain || ''}
                                                         showBeworben={!c.beworben_count}
                                                     />
                                                     <form action={archiveCompanyAction} style={{ display: 'inline', marginLeft: 6 }}>
