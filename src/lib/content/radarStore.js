@@ -274,6 +274,107 @@ export function reorderMerkliste(orderedIds) {
     db.transaction(() => { ids.forEach((id, i) => upd.run({ ord: i + 1, now, id })); })();
 }
 
+// ─── Duplikate erkennen & zusammenführen ────────────────────────────────────
+// Normalisierter Namensschlüssel: klein, ohne Rechtsform/Bindewörter/Satzzeichen.
+// So matcht „Musterfirma GmbH" (BA-Arbeitgeber) mit „musterfirma.de" (Crawl).
+function companyNameKey(name) {
+    return (name || '').toString().toLowerCase()
+        .replace(/\b(gmbh|mbh|ag|ug|kgaa|kg|ohg|gbr|se|e\.?\s?k\.?|co\.?|haftungsbeschr(ä|ae)nkt|und|the)\b/g, ' ')
+        .replace(/&/g, ' ')
+        .replace(/[^a-z0-9]+/g, '')
+        .trim();
+}
+function domainRoot(domain) {
+    return (domain || '').toString().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[/.]/)[0] || '';
+}
+function keyOf(company) {
+    return companyNameKey(company.name) || companyNameKey(domainRoot(company.domain));
+}
+const oppKey = (o) => companyNameKey(o.titel);
+
+// Gruppen von ≥2 Firmen mit gleichem Namensschlüssel (mögliche Dubletten).
+export function getDuplicateGroups() {
+    const rows = getContentDb().prepare(`
+        SELECT c.*,
+            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id) AS opp_count,
+            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN ('beworben','gespraech','angebot','absage')) AS beworben_count
+        FROM radar_companies c
+    `).all();
+    const map = new Map();
+    for (const r of rows) {
+        const key = keyOf(r);
+        if (!key || key.length < 3) continue; // zu kurz/leer → nicht gruppieren
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(r);
+    }
+    // Sieger-Vorschlag zuerst: mit Domain > mehr Chancen > älter.
+    return [...map.values()].filter((g) => g.length >= 2)
+        .map((g) => g.sort((a, b) => (b.domain ? 1 : 0) - (a.domain ? 1 : 0) || b.opp_count - a.opp_count || a.id - b.id))
+        .sort((a, b) => b.length - a.length);
+}
+
+export function countDuplicateGroups() {
+    return getDuplicateGroups().length;
+}
+
+// Leere Felder des Siegers aus der Dublette auffüllen (nur wenn Sieger leer ist).
+function fillEmptyFrom(db, sid, other) {
+    const survivor = db.prepare('SELECT * FROM radar_companies WHERE id = ?').get(sid);
+    const textFields = ['domain', 'name', 'rechtsform', 'handelsregister', 'ust_id', 'geschaeftsfuehrer', 'strasse', 'plz', 'ort', 'region', 'themengebiete', 'karriere_url', 'linkedin_url', 'github_org', 'kununu_url', 'kununu_score', 'kununu_gehalt', 'notiz'];
+    const sets = {};
+    for (const f of textFields) if ((survivor[f] === '' || survivor[f] == null) && other[f]) sets[f] = other[f];
+    if ((survivor.inhouse_team === 'unklar' || !survivor.inhouse_team) && other.inhouse_team && other.inhouse_team !== 'unklar') sets.inhouse_team = other.inhouse_team;
+    if ((survivor.typ === 'unbekannt' || !survivor.typ) && other.typ && other.typ !== 'unbekannt') sets.typ = other.typ;
+    const keys = Object.keys(sets);
+    if (!keys.length) return;
+    db.prepare(`UPDATE radar_companies SET ${keys.map((k) => `${k}=@${k}`).join(', ')}, updated_at=@now WHERE id=@id`)
+        .run({ ...sets, now: Date.now(), id: sid });
+}
+
+// Dubletten in den Sieger zusammenführen: Chancen (mit Dedup), Kontakte, Snapshots,
+// Findings, Sperren umhängen; leere Sieger-Felder auffüllen; Dublette löschen.
+export function mergeCompanies(survivorId, otherIds) {
+    const db = getContentDb();
+    const sid = Number(survivorId);
+    const others = (otherIds || []).map(Number).filter((id) => id && id !== sid);
+    if (!others.length || !db.prepare('SELECT 1 FROM radar_companies WHERE id = ?').get(sid)) return { merged: 0 };
+    let merged = 0; let dupOpps = 0;
+    const run = db.transaction(() => {
+        for (const oid of others) {
+            const other = db.prepare('SELECT * FROM radar_companies WHERE id = ?').get(oid);
+            if (!other) continue;
+            // Chancen: Duplikate (gleicher normalisierter Titel) als „verworfen" behalten,
+            // Rest normal umhängen — nichts geht verloren.
+            const survKeys = new Set(db.prepare('SELECT titel FROM radar_opportunities WHERE company_id = ?').all(sid).map(oppKey));
+            for (const o of db.prepare('SELECT id, titel FROM radar_opportunities WHERE company_id = ?').all(oid)) {
+                const k = oppKey(o);
+                if (k && survKeys.has(k)) {
+                    db.prepare("UPDATE radar_opportunities SET company_id=?, status='verworfen', verworfen_grund='Duplikat (zusammengeführt)' WHERE id=?").run(sid, o.id);
+                    dupOpps += 1;
+                } else {
+                    db.prepare('UPDATE radar_opportunities SET company_id=? WHERE id=?').run(sid, o.id);
+                    if (k) survKeys.add(k);
+                }
+            }
+            db.prepare('UPDATE radar_contacts SET company_id=? WHERE company_id=?').run(sid, oid);
+            db.prepare('UPDATE radar_tech_snapshots SET company_id=? WHERE company_id=?').run(sid, oid);
+            db.prepare('UPDATE radar_findings SET company_id=? WHERE company_id=?').run(sid, oid);
+            db.prepare('UPDATE radar_outreach_blocks SET company_id=? WHERE company_id=?').run(sid, oid);
+            const wasMerk = !!other.merk;
+            db.prepare('DELETE FROM radar_companies WHERE id=?').run(oid); // erst löschen (Domain-Unique!), dann auffüllen
+            fillEmptyFrom(db, sid, other);
+            if (wasMerk && !db.prepare('SELECT merk FROM radar_companies WHERE id=?').get(sid).merk) {
+                const max = db.prepare('SELECT COALESCE(MAX(merk_order),0) m FROM radar_companies WHERE merk=1').get().m;
+                db.prepare('UPDATE radar_companies SET merk=1, merk_order=? WHERE id=?').run(max + 1, sid);
+            }
+            merged += 1;
+        }
+        updateLeadScore(db, sid);
+    });
+    run();
+    return { merged, dupOpps };
+}
+
 // ─── Chancen ────────────────────────────────────────────────────────────────
 
 function oppFields(d) {

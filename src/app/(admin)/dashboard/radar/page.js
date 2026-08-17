@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw, FiCheckCircle, FiBookmark } from 'react-icons/fi';
-import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies, countCompaniesForJobScan, countMerkliste } from '@/lib/content/radarStore';
+import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw, FiCheckCircle, FiBookmark, FiGitMerge } from 'react-icons/fi';
+import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies, countCompaniesForJobScan, countMerkliste, countDuplicateGroups } from '@/lib/content/radarStore';
 import { deleteCompanyAction, deleteContactAction, archiveCompanyAction, markBeworbenAction, verwerfenCompanyAction, toggleMerklisteAction } from '@/lib/content/radarActions';
 import RadarRowActions from '@/components/analytics/RadarRowActions';
 import { formatNumber } from '@/lib/analytics/format';
@@ -75,6 +75,7 @@ export default async function RadarPage({ searchParams }) {
     const unscanned = countCompaniesToRescan('unscanned');
     const jobScanPending = countCompaniesForJobScan();
     const merkCount = countMerkliste();
+    const dupGroups = countDuplicateGroups();
     const jetzt = Date.now();
 
     const prioClass = (s) => (s >= 70 ? 'an-badge--ok' : s >= 40 ? 'an-badge--warn' : '');
@@ -92,8 +93,9 @@ export default async function RadarPage({ searchParams }) {
                     <h1>Radar</h1>
                     <p>Bewerbungs- & Akquise-Listen · {formatNumber(companies.length)} Firmen, {formatNumber(opps.length)} Chancen</p>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     <Link href="/dashboard/radar/merkliste" className="an-btn-secondary"><FiBookmark aria-hidden="true" /> Merkliste{merkCount ? ` (${formatNumber(merkCount)})` : ''}</Link>
+                    {dupGroups > 0 && <Link href="/dashboard/radar/duplikate" className="an-btn-secondary"><FiGitMerge aria-hidden="true" /> Duplikate ({formatNumber(dupGroups)})</Link>}
                     <Link href="/dashboard/radar/new" className="an-btn-secondary"><FiPlus aria-hidden="true" /> Manuell anlegen</Link>
                 </div>
             </div>
