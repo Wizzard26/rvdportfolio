@@ -15,6 +15,9 @@ const card = {
     background: 'var(--adm-surface, #fff)', color: 'var(--adm-ink, #04151f)',
     border: '1px solid var(--adm-border, #e4e8ea)', borderRadius: 12, padding: '20px 22px',
     maxWidth: 440, width: '100%', boxShadow: '0 18px 50px rgba(0, 0, 0, 0.28)',
+    // Das Modal steckt im DOM in einer <td> mit white-space:nowrap (vererbt!) →
+    // hier zurücksetzen, sonst läuft der Text aus dem Modal.
+    whiteSpace: 'normal', overflowWrap: 'anywhere', boxSizing: 'border-box',
 };
 const actionsRow = { display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 18 };
 
