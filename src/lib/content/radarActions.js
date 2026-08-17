@@ -11,7 +11,7 @@ import {
     saveDiscovery, parseDomainList, importDomainList,
     getCompaniesForJobScan, countCompaniesForJobScan, markJobScanned,
     importJobPostings, getOpportunity, setOpportunityDescription, setArbeitgeberInfo,
-    verwerfenCompany,
+    verwerfenCompany, toggleMerk, reorderMerkliste,
 } from '@/lib/content/radarStore';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 import { ccDetect } from '@/lib/content/radarCommonCrawl';
@@ -122,6 +122,21 @@ export async function deleteOpportunityAction(formData) {
     const companyId = Number(formData.get('company_id'));
     deleteOpportunity(Number(formData.get('id')));
     revalidatePath(`/dashboard/radar/${companyId}`);
+}
+
+// Merkliste: Firma auf die kuratierte Bewerbungs-Reihenfolge legen/entfernen.
+export async function toggleMerklisteAction(formData) {
+    const id = Number(formData.get('id'));
+    toggleMerk(id, formData.get('on') === '1');
+    revalidatePath('/dashboard/radar');
+    revalidatePath('/dashboard/radar/merkliste');
+}
+
+// Neue Reihenfolge der Merkliste persistieren (Drag-&-Drop; Array oben zuerst).
+export async function reorderMerklisteAction(orderedIds) {
+    if (!Array.isArray(orderedIds)) return;
+    reorderMerkliste(orderedIds);
+    revalidatePath('/dashboard/radar/merkliste');
 }
 
 // Firma manuell verwerfen (kein Interesse) — mit Grund, landet im Verworfen-Tab.

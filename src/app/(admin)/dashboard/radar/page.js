@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw, FiCheckCircle } from 'react-icons/fi';
-import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies, countCompaniesForJobScan } from '@/lib/content/radarStore';
-import { deleteCompanyAction, deleteContactAction, archiveCompanyAction, markBeworbenAction, verwerfenCompanyAction } from '@/lib/content/radarActions';
+import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw, FiCheckCircle, FiBookmark } from 'react-icons/fi';
+import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies, countCompaniesForJobScan, countMerkliste } from '@/lib/content/radarStore';
+import { deleteCompanyAction, deleteContactAction, archiveCompanyAction, markBeworbenAction, verwerfenCompanyAction, toggleMerklisteAction } from '@/lib/content/radarActions';
 import RadarRowActions from '@/components/analytics/RadarRowActions';
 import { formatNumber } from '@/lib/analytics/format';
 import StatTile from '@/components/analytics/StatTile';
@@ -71,6 +71,7 @@ export default async function RadarPage({ searchParams }) {
     const dueContacts = getContactsDueForDeletion(14);
     const unscanned = countCompaniesToRescan('unscanned');
     const jobScanPending = countCompaniesForJobScan();
+    const merkCount = countMerkliste();
     const jetzt = Date.now();
 
     const prioClass = (s) => (s >= 70 ? 'an-badge--ok' : s >= 40 ? 'an-badge--warn' : '');
@@ -88,7 +89,10 @@ export default async function RadarPage({ searchParams }) {
                     <h1>Radar</h1>
                     <p>Bewerbungs- & Akquise-Listen · {formatNumber(companies.length)} Firmen, {formatNumber(opps.length)} Chancen</p>
                 </div>
-                <Link href="/dashboard/radar/new" className="an-btn-secondary"><FiPlus aria-hidden="true" /> Manuell anlegen</Link>
+                <div style={{ display: 'flex', gap: 8 }}>
+                    <Link href="/dashboard/radar/merkliste" className="an-btn-secondary"><FiBookmark aria-hidden="true" /> Merkliste{merkCount ? ` (${formatNumber(merkCount)})` : ''}</Link>
+                    <Link href="/dashboard/radar/new" className="an-btn-secondary"><FiPlus aria-hidden="true" /> Manuell anlegen</Link>
+                </div>
             </div>
 
             <section className="an-card an-full">
@@ -266,6 +270,11 @@ export default async function RadarPage({ searchParams }) {
                                                 </form>
                                             ) : (
                                                 <>
+                                                    <form action={toggleMerklisteAction} style={{ display: 'inline', marginLeft: 6 }}>
+                                                        <input type="hidden" name="id" value={c.id} />
+                                                        <input type="hidden" name="on" value={c.merk ? '0' : '1'} />
+                                                        <button type="submit" className={`an-icon-btn${c.merk ? ' is-active' : ''}`} title={c.merk ? 'Von Merkliste entfernen' : 'Auf Merkliste'} style={c.merk ? { color: 'var(--adm-accent)' } : undefined}><FiBookmark /></button>
+                                                    </form>
                                                     <RadarRowActions
                                                         beworbenAction={markBeworbenAction}
                                                         verwerfenAction={verwerfenCompanyAction}
