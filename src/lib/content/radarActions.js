@@ -130,6 +130,7 @@ export async function toggleMerklisteAction(formData) {
     toggleMerk(id, formData.get('on') === '1');
     revalidatePath('/dashboard/radar');
     revalidatePath('/dashboard/radar/merkliste');
+    if (id) revalidatePath(`/dashboard/radar/${id}`);
 }
 
 // Neue Reihenfolge der Merkliste persistieren (Drag-&-Drop; Array oben zuerst).

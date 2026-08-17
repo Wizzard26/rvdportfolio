@@ -67,7 +67,7 @@ export function eignungOf(c) {
 const BEWORBEN_EXISTS = "EXISTS (SELECT 1 FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN ('beworben','gespraech','angebot','absage'))";
 
 // Gemeinsamer WHERE-Bau für Liste + Zähler (Suche, Typ, Status, Plattform, PLZ, Eignung, Quelle, Beworben).
-function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '' }) {
+function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', merk = '' }) {
     const where = ['1=1'];
     const p = {};
     if (q) { where.push('(c.name LIKE @q OR c.domain LIKE @q OR c.ort LIKE @q OR c.themengebiete LIKE @q)'); p.q = `%${q}%`; }
@@ -75,6 +75,8 @@ function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '',
     if (quelle) { where.push('c.quelle = @quelle'); p.quelle = quelle; }
     if (beworben === 'ja') where.push(BEWORBEN_EXISTS);
     else if (beworben === 'nein') where.push(`NOT ${BEWORBEN_EXISTS}`);
+    if (merk === 'ja') where.push('c.merk = 1');
+    else if (merk === 'nein') where.push('c.merk = 0');
     if (plz) { where.push('c.plz LIKE @plz'); p.plz = `${plz}%`; } // PLZ-Bereich (Präfix)
     if (status === 'aktiv') where.push('c.aktiv = 1 AND c.archiviert = 0');
     else if (status === 'verworfen') where.push("c.verworfen_grund != '' AND c.archiviert = 0");
@@ -90,14 +92,14 @@ function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '',
     return { where, p };
 }
 
-export function countCompanies({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '' } = {}) {
-    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle, beworben });
+export function countCompanies({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', merk = '' } = {}) {
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle, beworben, merk });
     return getContentDb().prepare(`SELECT COUNT(*) n FROM radar_companies c WHERE ${where.join(' AND ')}`).get(p).n;
 }
 
-export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', limit = 0, offset = 0 } = {}) {
+export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', merk = '', limit = 0, offset = 0 } = {}) {
     const db = getContentDb();
-    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle, beworben });
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle, beworben, merk });
     const order = sort === 'prio' ? 'c.prio_score DESC, c.updated_at DESC' : 'c.updated_at DESC, c.id DESC';
     const lim = limit ? `LIMIT ${Math.max(1, Number(limit) || 50)} OFFSET ${Math.max(0, Number(offset) || 0)}` : '';
     const params = { ...p };

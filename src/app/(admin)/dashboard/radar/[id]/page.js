@@ -1,13 +1,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { FiArrowLeft, FiEdit2, FiTrash2, FiExternalLink, FiLock, FiSend, FiShield, FiCheck, FiSearch, FiStar } from 'react-icons/fi';
+import { FiArrowLeft, FiEdit2, FiTrash2, FiExternalLink, FiLock, FiSend, FiShield, FiCheck, FiSearch, FiStar, FiBookmark, FiArchive, FiRotateCcw, FiCheckCircle } from 'react-icons/fi';
 import { getCompany, getLatestSnapshot, getFindings, OPP_STATUS } from '@/lib/content/radarStore';
 import {
     createOpportunityAction, setOpportunityStatusAction, deleteOpportunityAction,
     addContactAction, deleteContactAction, deleteCompanyAction, createFreigabeFromOpportunityAction,
     markArt14SentAction, fetchBaDetailAction, saveArbeitgeberInfoAction,
+    archiveCompanyAction, verwerfenCompanyAction, markBeworbenAction, toggleMerklisteAction,
 } from '@/lib/content/radarActions';
 import CareerScrapeButton from '@/components/analytics/CareerScrapeButton';
+import RadarRowActions from '@/components/analytics/RadarRowActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +47,10 @@ export default async function RadarCompanyDetail({ params }) {
     const northdata = legal ? `https://www.northdata.de/?query=${encodeURIComponent([legal, c.ort].filter(Boolean).join(' '))}` : '';
     const hasIdentitaet = c.rechtsform || c.handelsregister || c.ust_id || c.geschaeftsfuehrer;
 
+    // Firmen-Status (für die gleichen Schnellaktionen wie in der Liste).
+    const beworben = (c.opportunities || []).some((o) => ['beworben', 'gespraech', 'angebot', 'absage'].includes(o.status));
+    const inaktiv = !!(c.verworfen_grund || c.archiviert);
+
     return (
         <div className="an-dashboard">
             <div className="an-head">
@@ -52,8 +58,44 @@ export default async function RadarCompanyDetail({ params }) {
                     <Link href="/dashboard/radar" className="an-back"><FiArrowLeft aria-hidden="true" /> Zum Radar</Link>
                     <h1>{c.name || c.domain || '(ohne Name)'}</h1>
                     {c.domain && <a href={`https://${c.domain}`} target="_blank" rel="noopener noreferrer" className="an-muted">{c.domain} <FiExternalLink aria-hidden="true" /></a>}
+                    <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+                        {c.merk ? <span className="an-badge" style={{ color: 'var(--adm-accent)' }}><FiBookmark aria-hidden="true" /> Merkliste</span> : null}
+                        {beworben ? <span className="an-badge an-badge--ok"><FiCheckCircle aria-hidden="true" /> beworben</span> : null}
+                        {c.verworfen_grund ? <span className="an-badge an-badge--bad" title={c.verworfen_grund}>verworfen</span> : null}
+                        {c.archiviert ? <span className="an-badge an-badge--warn">archiviert</span> : null}
+                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    {/* Firmen-Schnellaktionen wie in der Liste */}
+                    <form action={toggleMerklisteAction}>
+                        <input type="hidden" name="id" value={c.id} />
+                        <input type="hidden" name="on" value={c.merk ? '0' : '1'} />
+                        <button type="submit" className="an-icon-btn" title={c.merk ? 'Auf Merkliste – entfernen' : 'Auf Merkliste setzen'} style={c.merk ? { color: 'var(--adm-accent)' } : undefined}>
+                            <FiBookmark style={c.merk ? { fill: 'currentColor' } : undefined} />
+                        </button>
+                    </form>
+                    {inaktiv ? (
+                        <form action={archiveCompanyAction}>
+                            <input type="hidden" name="id" value={c.id} />
+                            <input type="hidden" name="on" value="0" />
+                            <button type="submit" className="an-btn-secondary an-btn-small"><FiRotateCcw aria-hidden="true" /> Reaktivieren</button>
+                        </form>
+                    ) : (
+                        <>
+                            <RadarRowActions
+                                beworbenAction={markBeworbenAction}
+                                verwerfenAction={verwerfenCompanyAction}
+                                id={c.id}
+                                name={c.name || c.domain || ''}
+                                showBeworben={!beworben}
+                            />
+                            <form action={archiveCompanyAction}>
+                                <input type="hidden" name="id" value={c.id} />
+                                <input type="hidden" name="on" value="1" />
+                                <button type="submit" className="an-icon-btn" title="Archivieren (weglegen, nicht löschen)"><FiArchive /></button>
+                            </form>
+                        </>
+                    )}
                     <Link href={`/dashboard/radar/${c.id}/edit`} className="an-btn-secondary"><FiEdit2 aria-hidden="true" /> Bearbeiten</Link>
                     <form action={deleteCompanyAction}><input type="hidden" name="id" value={c.id} />
                         <button type="submit" className="an-btn-secondary an-danger"><FiTrash2 aria-hidden="true" /> Löschen</button></form>

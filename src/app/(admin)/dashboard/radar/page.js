@@ -37,10 +37,13 @@ const EIGNUNG = {
 // Tabs = primäre Sichten. Jeder Tab setzt Status/Eignung/Beworben; Suche/Plattform/
 // PLZ/Typ/Quelle bleiben als Feinfilter je Tab. So bleibt die Liste übersichtlich,
 // ohne die Filtermöglichkeiten zu verlieren.
+// Triage-Tabs (Aktive/Bewerbung/Akquise) blenden bereits gemerkte Firmen aus,
+// damit große Arbeitslisten nicht durch schon eingeplante Stellen verwässert
+// werden — die stehen kuratiert in der Merkliste.
 const TABS = [
-    { key: 'alle', label: 'Aktive', preset: { status: 'aktiv' } },
-    { key: 'bewerbung', label: 'Bewerbung', preset: { status: 'aktiv', eignung: 'bewerbung' } },
-    { key: 'akquise', label: 'Akquise', preset: { status: 'aktiv', eignung: 'akquise' } },
+    { key: 'alle', label: 'Aktive', preset: { status: 'aktiv', merk: 'nein' } },
+    { key: 'bewerbung', label: 'Bewerbung', preset: { status: 'aktiv', eignung: 'bewerbung', merk: 'nein' } },
+    { key: 'akquise', label: 'Akquise', preset: { status: 'aktiv', eignung: 'akquise', merk: 'nein' } },
     { key: 'beworben', label: 'Beworben', preset: { status: 'alle', beworben: 'ja' } },
     { key: 'archiviert', label: 'Archiviert', preset: { status: 'archiviert' } },
     { key: 'verworfen', label: 'Verworfen', preset: { status: 'verworfen' } },
@@ -58,14 +61,14 @@ export default async function RadarPage({ searchParams }) {
     const sec = { q, typ, plattform, plz, quelle };
     const tabKey = TABS.find((t) => t.key === sp?.tab)?.key || 'alle';
     const preset = TABS.find((t) => t.key === tabKey).preset;
-    const { status = 'aktiv', eignung = '', beworben = '' } = preset;
+    const { status = 'aktiv', eignung = '', beworben = '', merk = '' } = preset;
     const tabCounts = Object.fromEntries(TABS.map((t) => [t.key, countCompanies({ ...sec, ...t.preset })]));
 
     const PAGE_SIZE = 50;
     const total = tabCounts[tabKey];
     const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const page = Math.min(pages, Math.max(1, parseInt(sp?.page, 10) || 1));
-    const companies = getCompanies({ ...sec, status, eignung, beworben, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
+    const companies = getCompanies({ ...sec, status, eignung, beworben, merk, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
 
     const opps = getOpportunities({});
     const dueContacts = getContactsDueForDeletion(14);
