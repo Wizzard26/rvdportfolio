@@ -31,7 +31,7 @@ export default function Skillset({limit}) {
                             style={{ '--skill-width': `${skill.percentage}%` }}
                             aria-hidden="true"
                         ></span>
-                        <span>{skill.name}</span>
+                        <span className={styles.progressBarLabel}>{skill.name}</span>
                     </div>
                 ))
             }

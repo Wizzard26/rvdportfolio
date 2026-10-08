@@ -15,7 +15,9 @@
     overflow: hidden;
 }
 
-.progressBar span {
+/* Nur das Label – nicht den Füllbalken (.progressBarInner ist auch ein span
+   und muss absolut positioniert bleiben). */
+.progressBarLabel {
     position: relative;
     z-index: 1000;
     color: #FFFFFF;
@@ -62,9 +64,9 @@
     background-color: #23A977;
 }
 
-.Beginner span,
-.Intermediate span,
-.Expert span {
+.Beginner .progressBarLabel,
+.Intermediate .progressBarLabel,
+.Expert .progressBarLabel {
     text-shadow: #000 1px 1px 1px;
 }
 
