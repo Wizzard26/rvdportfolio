@@ -580,6 +580,14 @@ button.an-tab.is-active:hover { background: var(--adm-accent); }
 .an-checkgroup legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .an-checkgroup .an-check { display: flex; gap: 8px; margin: 6px 0; }
 .an-checkgroup .an-field-row { margin-bottom: 4px; }
+/* Freigabe: gestaffelter Gehaltswunsch (Std./Woche | Betrag | Entfernen). */
+.an-salary-tiers { display: grid; gap: 4px; margin: 4px 0 8px; }
+.an-salary-tiers .an-salary-tier { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; align-items: end; }
+.an-salary-tiers .an-salary-tier .an-icon-btn { margin-bottom: 4px; }
+.an-salary-tiers > .an-btn-small { justify-self: start; display: inline-flex; align-items: center; gap: 6px; }
+@media (max-width: 720px) {
+    .an-salary-tiers .an-salary-tier { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto; gap: 8px; }
+}
 
 /* Showcase-Medien: Item-Zeile (an-station) + ausklappbares Bearbeiten-Panel */
 .an-imgitem { list-style: none; }

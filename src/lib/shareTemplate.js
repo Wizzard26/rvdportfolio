@@ -43,6 +43,7 @@ export const SALARY_BASIS_LABELS = {
     stunden: 'Genau die angegebenen Std./Woche',
 };
 export const DEFAULT_FULLTIME_HOURS = 40;
+export const MAX_SALARY_TIERS = 6;
 
 const trim = (s) => (s || '').toString().trim();
 const fmtEuro = (n) => Math.round(n).toLocaleString('de-DE');
@@ -76,12 +77,38 @@ export function employmentText({ employment_type, hours_from, hours_to } = {}) {
     return base || hours;
 }
 
-// Gehalt als Text. Zwei Bezugsarten:
+// Gestaffelte Angabe: [{ hours, amount }] aus JSON (DB) oder Array (Formular).
+// Nur vollständige Zeilen (Stunden UND Betrag), nach Stunden aufsteigend.
+export function parseSalaryTiers(value) {
+    let list = value;
+    if (typeof value === 'string') {
+        try { list = value.trim() ? JSON.parse(value) : []; } catch { list = []; }
+    }
+    if (!Array.isArray(list)) return [];
+    return list
+        .map((t) => ({ hours: Math.max(0, parseInt(t?.hours, 10) || 0), amount: trim(t?.amount) }))
+        .filter((t) => t.hours > 0 && t.hours <= 60 && t.amount)
+        .sort((a, b) => a.hours - b.hours)
+        .slice(0, MAX_SALARY_TIERS);
+}
+
+// Eine Zeile je Stufe: „24 Std./Woche: 45.000 € / Jahr“.
+export function salaryTierLines({ salary_tiers, salary_period } = {}) {
+    const per = SALARY_PERIOD_LABELS[salary_period] || '';
+    return parseSalaryTiers(salary_tiers).map((t) => {
+        const euro = /€|eur/i.test(t.amount) ? t.amount : `${t.amount} €`;
+        return `${t.hours} Std./Woche: ${euro}${per ? ` ${per}` : ''}`;
+    });
+}
+
+// Gehalt als Text. Bei gestaffelter Angabe ('staffel') die Stufen nebeneinander,
+// sonst zwei Bezugsarten:
 // - 'vollzeit': „45.000–75.000 € / Jahr auf Vollzeitbasis (40 Std./Woche)“, bei
 //   Teilzeit bzw. Voll- oder Teilzeit ergänzt um „, Teilzeit anteilig“.
 // - '' / 'stunden' (Altbestand, unverändert): „3.000 € / Monat bei 24 Std./Woche“.
 // Leerer String, wenn kein Betrag.
-export function salaryText({ salary_amount, salary_period, salary_hours, salary_basis, employment_type } = {}) {
+export function salaryText({ salary_amount, salary_period, salary_hours, salary_basis, employment_type, salary_tiers } = {}) {
+    if (salary_basis === 'staffel') return salaryTierLines({ salary_tiers, salary_period }).join(' · ');
     const amount = trim(salary_amount);
     if (!amount) return '';
     const per = SALARY_PERIOD_LABELS[salary_period] || '';
@@ -138,7 +165,10 @@ export function buildKeyfacts(data = {}) {
         position: trim(data.position),
         availability: trim(data.availability),
         model: [WORK_MODEL_LABELS[data.work_model] || '', employmentText(data)].filter(Boolean).join(' · '),
-        salary: data.salary_public ? salaryText(data) : '',
+        // Gestaffelt → eine Zeile je Stufe (Array), sonst ein Text.
+        salary: !data.salary_public ? ''
+            : data.salary_basis === 'staffel' ? (salaryTierLines(data).length ? salaryTierLines(data) : '')
+            : salaryText(data),
         mobility: trim(data.mobility),
         skills: toList(data.skills),
         highlights: toLines(data.highlights),

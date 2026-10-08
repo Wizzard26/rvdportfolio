@@ -52,6 +52,9 @@
     color: var(--ink);
     line-height: 1.4;
 }
+/* Gestaffeltes Gehalt: eine Stufe je Zeile. */
+.valueLine { display: block; }
+.valueLine + .valueLine { margin-top: 2px; }
 
 .block { margin-top: 18px; }
 .blockLabel {

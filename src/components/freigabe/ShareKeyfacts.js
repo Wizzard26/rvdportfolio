@@ -28,7 +28,11 @@ export default function ShareKeyfacts({ share, inBand = false }) {
                     {rows.map((r) => (
                         <div key={r.label} className={styles.row}>
                             <dt className={styles.term}><span className={styles.icon}>{r.icon}</span>{r.label}</dt>
-                            <dd className={styles.value}>{r.value}</dd>
+                            <dd className={styles.value}>
+                                {Array.isArray(r.value)
+                                    ? r.value.map((line) => <span key={line} className={styles.valueLine}>{line}</span>)
+                                    : r.value}
+                            </dd>
                         </div>
                     ))}
                 </dl>
