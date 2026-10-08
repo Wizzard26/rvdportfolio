@@ -5,11 +5,14 @@ import Link from 'next/link';
 import {
     buildShareText, PURPOSE_LABELS, CONTACT_GENDER_LABELS,
     EMPLOYMENT_LABELS, WORK_MODEL_LABELS, SALARY_PERIOD_LABELS,
+    SALARY_BASIS_LABELS, DEFAULT_FULLTIME_HOURS, salaryText, salaryProRataText,
 } from '@/lib/shareTemplate';
 import { STATUS_LABELS, STATUS_ORDER } from '@/lib/applicationStatus';
 import ShareDocumentPicker from '@/components/analytics/ShareDocumentPicker';
 import ShareTestimonialPicker from '@/components/analytics/ShareTestimonialPicker';
 import SharePrivateRefPicker from '@/components/analytics/SharePrivateRefPicker';
+
+const trimmed = (x) => (x || '').toString().trim();
 
 function todayPlus(days) {
     const d = new Date();
@@ -27,6 +30,20 @@ export default function ShareForm({ action, share, documents = [], testimonials 
     const expiresRef = useRef(null);
     const [status, setStatus] = useState(v.status || 'offen');
     const [empType, setEmpType] = useState(v.employment_type || '');
+    // Standard: Vollzeit-Basis. Bestehende Freigaben mit bereits gepflegtem Gehalt
+    // (ohne Bezugsart) behalten exakt ihre bisherige Ausgabe („bei X Std./Woche“).
+    const [salaryBasis, setSalaryBasis] = useState(v.salary_basis || (share?.id && trimmed(v.salary_amount) ? 'stunden' : 'vollzeit'));
+
+    // Live-Vorschau der Gehaltszeile (so erscheint sie auf der Freigabe-Seite)
+    // plus – nur intern – die anteilige Teilzeit-Umrechnung.
+    const readSalary = (el) => ({
+        salary_amount: el?.salary_amount?.value ?? v.salary_amount, salary_period: el?.salary_period?.value ?? v.salary_period,
+        salary_hours: el?.salary_hours?.value ?? v.salary_hours, salary_basis: el?.salary_basis?.value ?? salaryBasis,
+        employment_type: el?.employment_type?.value ?? empType,
+        hours_from: el?.hours_from?.value ?? v.hours_from, hours_to: el?.hours_to?.value ?? v.hours_to,
+    });
+    const [salaryData, setSalaryData] = useState(() => readSalary(null));
+    const refreshSalary = () => setSalaryData(readSalary(formRef.current?.elements));
 
     const fillTemplate = () => {
         const el = formRef.current?.elements;
@@ -48,7 +65,7 @@ export default function ShareForm({ action, share, documents = [], testimonials 
     };
 
     return (
-        <form ref={formRef} action={formAction} className="an-form an-projectform">
+        <form ref={formRef} action={formAction} className="an-form an-projectform" onChange={refreshSalary}>
             {share?.id && <input type="hidden" name="id" value={share.id} />}
             {state.error && <p className="an-form-error" role="alert">{state.error}</p>}
 
@@ -140,8 +157,26 @@ export default function ShareForm({ action, share, documents = [], testimonials 
                             {Object.entries(SALARY_PERIOD_LABELS).map(([k, label]) => <option key={k} value={k}>{label.replace('/ ', 'pro ')}</option>)}
                         </select></label>
                 </div>
-                <label className="an-field"><span>Gehalt bezogen auf <span className="an-muted">(Std./Woche – optional, v. a. bei Teilzeit → „… bei 24 Std./Woche“)</span></span>
-                    <input type="number" name="salary_hours" min="0" max="60" defaultValue={v.salary_hours || ''} placeholder="24" className="an-days-input" /></label>
+                <div className="an-field-row">
+                    <label className="an-field"><span>Gehaltswunsch gilt für</span>
+                        <select name="salary_basis" value={salaryBasis} onChange={(e) => setSalaryBasis(e.target.value)}>
+                            {Object.entries(SALARY_BASIS_LABELS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+                        </select></label>
+                    {salaryBasis === 'vollzeit' ? (
+                        <label className="an-field"><span>Vollzeit = Std./Woche <span className="an-muted">(leer = {DEFAULT_FULLTIME_HOURS})</span></span>
+                            <input type="number" name="salary_hours" min="0" max="60" defaultValue={v.salary_hours || ''} placeholder={String(DEFAULT_FULLTIME_HOURS)} className="an-days-input" /></label>
+                    ) : (
+                        <label className="an-field"><span>Gehalt bezogen auf <span className="an-muted">(Std./Woche – optional → „… bei 24 Std./Woche“)</span></span>
+                            <input type="number" name="salary_hours" min="0" max="60" defaultValue={v.salary_hours || ''} placeholder="24" className="an-days-input" /></label>
+                    )}
+                </div>
+                {salaryText(salaryData) && (
+                    <p className="an-card-note" style={{ margin: '0 0 8px' }}>
+                        Vorschau: <strong>{salaryText(salaryData)}</strong>
+                        {salaryProRataText(salaryData) && <><br /><span className="an-muted">Nur intern – anteilig umgerechnet: {salaryProRataText(salaryData)}</span></>}
+                        {salaryBasis === 'stunden' && (empType === 'beides') && <><br /><span className="an-muted">Tipp: Bei „Voll- oder Teilzeit“ ist „Vollzeit-Basis“ eindeutiger – sonst wirkt die ganze Spanne wie für genau diese Stundenzahl.</span></>}
+                    </p>
+                )}
                 <label className="an-check">
                     <input type="checkbox" name="salary_public" defaultChecked={!!v.salary_public} />
                     <span>Gehaltswunsch auf der Seite anzeigen <span className="an-muted">— sonst nur intern sichtbar</span></span>

@@ -37,7 +37,15 @@ export const SALARY_PERIOD_LABELS = {
     stunde: '/ Stunde',
 };
 
+// Worauf sich der Gehaltswunsch bezieht (Select im Admin).
+export const SALARY_BASIS_LABELS = {
+    vollzeit: 'Vollzeit-Basis (bei Teilzeit anteilig)',
+    stunden: 'Genau die angegebenen Std./Woche',
+};
+export const DEFAULT_FULLTIME_HOURS = 40;
+
 const trim = (s) => (s || '').toString().trim();
+const fmtEuro = (n) => Math.round(n).toLocaleString('de-DE');
 
 // Skills: Zeilen- ODER kommagetrennt (kurze Tags → Chips).
 export function toList(value) {
@@ -68,17 +76,60 @@ export function employmentText({ employment_type, hours_from, hours_to } = {}) {
     return base || hours;
 }
 
-// Gehalt als Text: „55.000–60.000 € / Jahr“, bei Teilzeit z. B.
-// „3.000 € / Monat bei 24 Std./Woche“. Leerer String, wenn kein Betrag.
-export function salaryText({ salary_amount, salary_period, salary_hours } = {}) {
+// Gehalt als Text. Zwei Bezugsarten:
+// - 'vollzeit': „45.000–75.000 € / Jahr auf Vollzeitbasis (40 Std./Woche)“, bei
+//   Teilzeit bzw. Voll- oder Teilzeit ergänzt um „, Teilzeit anteilig“.
+// - '' / 'stunden' (Altbestand, unverändert): „3.000 € / Monat bei 24 Std./Woche“.
+// Leerer String, wenn kein Betrag.
+export function salaryText({ salary_amount, salary_period, salary_hours, salary_basis, employment_type } = {}) {
     const amount = trim(salary_amount);
     if (!amount) return '';
     const per = SALARY_PERIOD_LABELS[salary_period] || '';
     const euro = /€|eur/i.test(amount) ? amount : `${amount} €`;
     const base = per ? `${euro} ${per}` : euro;
     const hrs = Number(salary_hours) || 0;
-    // Bezug nur bei Monats-/Jahresangaben sinnvoll (nicht beim Stundenlohn).
-    return hrs && salary_period !== 'stunde' ? `${base} bei ${hrs} Std./Woche` : base;
+    // Stundenlohn ist von der Wochenstundenzahl unabhängig → kein Bezug.
+    if (salary_period === 'stunde') return base;
+    if (salary_basis === 'vollzeit') {
+        const teilzeit = employment_type === 'teilzeit' || employment_type === 'beides';
+        return `${base} auf Vollzeitbasis (${hrs || DEFAULT_FULLTIME_HOURS} Std./Woche)${teilzeit ? ', Teilzeit anteilig' : ''}`;
+    }
+    return hrs ? `${base} bei ${hrs} Std./Woche` : base;
+}
+
+// Beträge aus der Freitext-Angabe lesen: „45.000–75.000“ → [45000, 75000],
+// „55k“ → [55000]. Leer, wenn nichts Eindeutiges erkennbar ist.
+export function parseSalaryAmounts(value) {
+    return (trim(value).match(/\d[\d.\s]*(?:,\d+)?\s*k?/gi) || [])
+        .map((m) => {
+            const k = /k\s*$/i.test(m);
+            const n = parseFloat(m.replace(/k\s*$/i, '').replace(/[.\s]/g, '').replace(',', '.'));
+            return k ? n * 1000 : n;
+        })
+        .filter((n) => Number.isFinite(n) && n > 0)
+        .slice(0, 2);
+}
+
+// Nur für den Admin (nicht auf der Freigabe-Seite): anteilige Teilzeit-Spanne bei
+// Vollzeit-Basis, z. B. „20–30 Std./Woche ≈ 22.500–56.250 € / Jahr“.
+export function salaryProRataText({ salary_amount, salary_period, salary_hours, salary_basis, employment_type, hours_from, hours_to } = {}) {
+    if (salary_basis !== 'vollzeit' || salary_period === 'stunde') return '';
+    if (employment_type !== 'teilzeit' && employment_type !== 'beides') return '';
+    const amounts = parseSalaryAmounts(salary_amount);
+    const from = Number(hours_from) || 0;
+    const to = Number(hours_to) || 0;
+    const full = Number(salary_hours) || DEFAULT_FULLTIME_HOURS;
+    if (!amounts.length || (!from && !to)) return '';
+    const lo = amounts[0];
+    const hi = amounts[1] || amounts[0];
+    const hFrom = from || to;
+    const hTo = to || from;
+    const a = (lo * hFrom) / full;
+    const b = (hi * hTo) / full;
+    const per = SALARY_PERIOD_LABELS[salary_period] || '';
+    const hours = hFrom === hTo ? `${hFrom} Std./Woche` : `${hFrom}–${hTo} Std./Woche`;
+    const range = Math.round(a) === Math.round(b) ? `${fmtEuro(a)} €` : `${fmtEuro(a)}–${fmtEuro(b)} €`;
+    return `${hours} ≈ ${range}${per ? ` ${per}` : ''}`;
 }
 
 // Die scannbare Keyfacts-Karte als Datenstruktur (Frontend rendert daraus Zeilen/Chips).

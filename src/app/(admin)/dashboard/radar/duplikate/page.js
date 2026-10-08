@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FiArrowLeft, FiExternalLink, FiGitMerge, FiCheckCircle, FiBookmark } from 'react-icons/fi';
+import { FiArrowLeft, FiExternalLink, FiGitMerge, FiCheckCircle, FiBookmark, FiSlash } from 'react-icons/fi';
 import { getDuplicateGroups } from '@/lib/content/radarStore';
 import { mergeCompaniesAction } from '@/lib/content/radarActions';
 import { formatNumber } from '@/lib/analytics/format';
@@ -61,6 +61,7 @@ export default async function RadarDuplikatePage() {
                                             <td style={{ whiteSpace: 'nowrap' }}>
                                                 {c.merk ? <span className="an-badge" style={{ color: 'var(--adm-accent)' }} title="Merkliste"><FiBookmark aria-hidden="true" /></span> : null}
                                                 {c.beworben_count > 0 ? <span className="an-badge an-badge--ok" title="beworben"><FiCheckCircle aria-hidden="true" /></span> : null}
+                                                {!c.beworben_count && c.absage_count > 0 ? <span className="an-badge an-badge--warn" title="Absage"><FiSlash aria-hidden="true" /></span> : null}
                                                 {c.verworfen_grund ? <span className="an-badge an-badge--bad" title={c.verworfen_grund}>verw.</span> : null}
                                                 {c.archiviert ? <span className="an-badge an-badge--warn" title="archiviert">arch.</span> : null}
                                             </td>

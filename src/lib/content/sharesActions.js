@@ -40,6 +40,7 @@ function parse(formData) {
         salary_amount: g('salary_amount'),
         salary_period: g('salary_period'),
         salary_hours: g('salary_hours'),
+        salary_basis: g('salary_basis'),
         salary_public: formData.get('salary_public') ? 1 : 0,
         skills: g('skills'),
         highlights: g('highlights'),

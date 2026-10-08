@@ -575,6 +575,9 @@ function migrate(database) {
     ensureColumn(database, 'shares', 'salary_period', "TEXT NOT NULL DEFAULT ''");    // '', jahr, monat, stunde
     ensureColumn(database, 'shares', 'salary_hours', 'INTEGER NOT NULL DEFAULT 0');   // Bezug: Gehalt „bei X Std./Woche" (Teilzeit)
     ensureColumn(database, 'shares', 'salary_public', 'INTEGER NOT NULL DEFAULT 0');  // Gehalt auf der Seite zeigen?
+    // Worauf sich der Gehaltswunsch bezieht: '' / 'stunden' = genau „bei X Std./Woche"
+    // (Altbestand, unverändert), 'vollzeit' = Vollzeit-Basis, bei Teilzeit anteilig.
+    ensureColumn(database, 'shares', 'salary_basis', "TEXT NOT NULL DEFAULT ''");
     ensureColumn(database, 'shares', 'skills', "TEXT NOT NULL DEFAULT ''");           // Kern-Skills (Zeilen/Komma) → Chips
     ensureColumn(database, 'shares', 'highlights', "TEXT NOT NULL DEFAULT ''");       // Besonderheiten (Zeilen) → Bullets
     ensureColumn(database, 'shares', 'motivation', "TEXT NOT NULL DEFAULT ''");       // „Warum ihr" (1 Satz) → Fließtext

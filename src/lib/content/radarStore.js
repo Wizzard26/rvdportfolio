@@ -63,8 +63,17 @@ export function eignungOf(c) {
     return 'unklar';
 }
 
-// Firma gilt als „beworben", wenn eine Chance im Bewerbungs-/Nachgang-Status ist.
-const BEWORBEN_EXISTS = "EXISTS (SELECT 1 FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN ('beworben','gespraech','angebot','absage'))";
+// Firma gilt als „beworben", solange eine Chance im laufenden Bewerbungsprozess ist.
+// Abgesagte Prozesse zählen separat („Absage"): Sie bleiben als Erinnerung sichtbar,
+// lassen sich aber per Archivieren/Verwerfen wegsortieren.
+export const LAUFEND_STATUS = ['beworben', 'gespraech', 'angebot'];
+const LAUFEND_SQL = `'${LAUFEND_STATUS.join("','")}'`;
+const BEWORBEN_EXISTS = `EXISTS (SELECT 1 FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN (${LAUFEND_SQL}))`;
+const ABSAGE_EXISTS = "EXISTS (SELECT 1 FROM radar_opportunities o WHERE o.company_id = c.id AND o.status = 'absage')";
+// Zähler-Spalten für Listen (beworben_count = laufend, absage_count = abgesagt).
+const COUNT_COLS = `
+            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN (${LAUFEND_SQL})) AS beworben_count,
+            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id AND o.status = 'absage') AS absage_count`;
 
 // Gemeinsamer WHERE-Bau für Liste + Zähler (Suche, Typ, Status, Plattform, PLZ, Eignung, Quelle, Beworben).
 function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', merk = '' }) {
@@ -75,12 +84,14 @@ function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '',
     if (quelle) { where.push('c.quelle = @quelle'); p.quelle = quelle; }
     if (beworben === 'ja') where.push(BEWORBEN_EXISTS);
     else if (beworben === 'nein') where.push(`NOT ${BEWORBEN_EXISTS}`);
+    else if (beworben === 'absage') where.push(`${ABSAGE_EXISTS} AND NOT ${BEWORBEN_EXISTS}`);
     if (merk === 'ja') where.push('c.merk = 1');
     else if (merk === 'nein') where.push('c.merk = 0');
     if (plz) { where.push('c.plz LIKE @plz'); p.plz = `${plz}%`; } // PLZ-Bereich (Präfix)
     if (status === 'aktiv') where.push('c.aktiv = 1 AND c.archiviert = 0');
     else if (status === 'verworfen') where.push("c.verworfen_grund != '' AND c.archiviert = 0");
     else if (status === 'archiviert') where.push('c.archiviert = 1');
+    else if (status === 'offen') where.push("c.archiviert = 0 AND c.verworfen_grund = ''"); // nicht weggelegt
     // 'alle' = keine Status-Einschränkung
     if (plattform) {
         where.push('(SELECT plattform FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) = @plattform');
@@ -107,7 +118,7 @@ export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', s
     const rows = db.prepare(`
         SELECT c.*,
             (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id) AS opp_count,
-            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN ('beworben','gespraech','angebot','absage')) AS beworben_count,
+            ${COUNT_COLS},
             (SELECT plattform FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS plattform,
             (SELECT version FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS version,
             (SELECT version_eol FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS version_eol,
@@ -253,7 +264,7 @@ export function getMerkliste() {
     const rows = getContentDb().prepare(`
         SELECT c.*,
             (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id) AS opp_count,
-            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN ('beworben','gespraech','angebot','absage')) AS beworben_count,
+            ${COUNT_COLS},
             (SELECT plattform FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS plattform,
             (SELECT version FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS version,
             (SELECT version_eol FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS version_eol
@@ -297,7 +308,7 @@ export function getDuplicateGroups() {
     const rows = getContentDb().prepare(`
         SELECT c.*,
             (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id) AS opp_count,
-            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN ('beworben','gespraech','angebot','absage')) AS beworben_count
+            ${COUNT_COLS}
         FROM radar_companies c
     `).all();
     const map = new Map();
@@ -609,6 +620,19 @@ export function addOutreachBlock(companyId, ownPipeline, grund = '') {
     getContentDb().prepare(
         'INSERT INTO radar_outreach_blocks (company_id, pipeline, grund, gesperrt_bis, created_at) VALUES (?, ?, ?, ?, ?)',
     ).run(Number(companyId), other, grund || `Kontakt via ${ownPipeline}`, bis, Date.now());
+}
+
+// Nach einer Absage: Läuft bei der Firma kein anderer Prozess mehr, wird die
+// Doppelansprache-Sperre aufgehoben (Datensatz bleibt, nur abgelaufen). Die
+// Detailseite weist auf die Absage hin — erneute Ansprache bleibt bewusste Entscheidung.
+export function liftBlocksAfterAbsage(companyId) {
+    const db = getContentDb();
+    const cid = Number(companyId);
+    const laufend = db.prepare(`SELECT COUNT(*) n FROM radar_opportunities WHERE company_id = ? AND status IN (${LAUFEND_SQL})`).get(cid).n;
+    if (laufend) return 0;
+    const now = Date.now();
+    return db.prepare("UPDATE radar_outreach_blocks SET gesperrt_bis = ?, grund = grund || ' · nach Absage aufgehoben' WHERE company_id = ? AND gesperrt_bis > ?")
+        .run(now, cid, now).changes;
 }
 
 // ─── Fingerprint speichern (Phase 2) ─────────────────────────────────────────

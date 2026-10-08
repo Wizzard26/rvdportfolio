@@ -21,7 +21,7 @@ const card = {
 };
 const actionsRow = { display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 18 };
 
-export default function RadarRowActions({ beworbenAction, verwerfenAction, id, name, showBeworben }) {
+export default function RadarRowActions({ beworbenAction, verwerfenAction, id, name, showBeworben, absage = false }) {
     const [mode, setMode] = useState(null); // 'beworben' | 'verwerfen' | null
     const label = name ? `„${name}"` : 'diese Firma';
 
@@ -58,6 +58,11 @@ export default function RadarRowActions({ beworbenAction, verwerfenAction, id, n
                             <p style={{ margin: 0, color: 'var(--adm-ink-soft, #3b4a52)', fontSize: '0.92rem', lineHeight: 1.5 }}>
                                 {label} als beworben markieren? Legt bei Bedarf eine Initiativbewerbung an und setzt die Doppelansprache-Sperre.
                             </p>
+                            {absage && (
+                                <p className="an-alert-warn" style={{ margin: '10px 0 0', fontSize: '0.88rem', lineHeight: 1.5 }}>
+                                    Hinweis: Hier gab es bereits eine Absage. Erneut bewerben nur, wenn es einen guten Grund gibt (z. B. neue Stelle, andere Abteilung).
+                                </p>
+                            )}
                             <div style={actionsRow}>
                                 <button type="button" className="an-btn-secondary an-btn-small" onClick={() => setMode(null)}>Abbrechen</button>
                                 <button type="submit" className="an-btn-primary an-btn-small">Als beworben markieren</button>
@@ -72,7 +77,7 @@ export default function RadarRowActions({ beworbenAction, verwerfenAction, id, n
                             </p>
                             <label className="an-field" style={{ display: 'block' }}>
                                 <span style={{ display: 'block', fontSize: '0.85rem', marginBottom: 4 }}>Grund</span>
-                                <input name="grund" defaultValue="kein Interesse" autoFocus className="an-input" style={{ width: '100%' }} />
+                                <input name="grund" defaultValue={absage ? 'Absage erhalten' : 'kein Interesse'} autoFocus className="an-input" style={{ width: '100%' }} />
                             </label>
                             <div style={actionsRow}>
                                 <button type="button" className="an-btn-secondary an-btn-small" onClick={() => setMode(null)}>Abbrechen</button>

@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import {
     createCompany, updateCompany, deleteCompany, archiveCompany,
     createOpportunity, setOpportunityStatus, deleteOpportunity, rescoreOpportunity,
-    addContact, deleteContact, addOutreachBlock, saveFingerprint, createShareFromOpportunity,
+    addContact, deleteContact, addOutreachBlock, liftBlocksAfterAbsage, saveFingerprint, createShareFromOpportunity,
     markArt14Sent, getCompany, importCareerJobs,
     parseBuiltWithCsv, importBuiltWith, getCompaniesToRescan, countCompaniesToRescan, applyRescan,
     saveDiscovery, parseDomainList, importDomainList,
@@ -113,6 +113,8 @@ export async function setOpportunityStatusAction(formData) {
     if (status === 'beworben') {
         const pipeline = formData.get('pipeline') || 'bewerbung';
         addOutreachBlock(companyId, pipeline, `Chance #${id} beworben`);
+    } else if (status === 'absage') {
+        liftBlocksAfterAbsage(companyId);
     }
     revalidatePath(`/dashboard/radar/${companyId}`);
     revalidatePath('/dashboard/radar');

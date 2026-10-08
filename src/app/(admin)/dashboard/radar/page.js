@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw, FiCheckCircle, FiBookmark, FiGitMerge } from 'react-icons/fi';
+import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw, FiCheckCircle, FiBookmark, FiGitMerge, FiSlash } from 'react-icons/fi';
 import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies, countCompaniesForJobScan, countMerkliste, countDuplicateGroups } from '@/lib/content/radarStore';
 import { deleteCompanyAction, deleteContactAction, archiveCompanyAction, markBeworbenAction, verwerfenCompanyAction, toggleMerklisteAction } from '@/lib/content/radarActions';
 import RadarRowActions from '@/components/analytics/RadarRowActions';
@@ -44,7 +44,10 @@ const TABS = [
     { key: 'alle', label: 'Aktive', preset: { status: 'aktiv', merk: 'nein' } },
     { key: 'bewerbung', label: 'Bewerbung', preset: { status: 'aktiv', eignung: 'bewerbung', merk: 'nein' } },
     { key: 'akquise', label: 'Akquise', preset: { status: 'aktiv', eignung: 'akquise', merk: 'nein' } },
+    // Beworben = laufende Prozesse (verschwinden nie still); Absage = abgeschlossen,
+    // per Archivieren/Verwerfen wegsortierbar.
     { key: 'beworben', label: 'Beworben', preset: { status: 'alle', beworben: 'ja' } },
+    { key: 'absage', label: 'Absage', preset: { status: 'offen', beworben: 'absage' } },
     { key: 'archiviert', label: 'Archiviert', preset: { status: 'archiviert' } },
     { key: 'verworfen', label: 'Verworfen', preset: { status: 'verworfen' } },
 ];
@@ -243,6 +246,7 @@ export default async function RadarPage({ searchParams }) {
                                         <td>
                                             <Link href={`/dashboard/radar/${c.id}`}><strong>{c.name || c.domain || '(ohne Name)'}</strong></Link>
                                             {c.beworben_count > 0 && <span className="an-badge an-badge--ok" title={`Hier bereits beworben (${c.beworben_count} ${c.beworben_count === 1 ? 'Chance' : 'Chancen'}) — nicht doppelt bewerben`}> <FiCheckCircle aria-hidden="true" /> beworben</span>}
+                                            {!c.beworben_count && c.absage_count > 0 && <span className="an-badge an-badge--warn" title="Bewerbung abgesagt — Doppelansprache-Sperre aufgehoben, erneute Ansprache bewusst entscheiden"> <FiSlash aria-hidden="true" /> Absage</span>}
                                             {c.blocked && <span className="an-badge an-badge--warn" title="Doppelansprache gesperrt"> <FiLock aria-hidden="true" /> gesperrt</span>}
                                             {c.verworfen_grund && <span className="an-badge an-badge--bad" title={c.verworfen_grund}> verworfen</span>}
                                             {c.domain
@@ -264,7 +268,7 @@ export default async function RadarPage({ searchParams }) {
                                                 : <span className="an-muted">nicht erkannt</span>}
                                         </td>
                                         <td style={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }} title={[c.plz, c.ort].filter(Boolean).join(' ')}>{[c.plz, c.ort].filter(Boolean).join(' ') || '—'}</td>
-                                        <td>{formatNumber(c.opp_count)}{c.beworben_count > 0 ? <span className="an-muted" title="davon beworben"> · {formatNumber(c.beworben_count)} bew.</span> : ''}</td>
+                                        <td>{formatNumber(c.opp_count)}{c.beworben_count > 0 ? <span className="an-muted" title="davon laufend beworben"> · {formatNumber(c.beworben_count)} bew.</span> : ''}{c.absage_count > 0 ? <span className="an-muted" title="davon abgesagt"> · {formatNumber(c.absage_count)} Abs.</span> : ''}</td>
                                         <td style={{ whiteSpace: 'nowrap' }}>
                                             <Link href={`/dashboard/radar/${c.id}`} className="an-btn-secondary an-btn-small">Öffnen</Link>
                                             {(c.archiviert || c.verworfen_grund) ? (
@@ -288,6 +292,7 @@ export default async function RadarPage({ searchParams }) {
                                                         id={c.id}
                                                         name={c.name || c.domain || ''}
                                                         showBeworben={!c.beworben_count}
+                                                        absage={c.absage_count > 0}
                                                     />
                                                     <form action={archiveCompanyAction} style={{ display: 'inline', marginLeft: 6 }}>
                                                         <input type="hidden" name="id" value={c.id} />
