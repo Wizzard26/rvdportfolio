@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { FiArrowLeft, FiEdit2, FiTrash2, FiExternalLink, FiLock, FiSend, FiShield, FiCheck, FiSearch, FiStar, FiBookmark, FiArchive, FiRotateCcw, FiCheckCircle } from 'react-icons/fi';
-import { getCompany, getLatestSnapshot, getFindings, OPP_STATUS } from '@/lib/content/radarStore';
+import { FiArrowLeft, FiEdit2, FiTrash2, FiExternalLink, FiLock, FiSend, FiShield, FiCheck, FiSearch, FiStar, FiBookmark, FiArchive, FiRotateCcw, FiCheckCircle, FiSlash } from 'react-icons/fi';
+import { getCompany, getLatestSnapshot, getFindings, OPP_STATUS, LAUFEND_STATUS } from '@/lib/content/radarStore';
 import {
     createOpportunityAction, setOpportunityStatusAction, deleteOpportunityAction,
     addContactAction, deleteContactAction, deleteCompanyAction, createFreigabeFromOpportunityAction,
@@ -48,7 +48,8 @@ export default async function RadarCompanyDetail({ params }) {
     const hasIdentitaet = c.rechtsform || c.handelsregister || c.ust_id || c.geschaeftsfuehrer;
 
     // Firmen-Status (für die gleichen Schnellaktionen wie in der Liste).
-    const beworben = (c.opportunities || []).some((o) => ['beworben', 'gespraech', 'angebot', 'absage'].includes(o.status));
+    const beworben = (c.opportunities || []).some((o) => LAUFEND_STATUS.includes(o.status));
+    const absagen = beworben ? [] : (c.opportunities || []).filter((o) => o.status === 'absage');
     const inaktiv = !!(c.verworfen_grund || c.archiviert);
 
     return (
@@ -61,6 +62,7 @@ export default async function RadarCompanyDetail({ params }) {
                     <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                         {c.merk ? <span className="an-badge" style={{ color: 'var(--adm-accent)' }}><FiBookmark aria-hidden="true" /> Merkliste</span> : null}
                         {beworben ? <span className="an-badge an-badge--ok"><FiCheckCircle aria-hidden="true" /> beworben</span> : null}
+                        {absagen.length ? <span className="an-badge an-badge--warn"><FiSlash aria-hidden="true" /> Absage</span> : null}
                         {c.verworfen_grund ? <span className="an-badge an-badge--bad" title={c.verworfen_grund}>verworfen</span> : null}
                         {c.archiviert ? <span className="an-badge an-badge--warn">archiviert</span> : null}
                     </div>
@@ -88,6 +90,7 @@ export default async function RadarCompanyDetail({ params }) {
                                 id={c.id}
                                 name={c.name || c.domain || ''}
                                 showBeworben={!beworben}
+                                absage={absagen.length > 0}
                             />
                             <form action={archiveCompanyAction}>
                                 <input type="hidden" name="id" value={c.id} />
@@ -102,6 +105,14 @@ export default async function RadarCompanyDetail({ params }) {
                 </div>
             </div>
 
+            {absagen.length > 0 && (
+                <p className="an-alert-warn">
+                    <FiSlash aria-hidden="true" /> Bewerbung abgesagt
+                    {` (${absagen.map((o) => `${o.titel || `Chance #${o.id}`}${o.updated_at ? ` am ${new Date(o.updated_at).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' })}` : ''}`).join(' · ')})`}.
+                    {activeBlocks.length === 0 && ' Die Doppelansprache-Sperre ist aufgehoben — eine erneute Bewerbung oder Akquise ist möglich, aber bewusst entscheiden: Die Firma kennt dich bereits.'}
+                    {' '}Zum Wegsortieren: archivieren oder verwerfen.
+                </p>
+            )}
             {activeBlocks.length > 0 && (
                 <p className="an-alert-danger"><FiLock aria-hidden="true" /> Doppelansprache-Sperre aktiv: {activeBlocks.map((b) => `${b.pipeline} bis ${new Date(b.gesperrt_bis).toLocaleDateString('de-DE')}`).join(' · ')}</p>
             )}

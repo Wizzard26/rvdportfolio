@@ -2,14 +2,18 @@
 
 import { useActionState, useRef, useState } from 'react';
 import Link from 'next/link';
+import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import {
     buildShareText, PURPOSE_LABELS, CONTACT_GENDER_LABELS,
     EMPLOYMENT_LABELS, WORK_MODEL_LABELS, SALARY_PERIOD_LABELS,
+    SALARY_BASIS_LABELS, DEFAULT_FULLTIME_HOURS, MAX_SALARY_TIERS, salaryText, salaryProRataText, salaryTierLines,
 } from '@/lib/shareTemplate';
 import { STATUS_LABELS, STATUS_ORDER } from '@/lib/applicationStatus';
 import ShareDocumentPicker from '@/components/analytics/ShareDocumentPicker';
 import ShareTestimonialPicker from '@/components/analytics/ShareTestimonialPicker';
 import SharePrivateRefPicker from '@/components/analytics/SharePrivateRefPicker';
+
+const trimmed = (x) => (x || '').toString().trim();
 
 function todayPlus(days) {
     const d = new Date();
@@ -27,6 +31,45 @@ export default function ShareForm({ action, share, documents = [], testimonials 
     const expiresRef = useRef(null);
     const [status, setStatus] = useState(v.status || 'offen');
     const [empType, setEmpType] = useState(v.employment_type || '');
+    // Standard: Vollzeit-Basis. Bestehende Freigaben mit bereits gepflegtem Gehalt
+    // (ohne Bezugsart) behalten exakt ihre bisherige Ausgabe („bei X Std./Woche“).
+    const [salaryBasis, setSalaryBasis] = useState(
+        v.salary_basis && v.salary_basis !== 'staffel' ? v.salary_basis
+            : (share?.id && trimmed(v.salary_amount) && v.salary_basis !== 'staffel' ? 'stunden' : 'vollzeit'));
+    // Gestaffelte Angabe: Gehaltswunsch je Wochenstunden nebeneinander. Die
+    // einfache Spanne bleibt dabei erhalten (wird nur ausgeblendet).
+    const [staffel, setStaffel] = useState(v.salary_basis === 'staffel');
+    const [tiers, setTiers] = useState(() => {
+        try {
+            const list = typeof v.salary_tiers === 'string' ? JSON.parse(v.salary_tiers || '[]') : (v.salary_tiers || []);
+            return Array.isArray(list) ? list.map((t) => ({ hours: String(t.hours || ''), amount: String(t.amount || '') })) : [];
+        } catch { return []; }
+    });
+    const setTier = (i, key, value) => setTiers((list) => list.map((t, j) => (j === i ? { ...t, [key]: value } : t)));
+    const toggleStaffel = (on) => {
+        setStaffel(on);
+        if (!on || tiers.length) return;
+        // Vorbelegung aus dem Umfang: Teilzeit von/bis, bei „Voll- oder Teilzeit“ + Vollzeit.
+        const el = formRef.current?.elements;
+        const hours = [Number(el?.hours_from?.value) || 0, Number(el?.hours_to?.value) || 0];
+        if (empType === 'vollzeit' || empType === 'beides') hours.push(DEFAULT_FULLTIME_HOURS);
+        const uniq = [...new Set(hours.filter((h) => h > 0))].sort((a, b) => a - b);
+        setTiers((uniq.length ? uniq : [0]).map((h) => ({ hours: h ? String(h) : '', amount: '' })));
+    };
+
+    // Live-Vorschau der Gehaltszeile (so erscheint sie auf der Freigabe-Seite)
+    // plus – nur intern – die anteilige Teilzeit-Umrechnung.
+    const readSalary = (el) => ({
+        salary_amount: el?.salary_amount?.value ?? v.salary_amount, salary_period: el?.salary_period?.value ?? v.salary_period,
+        salary_hours: el?.salary_hours?.value ?? v.salary_hours, salary_basis: el?.salary_basis?.value ?? salaryBasis,
+        employment_type: el?.employment_type?.value ?? empType,
+        hours_from: el?.hours_from?.value ?? v.hours_from, hours_to: el?.hours_to?.value ?? v.hours_to,
+    });
+    const [salaryData, setSalaryData] = useState(() => readSalary(null));
+    const refreshSalary = () => setSalaryData(readSalary(formRef.current?.elements));
+    // Vorschau der einfachen Spanne: Bezugsart aus dem State (im Staffel-Modus
+    // trägt das DOM-Feld salary_basis den Wert 'staffel').
+    const rangeData = { ...salaryData, salary_basis: salaryBasis };
 
     const fillTemplate = () => {
         const el = formRef.current?.elements;
@@ -48,7 +91,7 @@ export default function ShareForm({ action, share, documents = [], testimonials 
     };
 
     return (
-        <form ref={formRef} action={formAction} className="an-form an-projectform">
+        <form ref={formRef} action={formAction} className="an-form an-projectform" onChange={refreshSalary}>
             {share?.id && <input type="hidden" name="id" value={share.id} />}
             {state.error && <p className="an-form-error" role="alert">{state.error}</p>}
 
@@ -131,8 +174,13 @@ export default function ShareForm({ action, share, documents = [], testimonials 
                     <button type="button" className="an-btn-secondary an-btn-small" onClick={() => setAvailability('nach Absprache')}>nach Absprache</button>
                 </div>
 
+                <label className="an-check">
+                    <input type="checkbox" checked={staffel} onChange={(e) => toggleStaffel(e.target.checked)} />
+                    <span>Gestaffelte Angabe <span className="an-muted">— Gehaltswunsch je Wochenstunden nebeneinander (z. B. 24 / 30 / 40 Std.)</span></span>
+                </label>
+                {staffel && <input type="hidden" name="salary_basis" value="staffel" />}
                 <div className="an-field-row">
-                    <label className="an-field"><span>Gehaltswunsch <span className="an-muted">(Betrag)</span></span>
+                    <label className="an-field" style={staffel ? { display: 'none' } : undefined}><span>Gehaltswunsch <span className="an-muted">(Betrag)</span></span>
                         <input name="salary_amount" defaultValue={v.salary_amount || ''} placeholder="55.000–60.000" /></label>
                     <label className="an-field"><span>Zeitraum</span>
                         <select name="salary_period" defaultValue={v.salary_period || ''}>
@@ -140,8 +188,53 @@ export default function ShareForm({ action, share, documents = [], testimonials 
                             {Object.entries(SALARY_PERIOD_LABELS).map(([k, label]) => <option key={k} value={k}>{label.replace('/ ', 'pro ')}</option>)}
                         </select></label>
                 </div>
-                <label className="an-field"><span>Gehalt bezogen auf <span className="an-muted">(Std./Woche – optional, v. a. bei Teilzeit → „… bei 24 Std./Woche“)</span></span>
-                    <input type="number" name="salary_hours" min="0" max="60" defaultValue={v.salary_hours || ''} placeholder="24" className="an-days-input" /></label>
+                {/* Ausgeschaltet nur ausgeblendet → Stufen bleiben beim Speichern erhalten. */}
+                {(staffel || tiers.length > 0) && (
+                    <div className="an-salary-tiers" style={staffel ? undefined : { display: 'none' }}>
+                        {tiers.map((t, i) => (
+                            <div className="an-field-row an-salary-tier" key={i}>
+                                <label className="an-field"><span>Gehalt bezogen auf <span className="an-muted">(Std./Woche)</span></span>
+                                    <input type="number" name="salary_tier_hours" min="1" max="60" value={t.hours} placeholder="24"
+                                           onChange={(e) => setTier(i, 'hours', e.target.value)} /></label>
+                                <label className="an-field"><span>Gehaltswunsch <span className="an-muted">(Betrag)</span></span>
+                                    <input name="salary_tier_amount" value={t.amount} placeholder="45.000"
+                                           onChange={(e) => setTier(i, 'amount', e.target.value)} /></label>
+                                <button type="button" className="an-icon-btn an-danger" title="Stufe entfernen" aria-label="Stufe entfernen"
+                                        onClick={() => setTiers((list) => list.filter((_, j) => j !== i))}><FiTrash2 /></button>
+                            </div>
+                        ))}
+                        {tiers.length < MAX_SALARY_TIERS && (
+                            <button type="button" className="an-btn-secondary an-btn-small" onClick={() => setTiers((list) => [...list, { hours: '', amount: '' }])}>
+                                <FiPlus aria-hidden="true" /> Stufe hinzufügen
+                            </button>
+                        )}
+                    </div>
+                )}
+                <div className="an-field-row" style={staffel ? { display: 'none' } : undefined}>
+                    <label className="an-field"><span>Gehaltswunsch gilt für</span>
+                        <select name={staffel ? undefined : 'salary_basis'} value={salaryBasis} onChange={(e) => setSalaryBasis(e.target.value)}>
+                            {Object.entries(SALARY_BASIS_LABELS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+                        </select></label>
+                    {salaryBasis === 'vollzeit' ? (
+                        <label className="an-field"><span>Vollzeit = Std./Woche <span className="an-muted">(leer = {DEFAULT_FULLTIME_HOURS})</span></span>
+                            <input type="number" name="salary_hours" min="0" max="60" defaultValue={v.salary_hours || ''} placeholder={String(DEFAULT_FULLTIME_HOURS)} className="an-days-input" /></label>
+                    ) : (
+                        <label className="an-field"><span>Gehalt bezogen auf <span className="an-muted">(Std./Woche – optional → „… bei 24 Std./Woche“)</span></span>
+                            <input type="number" name="salary_hours" min="0" max="60" defaultValue={v.salary_hours || ''} placeholder="24" className="an-days-input" /></label>
+                    )}
+                </div>
+                {staffel ? (salaryTierLines({ salary_tiers: tiers, salary_period: salaryData.salary_period }).length > 0 && (
+                    <p className="an-card-note" style={{ margin: '0 0 8px' }}>
+                        Vorschau (eine Zeile je Stufe, nach Stunden sortiert):
+                        {salaryTierLines({ salary_tiers: tiers, salary_period: salaryData.salary_period }).map((line) => <span key={line}><br /><strong>{line}</strong></span>)}
+                    </p>
+                )) : salaryText(rangeData) && (
+                    <p className="an-card-note" style={{ margin: '0 0 8px' }}>
+                        Vorschau: <strong>{salaryText(rangeData)}</strong>
+                        {salaryProRataText(rangeData) && <><br /><span className="an-muted">Nur intern – anteilig umgerechnet: {salaryProRataText(rangeData)}</span></>}
+                        {salaryBasis === 'stunden' && (empType === 'beides') && <><br /><span className="an-muted">Tipp: Bei „Voll- oder Teilzeit“ ist „Vollzeit-Basis“ oder die gestaffelte Angabe eindeutiger – sonst wirkt die ganze Spanne wie für genau diese Stundenzahl.</span></>}
+                    </p>
+                )}
                 <label className="an-check">
                     <input type="checkbox" name="salary_public" defaultChecked={!!v.salary_public} />
                     <span>Gehaltswunsch auf der Seite anzeigen <span className="an-muted">— sonst nur intern sichtbar</span></span>

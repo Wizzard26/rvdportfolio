@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { getContentDb } from './db';
 import { STATUS_ORDER, RUNNING_STATUS, RATING_FACTORS } from '@/lib/applicationStatus';
+import { parseSalaryTiers } from '@/lib/shareTemplate';
 
 // Freigaben: benannte Dokument-Sammlungen unter /freigabe/<token>, zugleich
 // Bewerbungs-Tracking (Status, Termine, Aufrufe/Downloads, Verlauf).
@@ -90,6 +91,8 @@ function fields(data) {
         salary_amount: (data.salary_amount || '').trim(),
         salary_period: (data.salary_period || '').trim(),
         salary_hours: Math.max(0, parseInt(data.salary_hours, 10) || 0),
+        salary_basis: ['vollzeit', 'stunden', 'staffel'].includes(data.salary_basis) ? data.salary_basis : '',
+        salary_tiers: (() => { const t = parseSalaryTiers(data.salary_tiers); return t.length ? JSON.stringify(t) : ''; })(),
         salary_public: data.salary_public ? 1 : 0,
         skills: (data.skills || '').trim(),
         highlights: (data.highlights || '').trim(),
@@ -119,7 +122,7 @@ const COLS = `title=@title, message=@message, purpose=@purpose, company=@company
     zip=@zip, city=@city, contact=@contact, contact_gender=@contact_gender, position=@position,
     employment_type=@employment_type, hours_from=@hours_from, hours_to=@hours_to, work_model=@work_model,
     availability=@availability, salary_amount=@salary_amount, salary_period=@salary_period,
-    salary_hours=@salary_hours, salary_public=@salary_public,
+    salary_hours=@salary_hours, salary_basis=@salary_basis, salary_tiers=@salary_tiers, salary_public=@salary_public,
     skills=@skills, highlights=@highlights, motivation=@motivation, mobility=@mobility, job_ref=@job_ref,
     show_showcase_cta=@show_showcase_cta,
     email=@email, website=@website, access_code=@access_code,

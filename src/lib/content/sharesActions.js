@@ -40,6 +40,11 @@ function parse(formData) {
         salary_amount: g('salary_amount'),
         salary_period: g('salary_period'),
         salary_hours: g('salary_hours'),
+        salary_basis: g('salary_basis'),
+        // Gestaffelte Angabe: Zeilen paarweise (Std./Woche + Betrag) → JSON.
+        salary_tiers: JSON.stringify(formData.getAll('salary_tier_hours').map((h, i) => ({
+            hours: h, amount: (formData.getAll('salary_tier_amount')[i] || '').toString(),
+        }))),
         salary_public: formData.get('salary_public') ? 1 : 0,
         skills: g('skills'),
         highlights: g('highlights'),

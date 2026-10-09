@@ -11,7 +11,7 @@ import {
     useSortable, sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { FiMove, FiExternalLink, FiCheckCircle } from 'react-icons/fi';
+import { FiMove, FiExternalLink, FiCheckCircle, FiSlash } from 'react-icons/fi';
 import { toggleMerklisteAction, reorderMerklisteAction } from '@/lib/content/radarActions';
 
 const EIGNUNG = {
@@ -52,6 +52,7 @@ function SortableRow({ company, rank }) {
                     <Link href={`/dashboard/radar/${company.id}`}>{company.name || company.domain || '(ohne Name)'}</Link>
                     <span className={`an-badge ${eig.cls}`}>{eig.label}</span>
                     {company.beworben_count > 0 && <span className="an-badge an-badge--ok" title="hier bereits beworben"><FiCheckCircle aria-hidden="true" /> beworben</span>}
+                    {!company.beworben_count && company.absage_count > 0 && <span className="an-badge an-badge--warn" title="hier bereits abgesagt"><FiSlash aria-hidden="true" /> Absage</span>}
                 </div>
                 <div className="an-station-sub">
                     {TYP_LABEL[company.typ] || company.typ}
