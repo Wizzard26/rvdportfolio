@@ -1,4 +1,5 @@
-import { insertEvent } from './collect';
+import { insertEvent, getSessionIdentity } from './collect';
+import { SESSION_COOKIE, verifySessionToken } from '@/lib/auth';
 import {
     isBot,
     deviceFromUa,
@@ -37,12 +38,21 @@ function monthUtc(ts) {
  * Protokolliert ein anonymes Assistent-Nutzungs-Event. Fehler werden geschluckt
  * – Tracking darf den Assistenten nie stören.
  */
-export function recordAssistantEvent({ headers, sid, event, question, hit, kind, path }) {
+// Admin-Session-Cookie aus dem Cookie-Header lesen (eigene Tests nicht zählen).
+function adminTokenFrom(headers) {
+    const raw = headers.get('cookie') || '';
+    const hit = raw.split(';').map((c) => c.trim()).find((c) => c.startsWith(`${SESSION_COOKIE}=`));
+    return hit ? decodeURIComponent(hit.slice(SESSION_COOKIE.length + 1)) : '';
+}
+
+export async function recordAssistantEvent({ headers, sid, event, question, hit, kind, path }) {
     try {
         if (event !== 'open' && event !== 'ask') return;
 
         const ua = headers.get('user-agent') || '';
         if (isBot(ua)) return; // Bots ignorieren (wie /api/collect)
+        const adminToken = adminTokenFrom(headers);
+        if (adminToken && (await verifySessionToken(adminToken))) return;
 
         const ts = Date.now();
         const ip = clientIp(headers); // nur transient, wird nicht gespeichert
@@ -56,17 +66,20 @@ export function recordAssistantEvent({ headers, sid, event, question, hit, kind,
             }
             : null;
 
+        const sessionId = typeof sid === 'string' ? sid.slice(0, 40) : null;
+        const known = getSessionIdentity(sessionId);
+
         insertEvent({
             ts,
             day: dayUtc(ts),
-            session_id: typeof sid === 'string' ? sid.slice(0, 40) : null,
-            visitor_hash: visitorHash(ip, ua, monthUtc(ts)),
+            session_id: sessionId,
+            visitor_hash: known?.visitor_hash || visitorHash(ip, ua, monthUtc(ts)),
             type: 'assistant',
             path: typeof path === 'string' ? path.slice(0, 300) : null,
             device: deviceFromUa(ua),
             browser: browserFromUa(ua),
             os: osFromUa(ua),
-            country: countryFromIp(ip),
+            country: known ? known.country : countryFromIp(ip),
             name: event,
             meta,
         });

@@ -11,8 +11,11 @@ const RANGE = 'day BETWEEN @from AND @to';
 export function getOverview(range) {
     const db = getDb();
 
+    // Besucher = wer mindestens eine Seite aufgerufen hat. Nachzügler-Events
+    // (Pageleave/Vitals eines am Vortag geöffneten Tabs, Assistent-Aufrufe)
+    // zählen nicht als eigener Besucher — sonst gäbe es mehr Besucher als Aufrufe.
     const visitors = db.prepare(
-        `SELECT COUNT(DISTINCT visitor_hash) AS n FROM events WHERE ${RANGE} AND visitor_hash IS NOT NULL`
+        `SELECT COUNT(DISTINCT visitor_hash) AS n FROM events WHERE ${RANGE} AND type = 'pageview' AND visitor_hash IS NOT NULL`
     ).get(range).n;
 
     const pageviews = db.prepare(
@@ -24,7 +27,7 @@ export function getOverview(range) {
     ).get(range).ms;
 
     const sessions = db.prepare(
-        `SELECT COUNT(DISTINCT session_id) AS n FROM events WHERE ${RANGE} AND session_id IS NOT NULL`
+        `SELECT COUNT(DISTINCT session_id) AS n FROM events WHERE ${RANGE} AND type = 'pageview' AND session_id IS NOT NULL`
     ).get(range).n;
 
     // Bounce = Sitzungen mit genau einem Pageview.
@@ -61,7 +64,7 @@ export function getTimeseries(range) {
     return getDb().prepare(`
         SELECT day,
                SUM(CASE WHEN type = 'pageview' THEN 1 ELSE 0 END) AS pageviews,
-               COUNT(DISTINCT visitor_hash) AS visitors
+               COUNT(DISTINCT CASE WHEN type = 'pageview' THEN visitor_hash END) AS visitors
         FROM events
         WHERE ${RANGE}
         GROUP BY day
@@ -162,7 +165,7 @@ export function getNewVsReturning(range) {
             SUM(CASE WHEN days > 1 THEN 1 ELSE 0 END) AS wieder
         FROM (
             SELECT visitor_hash, COUNT(DISTINCT day) AS days
-            FROM events WHERE ${RANGE} AND visitor_hash IS NOT NULL
+            FROM events WHERE ${RANGE} AND type = 'pageview' AND visitor_hash IS NOT NULL
             GROUP BY visitor_hash
         )
     `).get(range);
@@ -174,7 +177,7 @@ export function getVisitFrequency(range) {
     return getDb().prepare(`
         SELECT days AS label, COUNT(*) AS n FROM (
             SELECT visitor_hash, COUNT(DISTINCT day) AS days
-            FROM events WHERE ${RANGE} AND visitor_hash IS NOT NULL
+            FROM events WHERE ${RANGE} AND type = 'pageview' AND visitor_hash IS NOT NULL
             GROUP BY visitor_hash
         ) GROUP BY days ORDER BY days
     `).all(range);
@@ -371,6 +374,63 @@ export function getRawEvents(range, { type, path, limit = 100, offset = 0 } = {}
     `).all(params);
     const total = getDb().prepare(`SELECT COUNT(*) AS n FROM events WHERE ${where}`).get(params).n;
     return { rows, total };
+}
+
+// Seitenbesuche: EINE Zeile je Pageview statt aller Folge-Events. Scrolltiefe,
+// Verweildauer und Web Vitals derselben Seite werden bis zum nächsten Pageview
+// der Sitzung zusammengefasst; „Aktionen" = CTA/Outbound/Download/Interaktion/….
+const TECH_TYPES = "'pageview','pageleave','scroll','vital'";
+
+export function getPageVisits(range, { path, limit = 50, offset = 0 } = {}) {
+    const db = getDb();
+    const params = { ...range, limit, offset };
+    let pathCond = '';
+    if (path) { pathCond = 'AND path LIKE @path'; params.path = `%${path}%`; }
+
+    const rows = db.prepare(`
+        WITH pv AS (
+            SELECT ts, session_id, path, ref_source, ref_domain, device, browser, country,
+                   json_extract(meta, '$.tz') AS tz,
+                   LEAD(ts) OVER (PARTITION BY session_id ORDER BY ts) AS next_ts
+            FROM events
+            WHERE ${RANGE} AND type = 'pageview'
+        ),
+        page AS (
+            SELECT * FROM pv WHERE 1=1 ${pathCond}
+            ORDER BY ts DESC LIMIT @limit OFFSET @offset
+        )
+        SELECT page.*,
+            (SELECT MAX(e.value) FROM events e
+              WHERE e.session_id = page.session_id AND e.type = 'scroll' AND e.path = page.path
+                AND e.ts >= page.ts AND (page.next_ts IS NULL OR e.ts < page.next_ts)) AS max_scroll,
+            (SELECT SUM(e.duration_ms) FROM events e
+              WHERE e.session_id = page.session_id AND e.type = 'pageleave' AND e.path = page.path
+                AND e.ts >= page.ts AND (page.next_ts IS NULL OR e.ts < page.next_ts + 5000)) AS duration_ms,
+            (SELECT e.value FROM events e
+              WHERE e.session_id = page.session_id AND e.type = 'vital' AND e.name = 'LCP'
+                AND e.ts >= page.ts AND (page.next_ts IS NULL OR e.ts < page.next_ts)
+              ORDER BY e.ts DESC LIMIT 1) AS lcp,
+            (SELECT group_concat(e.type || ':' || COALESCE(e.name, ''), '|') FROM events e
+              WHERE e.session_id = page.session_id AND e.type NOT IN (${TECH_TYPES})
+                AND e.ts >= page.ts AND (page.next_ts IS NULL OR e.ts < page.next_ts)) AS actions
+        FROM page
+        ORDER BY page.ts DESC
+    `).all(params);
+
+    const total = db.prepare(
+        `SELECT COUNT(*) AS n FROM events WHERE ${RANGE} AND type = 'pageview' ${pathCond}`
+    ).get(params).n;
+
+    return {
+        rows: rows.map((r) => ({
+            ...r,
+            actions: r.actions ? r.actions.split('|').map((a) => {
+                const i = a.indexOf(':');
+                return { type: a.slice(0, i), name: a.slice(i + 1) };
+            }) : [],
+        })),
+        total,
+    };
 }
 
 export function getEventTypeCounts(range) {

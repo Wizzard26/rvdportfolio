@@ -20,7 +20,7 @@ export async function POST(request) {
 
     // Nutzungs-Signal „Widget geöffnet" (ohne Frage-Inhalt) – nur anonym zählen.
     if (body?.event === 'open') {
-        recordAssistantEvent({ headers: request.headers, sid: body.sid, event: 'open', path: body.path });
+        await recordAssistantEvent({ headers: request.headers, sid: body.sid, event: 'open', path: body.path });
         return new Response(null, { status: 204 });
     }
 
@@ -48,7 +48,7 @@ export async function POST(request) {
     // Content-Lücken-Liste nicht verwässern.
     const playful = classifyPlayful(question);
     if (playful) {
-        recordAssistantEvent({
+        await recordAssistantEvent({
             headers: request.headers, sid: body.sid, event: 'ask',
             question, hit: 'spielerei', kind: playful.kind, path: body.path,
         });
@@ -67,7 +67,7 @@ export async function POST(request) {
         const { lead, items, grounded } = buildAnswer(results, { soft });
         // Anonym protokollieren, WAS gefragt wurde und ob es einen Treffer gab
         // (grounded/soft/keiner) – für die Auswertung unter /dashboard/assistant.
-        recordAssistantEvent({
+        await recordAssistantEvent({
             headers: request.headers,
             sid: body.sid,
             event: 'ask',

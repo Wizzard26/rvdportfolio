@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw, FiCheckCircle, FiBookmark, FiGitMerge, FiSlash } from 'react-icons/fi';
-import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies, countCompaniesForJobScan, countMerkliste, countDuplicateGroups } from '@/lib/content/radarStore';
+import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies, countCompaniesForJobScan, countMerkliste, countDuplicateGroups, countCompaniesForStellenCheck, RADAR_SORTS, SEIT_FILTER } from '@/lib/content/radarStore';
 import { deleteCompanyAction, deleteContactAction, archiveCompanyAction, markBeworbenAction, verwerfenCompanyAction, toggleMerklisteAction } from '@/lib/content/radarActions';
 import RadarRowActions from '@/components/analytics/RadarRowActions';
 import { formatNumber } from '@/lib/analytics/format';
@@ -12,8 +12,17 @@ import RadarCcDiscover from '@/components/analytics/RadarCcDiscover';
 import RadarListImport from '@/components/analytics/RadarListImport';
 import RadarJobScan from '@/components/analytics/RadarJobScan';
 import RadarBaSearch from '@/components/analytics/RadarBaSearch';
+import RadarStellenCheck from '@/components/analytics/RadarStellenCheck';
 
 export const dynamic = 'force-dynamic';
+
+const NEU_MS = 7 * 24 * 60 * 60 * 1000; // „neu"-Badge: in den letzten 7 Tagen hinzugefügt
+
+// Kurzes Datum (TT.MM.JJ) in deutscher Zeit; 0/leer → null.
+function shortDate(ts) {
+    if (!ts) return null;
+    return new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'Europe/Berlin' });
+}
 
 const TYP_LABEL = {
     inhouse_shop: 'Inhouse-Shop', agentur: 'Agentur', hersteller: 'Hersteller',
@@ -59,9 +68,11 @@ export default async function RadarPage({ searchParams }) {
     const plattform = (sp?.plattform || '').toString();
     const plz = (sp?.plz || '').toString();
     const quelle = (sp?.quelle || '').toString();
+    const seit = SEIT_FILTER[sp?.seit] ? sp.seit.toString() : '';
+    const sort = RADAR_SORTS[sp?.sort] ? sp.sort.toString() : '';
 
     // Feinfilter (gelten in jedem Tab, fließen auch in die Tab-Zähler ein).
-    const sec = { q, typ, plattform, plz, quelle };
+    const sec = { q, typ, plattform, plz, quelle, seit };
     const tabKey = TABS.find((t) => t.key === sp?.tab)?.key || 'alle';
     const preset = TABS.find((t) => t.key === tabKey).preset;
     const { status = 'aktiv', eignung = '', beworben = '', merk = '' } = preset;
@@ -71,7 +82,7 @@ export default async function RadarPage({ searchParams }) {
     const total = tabCounts[tabKey];
     const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const page = Math.min(pages, Math.max(1, parseInt(sp?.page, 10) || 1));
-    const companies = getCompanies({ ...sec, status, eignung, beworben, merk, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
+    const companies = getCompanies({ ...sec, status, eignung, beworben, merk, sort: sort || 'prio', limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
 
     const opps = getOpportunities({});
     const dueContacts = getContactsDueForDeletion(14);
@@ -79,12 +90,13 @@ export default async function RadarPage({ searchParams }) {
     const jobScanPending = countCompaniesForJobScan();
     const merkCount = countMerkliste();
     const dupGroups = countDuplicateGroups();
+    const stellenCheckPending = countCompaniesForStellenCheck();
     const jetzt = Date.now();
 
     const prioClass = (s) => (s >= 70 ? 'an-badge--ok' : s >= 40 ? 'an-badge--warn' : '');
     // Query-String für Pagination/Tab-Links (aktuellen Tab + Feinfilter behalten).
     const qs = (over = {}) => {
-        const o = { tab: tabKey, ...sec, page, ...over };
+        const o = { tab: tabKey, ...sec, sort, page, ...over };
         const parts = Object.entries(o).filter(([k, v]) => v !== '' && v != null && !(k === 'page' && Number(v) <= 1) && !(k === 'tab' && v === 'alle')).map(([k, v]) => `${k}=${encodeURIComponent(v)}`);
         return parts.length ? `?${parts.join('&')}` : '?';
     };
@@ -162,6 +174,18 @@ export default async function RadarPage({ searchParams }) {
                 </details>
             </section>
 
+            <section className="an-card an-full">
+                <h2>Stellen-Check</h2>
+                <p className="an-card-note" style={{ marginTop: 0 }}>
+                    Prüft, ob die erfassten Stellen noch ausgeschrieben sind: Bundesagentur-Anzeigen über die offizielle API,
+                    Stellen von Firmen-Karriereseiten durch erneutes Auslesen der Karriereseite. Nicht mehr vorhandene Stellen
+                    werden verworfen (Grund + Datum an der Chance), die Firma auf Wunsch archiviert. Gemerkte Firmen, laufende
+                    Bewerbungen und Absagen bleiben unangetastet; fremde Jobportal-Links werden nicht abgerufen („unklar").
+                    Je Firma höchstens einmal pro Tag. Alles ist über „Reaktivieren" umkehrbar.
+                </p>
+                <RadarStellenCheck pendingCount={stellenCheckPending} />
+            </section>
+
             <div className="an-tiles">
                 <StatTile value={formatNumber(companies.filter((c) => c.typ === 'inhouse_shop').length)} label="Inhouse-Shops" />
                 <StatTile value={formatNumber(companies.filter((c) => c.typ === 'agentur').length)} label="Agenturen" />
@@ -229,6 +253,13 @@ export default async function RadarPage({ searchParams }) {
                         <option value="">Alle Quellen</option>
                         {Object.entries(QUELLE_LABEL).map(([val, lbl]) => <option key={val} value={val}>{lbl}</option>)}
                     </select>
+                    <select name="seit" defaultValue={seit} aria-label="Hinzugefügt">
+                        <option value="">Hinzugefügt: jederzeit</option>
+                        {Object.entries(SEIT_FILTER).map(([val, lbl]) => <option key={val} value={val}>{lbl}</option>)}
+                    </select>
+                    <select name="sort" defaultValue={sort} aria-label="Sortierung">
+                        {Object.entries(RADAR_SORTS).map(([val, o]) => <option key={val} value={val === 'prio' ? '' : val}>Sortierung: {o.label}</option>)}
+                    </select>
                     <button type="submit" className="an-btn-secondary an-btn-small">Filtern</button>
                 </form>
                 <p className="an-muted" style={{ margin: '0 0 12px', fontSize: '0.85em' }}>{formatNumber(total)} Firmen{pages > 1 ? ` · Seite ${page}/${pages}` : ''}</p>
@@ -238,7 +269,7 @@ export default async function RadarPage({ searchParams }) {
                 ) : (
                     <div className="an-table-wrap">
                         <table className="an-table">
-                            <thead><tr><th>Prio</th><th>Firma</th><th>Eignung</th><th>Typ</th><th>Plattform</th><th>Ort</th><th>Chancen</th><th></th></tr></thead>
+                            <thead><tr><th>Prio</th><th>Firma</th><th>Eignung</th><th>Typ</th><th>Plattform</th><th>Ort</th><th>Chancen</th><th>Hinzugefügt</th><th></th></tr></thead>
                             <tbody>
                                 {companies.map((c) => (
                                     <tr key={c.id}>
@@ -249,6 +280,8 @@ export default async function RadarPage({ searchParams }) {
                                             {!c.beworben_count && c.absage_count > 0 && <span className="an-badge an-badge--warn" title="Bewerbung abgesagt — Doppelansprache-Sperre aufgehoben, erneute Ansprache bewusst entscheiden"> <FiSlash aria-hidden="true" /> Absage</span>}
                                             {c.blocked && <span className="an-badge an-badge--warn" title="Doppelansprache gesperrt"> <FiLock aria-hidden="true" /> gesperrt</span>}
                                             {c.verworfen_grund && <span className="an-badge an-badge--bad" title={c.verworfen_grund}> verworfen</span>}
+                                            {c.offline_count > 0 && !c.open_count && !c.beworben_count && <span className="an-badge an-badge--bad" title="Stellen-Check: ausgeschriebene Stelle nicht mehr online"> Stelle offline</span>}
+                                            {c.archiviert && c.prio_grund && c.prio_grund !== 'archiviert' ? <div className="an-muted" style={{ fontSize: '0.82em' }}>{c.prio_grund}</div> : null}
                                             {c.domain
                                                 ? <div className="an-muted"><a href={`https://${c.domain}`} target="_blank" rel="noopener noreferrer">{c.domain} <FiExternalLink aria-hidden="true" /></a></div>
                                                 : <div className="an-muted" style={{ fontSize: '0.82em' }}>ohne Website · Quelle: {QUELLE_LABEL[c.quelle] || c.quelle}</div>}
@@ -269,6 +302,11 @@ export default async function RadarPage({ searchParams }) {
                                         </td>
                                         <td style={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }} title={[c.plz, c.ort].filter(Boolean).join(' ')}>{[c.plz, c.ort].filter(Boolean).join(' ') || '—'}</td>
                                         <td>{formatNumber(c.opp_count)}{c.beworben_count > 0 ? <span className="an-muted" title="davon laufend beworben"> · {formatNumber(c.beworben_count)} bew.</span> : ''}{c.absage_count > 0 ? <span className="an-muted" title="davon abgesagt"> · {formatNumber(c.absage_count)} Abs.</span> : ''}</td>
+                                        <td style={{ whiteSpace: 'nowrap' }} title={c.last_opp_at ? `Letzte Stelle gefunden: ${shortDate(c.last_opp_at)}` : ''}>
+                                            {shortDate(c.created_at) || '—'}
+                                            {c.created_at > 0 && jetzt - c.created_at < NEU_MS ? <span className="an-badge an-badge--ok" style={{ marginLeft: 4 }}>neu</span> : null}
+                                            {c.last_opp_at ? <div className="an-muted" style={{ fontSize: '0.82em' }}>Stelle {shortDate(c.last_opp_at)}</div> : null}
+                                        </td>
                                         <td style={{ whiteSpace: 'nowrap' }}>
                                             <Link href={`/dashboard/radar/${c.id}`} className="an-btn-secondary an-btn-small">Öffnen</Link>
                                             {(c.archiviert || c.verworfen_grund) ? (

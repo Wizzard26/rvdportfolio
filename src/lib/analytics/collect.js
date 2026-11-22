@@ -15,6 +15,27 @@ function pruneOldEvents(db, today) {
     db.prepare('DELETE FROM events WHERE ts < ?').run(cutoff);
 }
 
+let sessionStmt;
+
+/**
+ * Hash + Land des ersten Events einer Sitzung (max. 24 h zurück). Alle weiteren
+ * Events derselben Sitzung übernehmen diese Werte: Sonst zählt ein Besucher,
+ * dessen Beacon über IPv4 statt IPv6 (oder nach einem Netzwechsel) eintrifft,
+ * als zweiter Besucher — und sein Land kann zwischen zwei Events springen.
+ */
+export function getSessionIdentity(sessionId) {
+    if (!sessionId) return null;
+    const db = getDb();
+    if (!sessionStmt) {
+        sessionStmt = db.prepare(`
+            SELECT visitor_hash, country FROM events
+            WHERE session_id = ? AND visitor_hash IS NOT NULL AND ts > ?
+            ORDER BY ts LIMIT 1
+        `);
+    }
+    return sessionStmt.get(sessionId, Date.now() - 24 * 60 * 60 * 1000) || null;
+}
+
 /**
  * Speichert ein angereichertes Event.
  * `row` enthält bereits alle abgeleiteten, anonymen Felder (kein IP/roher UA).

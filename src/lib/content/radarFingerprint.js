@@ -425,6 +425,27 @@ function extractJsonLdJobs(html, baseUrl) {
     return jobs;
 }
 
+// Stellen-Check: Ist eine Stellen-URL der Firma noch erreichbar? Robots-konform,
+// eigener UA, Redirects folgen. Liefert Status + End-URL (eine Weiterleitung auf
+// Start- oder Karriere-Übersicht heißt oft: Anzeige entfernt).
+export async function checkUrlStatus(rawUrl) {
+    const n = normalizeUrl(rawUrl);
+    if (!n) return { ok: false, error: 'Ungültige URL.' };
+    if (!(await robotsAllowsRoot(n.origin))) return { ok: false, error: 'robots.txt verbietet den Zugriff.' };
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+    try {
+        const res = await fetch(n.url, {
+            signal: ctrl.signal, redirect: 'follow',
+            headers: { 'user-agent': UA, accept: 'text/html,application/xhtml+xml,application/pdf' },
+        });
+        try { await res.body?.cancel(); } catch { /* Body wird nicht gebraucht */ }
+        return { ok: true, status: res.status, finalUrl: res.url || n.url };
+    } catch (e) {
+        return { ok: false, error: e.name === 'AbortError' ? 'Timeout' : 'nicht erreichbar' };
+    } finally { clearTimeout(t); }
+}
+
 export async function scrapeCareerJobs(rawUrl) {
     const n = normalizeUrl(rawUrl);
     if (!n) return { ok: false, error: 'Ungültige Karriere-URL.' };
