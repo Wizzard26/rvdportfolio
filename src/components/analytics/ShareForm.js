@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { startTransition, useActionState, useRef, useState } from 'react';
 import Link from 'next/link';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import {
@@ -82,6 +82,16 @@ export default function ShareForm({ action, share, documents = [], testimonials 
         });
     };
 
+    // Absenden per onSubmit statt action={formAction}: Bei einer Form-Action setzt
+    // React 19 das Formular nach JEDEM Absenden zurück — auch bei einem
+    // Validierungsfehler. Selects mit defaultValue sprangen dadurch auf ihren
+    // Ausgangswert. So bleibt alles exakt stehen, wie es eingegeben wurde.
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        startTransition(() => formAction(fd));
+    };
+
     const setAvailability = (text) => { if (availabilityRef.current) availabilityRef.current.value = text; };
 
     const setExpiryDays = () => {
@@ -91,7 +101,7 @@ export default function ShareForm({ action, share, documents = [], testimonials 
     };
 
     return (
-        <form ref={formRef} action={formAction} className="an-form an-projectform" onChange={refreshSalary}>
+        <form ref={formRef} onSubmit={handleSubmit} className="an-form an-projectform" onChange={refreshSalary}>
             {share?.id && <input type="hidden" name="id" value={share.id} />}
             {state.error && <p className="an-form-error" role="alert">{state.error}</p>}
 
