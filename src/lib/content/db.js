@@ -619,6 +619,11 @@ function migrate(database) {
     // Merkliste: kuratierte, sortierbare Bewerbungs-Reihenfolge (der Reihe nach bewerben).
     ensureColumn(database, 'radar_companies', 'merk', 'INTEGER NOT NULL DEFAULT 0'); // auf Merkliste?
     ensureColumn(database, 'radar_companies', 'merk_order', 'INTEGER NOT NULL DEFAULT 0'); // Sortier-Rang
+    // Stellen-Check: ist die ausgeschriebene Stelle noch online?
+    ensureColumn(database, 'radar_companies', 'last_stellen_check', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'radar_opportunities', 'check_at', 'INTEGER NOT NULL DEFAULT 0');
+    ensureColumn(database, 'radar_opportunities', 'check_status', "TEXT NOT NULL DEFAULT ''"); // online|offline|unklar
+    ensureColumn(database, 'radar_opportunities', 'check_info', "TEXT NOT NULL DEFAULT ''"); // Beleg/Begründung
     // Domain nur einmal — aber PARTIELL: leere Domains (Firmen ohne Website, z. B.
     // Arbeitgeber aus Job-Anzeigen) müssen mehrfach erlaubt sein. Früher wurde hier
     // fälschlich ein voller Unique-Index angelegt → mehrere '' kollidierten. Reparieren.

@@ -7,6 +7,54 @@
 
 const SESSION_KEY = 'rvd_sid';
 
+// Geräte-Opt-out (localStorage, kein Cookie): wird beim Öffnen des Admin-Bereichs
+// gesetzt, damit eigene Besuche auch nach Logout/Ablauf der Session nicht zählen.
+export const OPT_OUT_KEY = 'rvd_notrack';
+
+export function isTrackingOptedOut() {
+    try {
+        return localStorage.getItem(OPT_OUT_KEY) === '1';
+    } catch {
+        return false;
+    }
+}
+
+// '1' = ausgeschlossen, '0' = bewusst wieder zählen (wird nicht automatisch
+// überschrieben), nicht gesetzt = noch nie entschieden.
+export function getTrackingOptOutState() {
+    try {
+        return localStorage.getItem(OPT_OUT_KEY);
+    } catch {
+        return null;
+    }
+}
+
+export function setTrackingOptOut(on) {
+    try {
+        localStorage.setItem(OPT_OUT_KEY, on ? '1' : '0');
+    } catch {
+        // localStorage blockiert → dann zählt nur der Cookie-Check auf dem Server.
+    }
+}
+
+// Ferngesteuerte Browser (Puppeteer/Playwright/Selenium) melden sich über
+// navigator.webdriver — das sind Bots mit normalem Browser-UA.
+function isAutomated() {
+    try {
+        return navigator.webdriver === true;
+    } catch {
+        return false;
+    }
+}
+
+function browserTimeZone() {
+    try {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
+    } catch {
+        return undefined;
+    }
+}
+
 // Liefert die kurzlebige Sitzungs-ID (legt sie beim ersten Aufruf an).
 export function getSessionId() {
     if (typeof window === 'undefined') return null;
@@ -31,6 +79,7 @@ export function getSessionId() {
  */
 export function track(type, opts = {}, beacon = false) {
     if (typeof window === 'undefined') return;
+    if (isTrackingOptedOut() || isAutomated()) return;
 
     const payload = JSON.stringify({
         type,
@@ -41,6 +90,7 @@ export function track(type, opts = {}, beacon = false) {
         duration: opts.duration,
         value: opts.value, // numerischer Messwert (Scrolltiefe %, Web-Vital-Wert)
         meta: opts.meta,
+        tz: type === 'pageview' ? browserTimeZone() : undefined,
     });
 
     try {

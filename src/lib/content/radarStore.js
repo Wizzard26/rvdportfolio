@@ -69,6 +69,9 @@ export function eignungOf(c) {
 export const LAUFEND_STATUS = ['beworben', 'gespraech', 'angebot'];
 const LAUFEND_SQL = `'${LAUFEND_STATUS.join("','")}'`;
 const BEWORBEN_EXISTS = `EXISTS (SELECT 1 FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN (${LAUFEND_SQL}))`;
+// Noch nicht bearbeitete Chancen (vor der Bewerbung) — nur diese prüft der Stellen-Check.
+export const OFFEN_STATUS = ['neu', 'geprueft', 'shortlist'];
+const OFFEN_SQL = `'${OFFEN_STATUS.join("','")}'`;
 const ABSAGE_EXISTS = "EXISTS (SELECT 1 FROM radar_opportunities o WHERE o.company_id = c.id AND o.status = 'absage')";
 // Zähler-Spalten für Listen (beworben_count = laufend, absage_count = abgesagt).
 const COUNT_COLS = `
@@ -76,9 +79,15 @@ const COUNT_COLS = `
             (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id AND o.status = 'absage') AS absage_count`;
 
 // Gemeinsamer WHERE-Bau für Liste + Zähler (Suche, Typ, Status, Plattform, PLZ, Eignung, Quelle, Beworben).
-function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', merk = '' }) {
+// Zeitfenster „hinzugefügt" für die Liste: neu (7/30 Tage) oder veraltet (> 90 Tage).
+const DAY_MS = 24 * 60 * 60 * 1000;
+export const SEIT_FILTER = { 7: 'letzte 7 Tage', 30: 'letzte 30 Tage', alt: 'älter als 90 Tage' };
+
+function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', merk = '', seit = '' }) {
     const where = ['1=1'];
     const p = {};
+    if (seit === '7' || seit === '30') { where.push('c.created_at >= @seitTs'); p.seitTs = Date.now() - Number(seit) * DAY_MS; }
+    else if (seit === 'alt') { where.push('c.created_at < @seitTs'); p.seitTs = Date.now() - 90 * DAY_MS; }
     if (q) { where.push('(c.name LIKE @q OR c.domain LIKE @q OR c.ort LIKE @q OR c.themengebiete LIKE @q)'); p.q = `%${q}%`; }
     if (typ) { where.push('c.typ = @typ'); p.typ = typ; }
     if (quelle) { where.push('c.quelle = @quelle'); p.quelle = quelle; }
@@ -103,15 +112,24 @@ function radarCompanyWhere({ q = '', typ = '', status = 'aktiv', plattform = '',
     return { where, p };
 }
 
-export function countCompanies({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', merk = '' } = {}) {
-    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle, beworben, merk });
+export function countCompanies({ q = '', typ = '', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', merk = '', seit = '' } = {}) {
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle, beworben, merk, seit });
     return getContentDb().prepare(`SELECT COUNT(*) n FROM radar_companies c WHERE ${where.join(' AND ')}`).get(p).n;
 }
 
-export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', merk = '', limit = 0, offset = 0 } = {}) {
+// Sortierungen der Radar-Liste.
+export const RADAR_SORTS = {
+    prio: { label: 'Prio', sql: 'c.prio_score DESC, c.updated_at DESC' },
+    neu: { label: 'Neueste zuerst', sql: 'c.created_at DESC, c.id DESC' },
+    stelle: { label: 'Neueste Stelle', sql: 'last_opp_at DESC, c.created_at DESC' },
+    aktualisiert: { label: 'Zuletzt geändert', sql: 'c.updated_at DESC, c.id DESC' },
+    alt: { label: 'Älteste zuerst', sql: 'c.created_at ASC, c.id ASC' },
+};
+
+export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', status = 'aktiv', plattform = '', plz = '', eignung = '', quelle = '', beworben = '', merk = '', seit = '', limit = 0, offset = 0 } = {}) {
     const db = getContentDb();
-    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle, beworben, merk });
-    const order = sort === 'prio' ? 'c.prio_score DESC, c.updated_at DESC' : 'c.updated_at DESC, c.id DESC';
+    const { where, p } = radarCompanyWhere({ q, typ, status, plattform, plz, eignung, quelle, beworben, merk, seit });
+    const order = (RADAR_SORTS[sort] || RADAR_SORTS.prio).sql;
     const lim = limit ? `LIMIT ${Math.max(1, Number(limit) || 50)} OFFSET ${Math.max(0, Number(offset) || 0)}` : '';
     const params = { ...p };
     if (pipeline) params.pipeline = pipeline;
@@ -119,6 +137,9 @@ export function getCompanies({ q = '', typ = '', pipeline = '', sort = 'prio', s
         SELECT c.*,
             (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id) AS opp_count,
             ${COUNT_COLS},
+            (SELECT MAX(o.gefunden_am) FROM radar_opportunities o WHERE o.company_id = c.id) AS last_opp_at,
+            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id AND o.check_status = 'offline') AS offline_count,
+            (SELECT COUNT(*) FROM radar_opportunities o WHERE o.company_id = c.id AND o.status IN (${OFFEN_SQL})) AS open_count,
             (SELECT plattform FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS plattform,
             (SELECT version FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS version,
             (SELECT version_eol FROM radar_tech_snapshots s WHERE s.company_id = c.id ORDER BY erhoben_am DESC, id DESC LIMIT 1) AS version_eol,
@@ -546,7 +567,8 @@ export function createShareFromOpportunity(oppId) {
 
 export function setOpportunityStatus(id, status, grund = '') {
     if (!OPP_STATUS.includes(status)) return;
-    getContentDb().prepare('UPDATE radar_opportunities SET status=?, verworfen_grund=?, updated_at=? WHERE id=?')
+    // Manuelle Statusänderung übersteuert ein früheres Stellen-Check-Ergebnis.
+    getContentDb().prepare("UPDATE radar_opportunities SET status=?, verworfen_grund=?, check_status='', check_info='', updated_at=? WHERE id=?")
         .run(status, grund, Date.now(), Number(id));
 }
 
@@ -1059,6 +1081,80 @@ export function importJobPostings(jobs, { quelle = 'bundesagentur' } = {}) {
     });
     run();
     return { newCompanies, newOpps, skipped, archived };
+}
+
+// ─── Stellen-Check (ausgeschriebene Stellen noch online?) ─────────────────────
+// Geprüft werden nur Chancen VOR der Bewerbung (OFFEN_STATUS) mit Beleg-Link —
+// laufende Bewerbungen, Absagen und Initiativ-Chancen bleiben unangetastet.
+const STELLEN_CHECK_COND = `o.status IN (${OFFEN_SQL}) AND o.typ != 'initiativ' AND (o.ba_refnr != '' OR o.quell_url != '')`;
+const STELLEN_CHECK_INTERVAL_MS = 20 * 60 * 60 * 1000; // höchstens ~1× pro Tag je Firma
+
+export function getCompaniesForStellenCheck({ limit = 5, companyId = 0 } = {}) {
+    const db = getContentDb();
+    if (companyId) {
+        return db.prepare(`SELECT id, name, domain, karriere_url FROM radar_companies c WHERE c.id = ? AND EXISTS (SELECT 1 FROM radar_opportunities o WHERE o.company_id = c.id AND ${STELLEN_CHECK_COND})`).all(Number(companyId));
+    }
+    return db.prepare(`
+        SELECT id, name, domain, karriere_url FROM radar_companies c
+        WHERE c.archiviert = 0 AND c.last_stellen_check < ?
+          AND EXISTS (SELECT 1 FROM radar_opportunities o WHERE o.company_id = c.id AND ${STELLEN_CHECK_COND})
+        ORDER BY c.last_stellen_check ASC, c.id ASC LIMIT ?
+    `).all(Date.now() - STELLEN_CHECK_INTERVAL_MS, Math.max(1, Number(limit) || 5));
+}
+
+export function countCompaniesForStellenCheck() {
+    return getContentDb().prepare(`
+        SELECT COUNT(*) n FROM radar_companies c
+        WHERE c.archiviert = 0 AND c.last_stellen_check < ?
+          AND EXISTS (SELECT 1 FROM radar_opportunities o WHERE o.company_id = c.id AND ${STELLEN_CHECK_COND})
+    `).get(Date.now() - STELLEN_CHECK_INTERVAL_MS).n;
+}
+
+export function getStellenCheckOpps(companyId) {
+    return getContentDb().prepare(`SELECT id, titel, quelle, quell_url, ba_refnr FROM radar_opportunities o WHERE o.company_id = ? AND ${STELLEN_CHECK_COND}`).all(Number(companyId));
+}
+
+/**
+ * Ergebnisse des Stellen-Checks einer Firma speichern.
+ * results: [{ id, state: 'online'|'offline'|'unklar', info }]
+ * Offline-Stellen werden verworfen (mit Begründung, reversibel über den Status).
+ * Mit archiveEmpty=true wird die Firma archiviert, wenn danach keine offene oder
+ * laufende Chance mehr übrig ist — außer sie steht auf der Merkliste.
+ */
+export function applyStellenCheck(companyId, results, { archiveEmpty = true } = {}) {
+    const db = getContentDb();
+    const now = Date.now();
+    const cid = Number(companyId);
+    const datum = new Date(now).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' });
+    let offline = 0;
+    let archived = false;
+    const run = db.transaction(() => {
+        for (const r of (results || [])) {
+            const info = (r.info || '').slice(0, 300);
+            if (r.state === 'offline') {
+                offline += 1;
+                db.prepare(`UPDATE radar_opportunities SET check_at=@now, check_status='offline', check_info=@info,
+                    status='verworfen', verworfen_grund=@grund, updated_at=@now WHERE id=@id AND status IN (${OFFEN_SQL})`)
+                    .run({ now, info, grund: `Stelle nicht mehr ausgeschrieben (Stellen-Check ${datum})`, id: Number(r.id) });
+            } else {
+                db.prepare('UPDATE radar_opportunities SET check_at=@now, check_status=@state, check_info=@info WHERE id=@id')
+                    .run({ now, state: r.state === 'online' ? 'online' : 'unklar', info, id: Number(r.id) });
+            }
+        }
+        db.prepare('UPDATE radar_companies SET last_stellen_check=? WHERE id=?').run(now, cid);
+
+        if (offline && archiveEmpty) {
+            const c = db.prepare('SELECT merk, archiviert FROM radar_companies WHERE id=?').get(cid);
+            const remaining = db.prepare(`SELECT COUNT(*) n FROM radar_opportunities WHERE company_id=? AND status IN (${OFFEN_SQL}, ${LAUFEND_SQL})`).get(cid).n;
+            if (c && !c.merk && !c.archiviert && remaining === 0) {
+                db.prepare('UPDATE radar_companies SET archiviert=1, archiviert_am=@now, aktiv=0, prio_score=0, prio_grund=@g, updated_at=@now WHERE id=@id')
+                    .run({ now, g: `archiviert · Stellen nicht mehr ausgeschrieben (Stellen-Check ${datum})`, id: cid });
+                archived = true;
+            }
+        }
+    });
+    run();
+    return { offline, archived };
 }
 
 // ─── Batch-Re-Scan ───────────────────────────────────────────────────────────

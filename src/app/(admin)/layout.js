@@ -5,6 +5,7 @@ import { FiExternalLink } from "react-icons/fi";
 import AdminSidebar from "@/components/adminsidebar/page";
 import NotificationBell from "@/components/admin/NotificationBell";
 import { logout } from "@/lib/authActions";
+import { TrackingOptOutAuto } from "@/components/analytics/TrackingOptOut";
 
 export const metadata = {
     title: 'Portfolio Dashboard',
@@ -23,6 +24,8 @@ export const metadata = {
 export default function DashboardLayout({ children }) {
     return (
         <div className="adm">
+            {/* Eigenes Gerät aus der Besucher-Statistik ausschließen (localStorage). */}
+            <TrackingOptOutAuto />
             <AdminSidebar />
             <div className="adm-main">
                 <header className="adm-topbar">

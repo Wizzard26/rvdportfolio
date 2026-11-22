@@ -12,7 +12,9 @@ import {
     getCompaniesForJobScan, countCompaniesForJobScan, markJobScanned,
     importJobPostings, getOpportunity, setOpportunityDescription, setArbeitgeberInfo,
     verwerfenCompany, toggleMerk, reorderMerkliste, mergeCompanies,
+    getCompaniesForStellenCheck, countCompaniesForStellenCheck, getStellenCheckOpps, applyStellenCheck,
 } from '@/lib/content/radarStore';
+import { checkCompanyJobs } from '@/lib/content/radarStellenCheck';
 import { fingerprintUrl, scrapeCareerJobs } from '@/lib/content/radarFingerprint';
 import { ccDetect } from '@/lib/content/radarCommonCrawl';
 import { searchArbeitsagentur, fetchJobDetail } from '@/lib/content/radarBundesagentur';
@@ -375,4 +377,30 @@ export async function saveArbeitgeberInfoAction(formData) {
         kununu_gehalt: formData.get('kununu_gehalt'),
     });
     if (companyId) revalidatePath(`/dashboard/radar/${companyId}`);
+}
+
+// Stellen-Check in Häppchen: sind die erfassten Stellen noch ausgeschrieben?
+// Offline-Stellen werden verworfen; optional wird die Firma archiviert, wenn
+// keine offene/laufende Chance mehr übrig ist. Mit company_id nur diese Firma.
+export async function stellenCheckBatchAction(prevState, formData) {
+    const limit = Math.min(8, Math.max(1, Number(formData.get('limit')) || 4));
+    const companyId = Number(formData.get('company_id')) || 0;
+    const archiveEmpty = formData.get('archive') !== '0';
+    const targets = getCompaniesForStellenCheck({ limit, companyId });
+    const results = [];
+    for (const c of targets) {
+        const opps = getStellenCheckOpps(c.id);
+        let checks = [];
+        try { checks = await checkCompanyJobs(c, opps); } catch { checks = []; }
+        const { offline, archived } = applyStellenCheck(c.id, checks, { archiveEmpty });
+        results.push({
+            id: c.id, name: c.name || c.domain || `#${c.id}`, checked: checks.length, offline, archived,
+            online: checks.filter((x) => x.state === 'online').length,
+            unklar: checks.filter((x) => x.state === 'unklar').length,
+        });
+        await new Promise((r) => setTimeout(r, 300));
+    }
+    revalidatePath('/dashboard/radar');
+    if (companyId) revalidatePath(`/dashboard/radar/${companyId}`);
+    return { ok: true, scanned: results.length, remaining: companyId ? 0 : countCompaniesForStellenCheck(), results };
 }

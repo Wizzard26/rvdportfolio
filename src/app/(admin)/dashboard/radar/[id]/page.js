@@ -10,6 +10,7 @@ import {
 } from '@/lib/content/radarActions';
 import CareerScrapeButton from '@/components/analytics/CareerScrapeButton';
 import RadarRowActions from '@/components/analytics/RadarRowActions';
+import RadarStellenCheck from '@/components/analytics/RadarStellenCheck';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +25,13 @@ const ART14_TEXT = 'Hinweis zum Datenschutz: Ihre Kontaktdaten (Name, dienstlich
     + 'Rechte: https://rene-van-dinter.de/disclaimer — einem weiteren Kontakt können Sie jederzeit formlos widersprechen.';
 
 const dedate = (ms) => (ms ? new Date(ms).toISOString().slice(0, 10) : '');
+
+// Ergebnis des Stellen-Checks je Chance.
+const CHECK_BADGE = {
+    online: { cls: 'an-badge--ok', label: 'online' },
+    offline: { cls: 'an-badge--bad', label: 'offline' },
+    unklar: { cls: '', label: 'unklar' },
+};
 
 export default async function RadarCompanyDetail({ params }) {
     const { id } = await params;
@@ -243,6 +251,11 @@ export default async function RadarCompanyDetail({ params }) {
                 ) : (
                     <p className="an-card-note" style={{ marginTop: 0 }}>Keine Karriere-URL hinterlegt — nach einem Scan bzw. über „Bearbeiten" wird sie hier zum Stellen-Import genutzt.</p>
                 )}
+                {c.opportunities.some((o) => ['neu', 'geprueft', 'shortlist'].includes(o.status) && o.typ !== 'initiativ' && (o.ba_refnr || o.quell_url)) && (
+                    <div style={{ margin: '0 0 12px' }}>
+                        <RadarStellenCheck companyId={c.id} />
+                    </div>
+                )}
                 {c.opportunities.length === 0 ? (
                     <p className="an-card-note">Noch keine Chancen erfasst.</p>
                 ) : (
@@ -254,6 +267,17 @@ export default async function RadarCompanyDetail({ params }) {
                                     <tr key={o.id}>
                                         <td>
                                             <strong>{o.titel || '(ohne Titel)'}</strong>
+                                            {o.check_status && CHECK_BADGE[o.check_status] && (
+                                                <span className={`an-badge ${CHECK_BADGE[o.check_status].cls}`} style={{ marginLeft: 6 }} title={`${o.check_info || ''}${o.check_at ? ` · geprüft ${dedate(o.check_at)}` : ''}`}>
+                                                    Stelle {CHECK_BADGE[o.check_status].label}
+                                                </span>
+                                            )}
+                                            <div className="an-muted" style={{ fontSize: '0.82em' }}>
+                                                gefunden {dedate(o.gefunden_am || o.created_at) || '—'}
+                                                {o.veroeffentlicht_am ? ` · veröffentlicht ${o.veroeffentlicht_am.slice(0, 10)}` : ''}
+                                                {o.check_at ? ` · geprüft ${dedate(o.check_at)}${o.check_info ? `: ${o.check_info}` : ''}` : ''}
+                                            </div>
+                                            {o.status === 'verworfen' && o.verworfen_grund && <div className="an-muted" style={{ fontSize: '0.82em' }}>Verworfen: {o.verworfen_grund}</div>}
                                             {o.begruendung && <div className="an-muted">{o.begruendung}</div>}
                                             {o.match_luecken && <div className="an-muted">Lücken: {o.match_luecken}</div>}
                                             {o.quell_url && <div className="an-muted" style={{ fontSize: '0.85em' }}><a href={o.quell_url} target="_blank" rel="noopener noreferrer">Anzeige öffnen <FiExternalLink aria-hidden="true" /></a></div>}

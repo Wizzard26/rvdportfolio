@@ -109,7 +109,21 @@ export function osFromUa(ua = '') {
 // wird ein Wiederkehrer nicht als solcher erkannt — bewusst akzeptiert.)
 export function visitorHash(ip, ua, windowKey) {
     const salt = process.env.ANALYTICS_SALT || 'dev-fallback-salt-change-me';
-    return createHash('sha256').update(`${windowKey}|${ip || ''}|${ua || ''}|${salt}`).digest('hex').slice(0, 32);
+    return createHash('sha256').update(`${windowKey}|${ipHashKey(ip)}|${ua || ''}|${salt}`).digest('hex').slice(0, 32);
+}
+
+// IPv6-Geräte wechseln ihre Adresse innerhalb des /64-Netzes regelmäßig
+// (Privacy Extensions) — mit der vollen Adresse würde derselbe Besucher mehrfach
+// gezählt. Für den Hash zählt deshalb nur das /64-Präfix; IPv4 bleibt unverändert.
+function ipHashKey(ip) {
+    const s = (ip || '').trim();
+    if (!s.includes(':')) return s;
+    if (/^::ffff:\d+\.\d+\.\d+\.\d+$/i.test(s)) return s.slice(7); // IPv4-mapped
+    const [head, tail = ''] = s.split('::');
+    const h = head ? head.split(':') : [];
+    const t = tail ? tail.split(':') : [];
+    const full = [...h, ...Array(Math.max(0, 8 - h.length - t.length)).fill('0'), ...t];
+    return full.slice(0, 4).map((g) => (g || '0').toLowerCase().replace(/^0+(?=.)/, '')).join(':') + '::/64';
 }
 
 // Ländercode aus der IP (lokale geoip-lite-Tabelle, kein Fremddienst).

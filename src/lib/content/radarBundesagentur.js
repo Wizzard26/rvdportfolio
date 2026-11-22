@@ -48,3 +48,31 @@ export async function fetchJobDetail(referenznummer) {
     const verguetung = d.verguetungsangabe && d.verguetungsangabe !== 'KEINE_ANGABEN' ? d.verguetungsangabe : '';
     return { ok: true, beschreibung: beschreibung.slice(0, 6000), verguetung, homeoffice: !!d.homeofficemoeglich, partner: d.allianzpartnerName || '' };
 }
+
+// Referenznummer aus einer BA-Jobdetail-URL (…/jobsuche/jobdetail/<refnr>).
+export function refnrFromUrl(url) {
+    const m = /arbeitsagentur\.de\/jobsuche\/jobdetail\/([^/?#]+)/i.exec(url || '');
+    return m ? decodeURIComponent(m[1]) : '';
+}
+
+// Stellen-Check: Ist die Anzeige bei der BA noch gelistet? 404 mit
+// STELLENANGEBOT_NICHT_GEFUNDEN = entfernt; ein abgelaufener
+// Veröffentlichungszeitraum zählt ebenfalls als offline.
+export async function checkBaJobOnline(referenznummer) {
+    const ref = (referenznummer || '').trim();
+    if (!ref) return { state: 'unklar', info: 'Keine BA-Referenznummer.' };
+    const b64 = Buffer.from(ref, 'utf8').toString('base64');
+    const url = `https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobdetails/${encodeURIComponent(b64)}`;
+    let res;
+    try { res = await fetch(url, { headers: HEADERS, cache: 'no-store' }); }
+    catch { return { state: 'unklar', info: 'Bundesagentur nicht erreichbar.' }; }
+    if (res.status === 404) return { state: 'offline', info: 'Bei der Bundesagentur nicht mehr gelistet (404).' };
+    if (!res.ok) return { state: 'unklar', info: `Bundesagentur antwortete ${res.status}.` };
+    let d;
+    try { d = await res.json(); } catch { return { state: 'unklar', info: 'BA-Antwort nicht lesbar.' }; }
+    const bis = d?.veroeffentlichungszeitraum?.bis || '';
+    if (bis && bis < new Date().toISOString().slice(0, 10)) {
+        return { state: 'offline', info: `Veröffentlichung bei der BA endete am ${bis}.` };
+    }
+    return { state: 'online', info: 'Bei der Bundesagentur gelistet.' };
+}
