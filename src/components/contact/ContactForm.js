@@ -7,7 +7,7 @@ import { track } from "@/lib/analytics/track";
 
 export default function ContactForm() {
 
-    const [gender, setGender] = useState('mr');
+    const [gender, setGender] = useState('Herr');
     const [title, setTitle] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -19,6 +19,16 @@ export default function ContactForm() {
     const [sendCopy, setSendCopy] = useState(false);
     const [isSend, setIsSend] =  useState(false);
     const [isError, setIsError] = useState(false);
+    // Signiertes Form-Token vom Server (Spam-Schutz, siehe lib/spamGuard).
+    const [formToken, setFormToken] = useState('');
+    const honeypotRef = useRef(null);
+
+    useEffect(() => {
+        fetch('/api/sendmail', { cache: 'no-store' })
+            .then((r) => r.json())
+            .then((d) => setFormToken(d.token || ''))
+            .catch(() => {});
+    }, []);
 
     // Formular-Analytics (ohne Feldinhalte): Start beim ersten Focus,
     // Abbruch beim Verlassen, wenn begonnen aber nicht abgesendet.
@@ -54,8 +64,8 @@ export default function ContactForm() {
     const sendMail = async (e) => {
         e.preventDefault();
 
-        const spamcheck = document.querySelector('#confirm-mail').value;
-        const isSpam = spamcheck !== '';
+        setIsError(false);
+        const isSpam = (honeypotRef.current?.value || '') !== '';
 
         if(!isSpam) {
             const response = await fetch('/api/sendmail', {
@@ -73,11 +83,12 @@ export default function ContactForm() {
                     mail,
                     webUrl,
                     message,
-                    sendCopy
+                    sendCopy: sendCopy === true,
+                    formToken,
+                    rvd_hp: honeypotRef.current?.value || '',
                 })
             })
 
-            console.log('RESPONSE:', await response.json());
             if(!response.ok) {
                 setIsError(true)
             }
@@ -87,7 +98,7 @@ export default function ContactForm() {
                 // Spam-Honeypot-Pfad).
                 formSubmitted.current = true; // verhindert form_abandon danach
                 track('conversion', { name: 'Kontaktformular' });
-                setGender('mr');
+                setGender('Herr');
                 setTitle('');
                 setFirstName('');
                 setLastName('');
@@ -225,12 +236,19 @@ export default function ContactForm() {
                                 }}
                                 required={true}
                             />
-                            <input
-                                type={"hidden"}
-                                id={"confirm-mail"}
-                                name={'confirm-mail'}
-                                value={''}
-                            />
+                            {/* Honeypot: für Menschen unsichtbar, Bots füllen es aus. */}
+                            <div className={styles.honeypot} aria-hidden="true">
+                                <label htmlFor={'rvd_hp'}>Nicht ausfüllen</label>
+                                <input
+                                    ref={honeypotRef}
+                                    type={"text"}
+                                    id={'rvd_hp'}
+                                    name={'rvd_hp'}
+                                    tabIndex={-1}
+                                    autoComplete={'off'}
+                                    defaultValue={''}
+                                />
+                            </div>
                             <label htmlFor={'webpage'}>Webseite:</label>
                             <input
                                 type={"url"}
@@ -262,9 +280,9 @@ export default function ContactForm() {
                             <input
                                 type={"checkbox"}
                                 id={'copysend'}
-                                defaultValue={sendCopy}
+                                checked={sendCopy}
                                 onChange={(e) => {
-                                    setSendCopy(e.target.value)
+                                    setSendCopy(e.target.checked)
                                 }}
                             />
                         </div>
