@@ -74,6 +74,34 @@ export function rateLimited(ip) {
     return false;
 }
 
+// Kopie an den Absender: je (gehashter) Empfängeradresse nur wenige pro Tag, damit
+// das Formular nicht als Relay für Nachrichten an fremde Adressen taugt.
+const COPY_WINDOW_MS = 24 * 60 * 60 * 1000;
+const COPY_MAX = 2;
+const copies = new Map();
+
+export function copyLimited(mail) {
+    const key = createHash('sha256').update(`copy|${(mail || '').trim().toLowerCase()}|${secret()}`).digest('hex').slice(0, 24);
+    const now = Date.now();
+    const recent = (copies.get(key) || []).filter((t) => now - t < COPY_WINDOW_MS);
+    if (recent.length >= COPY_MAX) {
+        copies.set(key, recent);
+        return true;
+    }
+    recent.push(now);
+    copies.set(key, recent);
+    if (copies.size > 5000) {
+        for (const [k, v] of copies) if (!v.some((t) => now - t < COPY_WINDOW_MS)) copies.delete(k);
+    }
+    return false;
+}
+
+// Entfernt Links aus Text, der an eine vom Nutzer angegebene Adresse geht
+// (keine klickbaren Phishing-/Spam-Links über das eigene Postfach).
+export function stripLinks(text) {
+    return (text || '').replace(/(?:https?:\/\/|www\.)[^\s<>"']+/gi, '[Link entfernt]');
+}
+
 export function escapeHtml(s) {
     return (s ?? '').toString().replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }

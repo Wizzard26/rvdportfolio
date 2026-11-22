@@ -1,15 +1,15 @@
 import nodemailer from 'nodemailer';
 import { NextResponse } from "next/server";
 import {
-    issueFormToken, checkFormToken, isHoneypotFilled, tooManyLinks, rateLimited, escapeHtml, isEmail,
+    issueFormToken, checkFormToken, isHoneypotFilled, tooManyLinks, rateLimited, copyLimited, stripLinks, escapeHtml, isEmail,
 } from '@/lib/spamGuard';
 
 // Kontaktformular-Versand. Schutz gegen Spam und Missbrauch (siehe lib/spamGuard):
 // Honeypot, signiertes Form-Token, Validierung, Link-Limit, Rate-Limit. Alle
 // Eingaben werden HTML-escaped; der Absender ist immer das eigene Postfach.
-// Die optionale Kopie geht als neutrale Eingangsbestätigung OHNE Nachrichteninhalt
-// raus — sonst ließe sich das Formular als offenes Relay für Spam an beliebige
-// Adressen missbrauchen.
+// Die optionale Kopie an den Absender ist reiner Text, enthält die Nachricht ohne
+// Links und geht je Empfängeradresse höchstens COPY_MAX-mal pro Tag raus — sonst
+// ließe sich das Formular als Relay für Spam an beliebige Adressen missbrauchen.
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -150,13 +150,22 @@ export async function POST(request){
 
         await transporter.sendMail(mailOptions);
 
-        if (sendCopy) {
+        if (sendCopy && !copyLimited(f.mail)) {
+            const name = [f.gender, f.title, f.firstName, f.lastName].map(oneLine).filter(Boolean).join(' ');
+            const lines = [
+                ['Name', name],
+                ['Firma', oneLine(f.company)],
+                ['Telefon', oneLine(f.phone)],
+                ['E-Mail', oneLine(f.mail)],
+            ].filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join('\n');
             await transporter.sendMail({
                 from: user,
                 to: f.mail,
-                subject: 'Ihre Nachricht an René van Dinter',
+                subject: 'Kopie Ihrer Nachricht an René van Dinter',
                 text: 'Guten Tag,\n\nvielen Dank für Ihre Nachricht über das Kontaktformular auf rene-van-dinter.de. '
                     + 'Sie ist bei mir eingegangen, ich melde mich zeitnah zurück.\n\n'
+                    + 'Hier eine Kopie Ihrer Angaben (Links sind aus Sicherheitsgründen entfernt):\n\n'
+                    + `${lines}\n\nNachricht:\n${stripLinks(f.message)}\n\n`
                     + 'Falls Sie diese Nachricht nicht angefordert haben, können Sie sie einfach ignorieren.\n\n'
                     + 'Viele Grüße\nRené van Dinter\nhttps://rene-van-dinter.de',
             }).catch(() => {});
