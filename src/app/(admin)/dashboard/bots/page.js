@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { getBotStats } from '@/lib/analytics/botStore';
 import { BOT_CATEGORIES } from '@/lib/analytics/bots';
 import { formatNumber } from '@/lib/analytics/format';
@@ -17,6 +18,7 @@ const BOT_PAGE_SIZE = 20;
 const RECENT_PAGE_SIZE = 25;
 
 export default async function BotsPage({ searchParams }) {
+    await requireAdminPage();
     const { days, rangeKey, phrase, params } = await resolveRange(searchParams);
 
     const botPage = Math.max(1, Number(params.bp) || 1);

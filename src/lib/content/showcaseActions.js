@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -79,6 +80,7 @@ function parseCommon(formData) {
 }
 
 export async function createProjectAction(prevState, formData) {
+    await requireAdmin();
     const data = parseCommon(formData);
     if (!data.name) return { error: 'Titel fehlt', values: data };
     let media;
@@ -90,6 +92,7 @@ export async function createProjectAction(prevState, formData) {
 }
 
 export async function updateProjectAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const data = parseCommon(formData);
     if (!data.name) return { error: 'Titel fehlt', values: { ...data, id } };
@@ -106,17 +109,20 @@ export async function updateProjectAction(prevState, formData) {
 }
 
 export async function deleteProjectAction(formData) {
+    await requireAdmin();
     deleteProject(Number(formData.get('id')));
     revalidate();
 }
 
 // Aktiv/Entwurf umschalten (Ein-Klick aus der Liste).
 export async function toggleProjectAction(formData) {
+    await requireAdmin();
     setProjectActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidate();
 }
 
 export async function reorderProjectsAction(category, orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderProjects(category, orderedIds);
     revalidate();

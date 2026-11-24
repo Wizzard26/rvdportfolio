@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -27,6 +28,7 @@ function parse(formData) {
 }
 
 export async function createTestimonialAction(prevState, formData) {
+    await requireAdmin();
     const data = parse(formData);
     if (!data.quote) return { error: 'Zitat fehlt', values: data };
     if (!data.author) return { error: 'Autor fehlt', values: data };
@@ -36,6 +38,7 @@ export async function createTestimonialAction(prevState, formData) {
 }
 
 export async function updateTestimonialAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const data = parse(formData);
     if (!data.quote) return { error: 'Zitat fehlt', values: { ...data, id } };
@@ -46,16 +49,19 @@ export async function updateTestimonialAction(prevState, formData) {
 }
 
 export async function deleteTestimonialAction(formData) {
+    await requireAdmin();
     deleteTestimonial(Number(formData.get('id')));
     revalidate();
 }
 
 export async function toggleTestimonialAction(formData) {
+    await requireAdmin();
     setTestimonialActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidate();
 }
 
 export async function reorderTestimonialsAction(orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderTestimonials(orderedIds);
     revalidate();
@@ -63,6 +69,7 @@ export async function reorderTestimonialsAction(orderedIds) {
 
 // Globale Anzeige-Schalter (Showcase / About).
 export async function setTestimonialPlacementAction(formData) {
+    await requireAdmin();
     setSetting(SHOWCASE_KEY, formData.get('show_showcase') ? '1' : '0');
     setSetting(ABOUT_KEY, formData.get('show_about') ? '1' : '0');
     setSetting(SHOPWARE_KEY, formData.get('show_shopware') ? '1' : '0');

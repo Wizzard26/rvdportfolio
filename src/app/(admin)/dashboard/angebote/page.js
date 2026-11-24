@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiEdit2, FiTrash2, FiStar } from 'react-icons/fi';
 import { getOffers, getOfferStats } from '@/lib/content/offersStore';
@@ -55,6 +56,7 @@ function Group({ title, items }) {
 }
 
 export default async function OffersAdmin() {
+    await requireAdminPage();
     const offers = getOffers();
     const stats = getOfferStats();
     const neu = offers.filter((o) => o.status === 'neu');

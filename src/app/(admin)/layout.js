@@ -6,6 +6,7 @@ import AdminSidebar from "@/components/adminsidebar/page";
 import NotificationBell from "@/components/admin/NotificationBell";
 import { logout } from "@/lib/authActions";
 import { TrackingOptOutAuto } from "@/components/analytics/TrackingOptOut";
+import { requireAdminPage } from "@/lib/adminAuth";
 
 export const metadata = {
     title: 'Portfolio Dashboard',
@@ -21,7 +22,10 @@ export const metadata = {
 
 // Moderne Admin-Shell: feste Sidebar links, schlanke Topbar, heller Content-
 // Bereich im Card-Stil des Analytics-Dashboards.
-export default function DashboardLayout({ children }) {
+// Session-Prüfung zusätzlich zum Proxy (und zu jeder einzelnen Seite): Die
+// Admin-Shell wird ohne gültige Session nie gerendert.
+export default async function DashboardLayout({ children }) {
+    await requireAdminPage();
     return (
         <div className="adm">
             {/* Eigenes Gerät aus der Besucher-Statistik ausschließen (localStorage). */}

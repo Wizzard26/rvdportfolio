@@ -27,6 +27,9 @@ function existsInPublic(rawPath) {
 // Rate-Limit: mehr als LIMIT Fehlversuche je IP innerhalb WINDOW_MS werden geblockt.
 export const FAIL_LIMIT = 5;
 export const FAIL_WINDOW_MS = 15 * 60 * 1000; // 15 Minuten
+// Globale Bremse über ALLE IPs: verteiltes Raten (Botnetz, wechselnde IPs) wird
+// nach so vielen echten Fehlversuchen im Fenster für alle pausiert.
+export const GLOBAL_FAIL_LIMIT = 30;
 
 // Aufbewahrung: Login-Events älter als 90 Tage werden entfernt, damit die Tabelle
 // (auch unter Dauer-Brute-Force) nicht unbegrenzt wächst. Opportunistisch – max.
@@ -58,9 +61,16 @@ export function recentFailCount(hash) {
     ).get(hash, Date.now() - FAIL_WINDOW_MS).n;
 }
 
-// Ist diese IP gerade gesperrt?
+// Echte Fehlversuche (ohne bereits geblockte) aller IPs im Fenster.
+export function recentGlobalFailCount() {
+    return getDb().prepare(
+        "SELECT COUNT(*) AS n FROM login_events WHERE outcome = 'fail' AND ts > ?",
+    ).get(Date.now() - FAIL_WINDOW_MS).n;
+}
+
+// Ist diese IP gerade gesperrt — oder läuft ein verteilter Angriff?
 export function isRateLimited(hash) {
-    return recentFailCount(hash) >= FAIL_LIMIT;
+    return recentFailCount(hash) >= FAIL_LIMIT || recentGlobalFailCount() >= GLOBAL_FAIL_LIMIT;
 }
 
 // Einen Login-Versuch protokollieren. `headers` = Web-Headers (aus next/headers).

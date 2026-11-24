@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import RadarCompanyForm from '@/components/analytics/RadarCompanyForm';
@@ -5,7 +6,8 @@ import { createCompanyAction } from '@/lib/content/radarActions';
 
 export const dynamic = 'force-dynamic';
 
-export default function NewRadarCompany() {
+export default async function NewRadarCompany() {
+    await requireAdminPage();
     return (
         <div className="an-dashboard">
             <div className="an-head">

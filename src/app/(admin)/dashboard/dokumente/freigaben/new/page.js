@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import ShareForm from '@/components/analytics/ShareForm';
@@ -8,7 +9,8 @@ import { getActivePrivateRefs } from '@/lib/content/privateRefsStore';
 
 export const dynamic = 'force-dynamic';
 
-export default function NewShare() {
+export default async function NewShare() {
+    await requireAdminPage();
     const documents = getDocuments();
     const testimonials = getActiveTestimonials();
     const privateRefs = getActivePrivateRefs();

@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FiArrowLeft } from 'react-icons/fi';
@@ -8,6 +9,7 @@ import { getCompany } from '@/lib/content/radarStore';
 export const dynamic = 'force-dynamic';
 
 export default async function EditRadarCompany({ params }) {
+    await requireAdminPage();
     const { id } = await params;
     const company = getCompany(Number(id));
     if (!company) notFound();

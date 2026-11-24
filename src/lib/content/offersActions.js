@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import { createOffer, updateOfferStatus, updateOfferNotes, rateOffer, deleteOffer } from '@/lib/content/offersStore';
 import { sendOwnerMail } from '@/lib/mail';
@@ -80,18 +81,21 @@ function revalidateAdmin(id) {
 }
 
 export async function setOfferStatusAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     updateOfferStatus(id, (formData.get('status') || '').toString());
     revalidateAdmin(id);
 }
 
 export async function saveOfferNotesAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     updateOfferNotes(id, (formData.get('notes') || '').toString());
     revalidateAdmin(id);
 }
 
 export async function rateOfferAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const data = {};
     OFFER_RATING_FACTORS.forEach((f) => { data[f.key] = formData.get(`rating_${f.key}`); });
@@ -100,6 +104,7 @@ export async function rateOfferAction(formData) {
 }
 
 export async function deleteOfferAction(formData) {
+    await requireAdmin();
     deleteOffer(Number(formData.get('id')));
     revalidatePath('/dashboard/angebote');
 }

@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiPlus } from 'react-icons/fi';
 import { getProjects } from '@/lib/content/showcaseStore';
@@ -7,6 +8,7 @@ import ShowcaseAdminTabs from '@/components/analytics/ShowcaseAdminTabs';
 export const dynamic = 'force-dynamic';
 
 export default async function ShowcaseAdmin() {
+    await requireAdminPage();
     const projects = getProjects();
 
     return (

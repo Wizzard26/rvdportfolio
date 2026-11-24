@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FiArrowLeft } from 'react-icons/fi';
@@ -9,6 +10,7 @@ import { listDocuments } from '@/lib/content/documents';
 export const dynamic = 'force-dynamic';
 
 export default async function EditDocument({ params }) {
+    await requireAdminPage();
     const { id } = await params;
     const document = getDocument(Number(id));
     if (!document) notFound();

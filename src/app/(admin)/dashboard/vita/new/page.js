@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import StationForm from '@/components/analytics/StationForm';
@@ -5,7 +6,8 @@ import { createStationAction } from '@/lib/content/vitaActions';
 
 export const dynamic = 'force-dynamic';
 
-export default function NewStation() {
+export default async function NewStation() {
+    await requireAdminPage();
     return (
         <div className="an-dashboard">
             <div className="an-head">

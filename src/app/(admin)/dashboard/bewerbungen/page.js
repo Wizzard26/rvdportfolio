@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiEdit2, FiEye, FiDownload, FiClock, FiExternalLink, FiMessageCircle } from 'react-icons/fi';
 import { getApplications, getApplicationStats, getRatingSummary } from '@/lib/content/sharesStore';
@@ -79,6 +80,7 @@ function Row({ app }) {
 }
 
 export default async function ApplicationsAdmin() {
+    await requireAdminPage();
     const apps = getApplications();
     const stats = getApplicationStats();
     const ratings = getRatingSummary();

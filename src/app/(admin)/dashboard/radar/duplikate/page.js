@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiArrowLeft, FiExternalLink, FiGitMerge, FiCheckCircle, FiBookmark, FiSlash } from 'react-icons/fi';
 import { getDuplicateGroups } from '@/lib/content/radarStore';
@@ -13,6 +14,7 @@ const QUELLE_LABEL = {
 };
 
 export default async function RadarDuplikatePage() {
+    await requireAdminPage();
     const groups = getDuplicateGroups();
 
     return (

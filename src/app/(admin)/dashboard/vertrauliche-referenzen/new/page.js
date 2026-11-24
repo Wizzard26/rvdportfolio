@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import PrivateRefForm from '@/components/analytics/PrivateRefForm';
@@ -5,7 +6,8 @@ import { createPrivateRefAction } from '@/lib/content/privateRefsActions';
 
 export const dynamic = 'force-dynamic';
 
-export default function NewPrivateRef() {
+export default async function NewPrivateRef() {
+    await requireAdminPage();
     return (
         <div className="an-dashboard">
             <div className="an-head">

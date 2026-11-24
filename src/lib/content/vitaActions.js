@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -35,6 +36,7 @@ function revalidateVita() {
 }
 
 export async function createStationAction(prevState, formData) {
+    await requireAdmin();
     const { data, errors } = parseStation(formData);
     if (errors.length) return { error: errors.join(' · '), values: data };
     createStation(data);
@@ -43,6 +45,7 @@ export async function createStationAction(prevState, formData) {
 }
 
 export async function updateStationAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const { data, errors } = parseStation(formData);
     if (errors.length) return { error: errors.join(' · '), values: { ...data, id } };
@@ -54,12 +57,14 @@ export async function updateStationAction(prevState, formData) {
 // Löschen wird per <form action> aus der Liste aufgerufen; die ID steckt als
 // hidden field im Formular.
 export async function deleteStationAction(formData) {
+    await requireAdmin();
     deleteStation(Number(formData.get('id')));
     revalidateVita();
 }
 
 // Aktiv/Entwurf umschalten (Ein-Klick aus der Liste).
 export async function toggleStationAction(formData) {
+    await requireAdmin();
     setStationActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidateVita();
 }
@@ -67,6 +72,7 @@ export async function toggleStationAction(formData) {
 // Neue Reihenfolge nach Drag & Drop. `orderedIds` = Anzeige-Reihenfolge (oben
 // zuerst). Wird direkt aus der Client-Liste aufgerufen (kein Formular).
 export async function reorderStationsAction(orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderStations(orderedIds);
     revalidateVita();

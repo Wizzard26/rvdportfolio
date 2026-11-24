@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiPlus } from 'react-icons/fi';
 import { getDocuments, ensureVitaSetting, getVitaButtonText } from '@/lib/content/documentsStore';
@@ -7,6 +8,7 @@ import DocumentList from '@/components/analytics/DocumentList';
 export const dynamic = 'force-dynamic';
 
 export default async function DocumentsAdmin() {
+    await requireAdminPage();
     const documents = getDocuments();
     const vitaId = ensureVitaSetting();
     const vitaText = getVitaButtonText();

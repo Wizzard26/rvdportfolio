@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiPlus } from 'react-icons/fi';
 import { getGalleryItems } from '@/lib/content/galleryStore';
@@ -7,6 +8,7 @@ import ShowcaseAdminTabs from '@/components/analytics/ShowcaseAdminTabs';
 export const dynamic = 'force-dynamic';
 
 export default async function GalleriesAdmin() {
+    await requireAdminPage();
     const items = getGalleryItems();
 
     return (

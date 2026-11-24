@@ -13,7 +13,7 @@ services:
     container_name: rd-portfolio-prod
     restart: on-failure
     ports:
-      - "3001:3000"
+      - "127.0.0.1:3001:3000"  # nur lokal – Zugriff ausschließlich über den Apache-Proxy
     env_file:
       - .env.production
     environment:

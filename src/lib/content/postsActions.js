@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -62,6 +63,7 @@ function afterSaveTarget(data) {
 }
 
 export async function createPostAction(prevState, formData) {
+    await requireAdmin();
     const data = parseCommon(formData);
     if (!data.title) return { error: 'Titel fehlt', values: data };
     if (!data.slug) return { error: 'Slug konnte nicht gebildet werden', values: data };
@@ -76,6 +78,7 @@ export async function createPostAction(prevState, formData) {
 }
 
 export async function updatePostAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const data = parseCommon(formData);
     if (!data.title) return { error: 'Titel fehlt', values: { ...data, id } };
@@ -103,6 +106,7 @@ function revalidateWithSpace(formData, type) {
 }
 
 export async function deletePostAction(formData) {
+    await requireAdmin();
     const type = (formData.get('type') || 'blog').toString();
     deletePost(Number(formData.get('id')));
     revalidateWithSpace(formData, type);
@@ -110,12 +114,14 @@ export async function deletePostAction(formData) {
 
 // Aktiv/Entwurf umschalten (Ein-Klick aus der Liste).
 export async function togglePostAction(formData) {
+    await requireAdmin();
     const type = (formData.get('type') || 'blog').toString();
     setPostActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidateWithSpace(formData, type);
 }
 
 export async function reorderPostsAction(type, orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderPosts(TYPES.has(type) ? type : 'blog', orderedIds);
     revalidate(type);
@@ -123,6 +129,7 @@ export async function reorderPostsAction(type, orderedIds) {
 
 // Reihenfolge der Doku-Seiten innerhalb eines Bereichs (Drag & Drop).
 export async function reorderDocsInSpaceAction(spaceId, orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderDocsInSpace(Number(spaceId), orderedIds);
     revalidatePath(`/dashboard/blog/docs/${spaceId}`);

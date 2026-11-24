@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import {
     createArea, updateArea, deleteArea, reorderAreas,
@@ -30,6 +31,7 @@ async function resolveLink(formData) {
 // ── Bereiche ──────────────────────────────────────────────────────────────
 
 export async function createAreaAction(prevState, formData) {
+    await requireAdmin();
     const title = (formData.get('title') || '').toString().trim();
     createArea({ title, show_headline: !!formData.get('show_headline') });
     revalidate();
@@ -37,6 +39,7 @@ export async function createAreaAction(prevState, formData) {
 }
 
 export async function updateAreaAction(prevState, formData) {
+    await requireAdmin();
     updateArea(Number(formData.get('id')), {
         title: (formData.get('title') || '').toString().trim(),
         show_headline: !!formData.get('show_headline'),
@@ -46,11 +49,13 @@ export async function updateAreaAction(prevState, formData) {
 }
 
 export async function deleteAreaAction(formData) {
+    await requireAdmin();
     deleteArea(Number(formData.get('id')));
     revalidate();
 }
 
 export async function reorderAreasAction(orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderAreas(orderedIds);
     revalidate();
@@ -59,6 +64,7 @@ export async function reorderAreasAction(orderedIds) {
 // ── Einträge ──────────────────────────────────────────────────────────────
 
 export async function createEntryAction(prevState, formData) {
+    await requireAdmin();
     const areaId = Number(formData.get('area_id'));
     const text = (formData.get('text') || '').toString().trim();
     if (!text) return { error: 'Text fehlt' };
@@ -72,6 +78,7 @@ export async function createEntryAction(prevState, formData) {
 }
 
 export async function updateEntryAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const text = (formData.get('text') || '').toString().trim();
     if (!text) return { error: 'Text fehlt' };
@@ -85,11 +92,13 @@ export async function updateEntryAction(prevState, formData) {
 }
 
 export async function deleteEntryAction(formData) {
+    await requireAdmin();
     deleteEntry(Number(formData.get('id')));
     revalidate();
 }
 
 export async function reorderEntriesAction(areaId, orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderEntries(Number(areaId), orderedIds);
     revalidate();

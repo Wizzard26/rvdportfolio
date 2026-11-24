@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { getAcquisitionData } from '@/lib/analytics/queries';
 import { resolveRange } from '@/lib/analytics/range';
 import { REFERRER_LABELS, REFERRER_COLORS } from '@/components/analytics/palette';
@@ -8,6 +9,7 @@ import DonutChart from '@/components/analytics/charts/DonutChart';
 export const dynamic = 'force-dynamic';
 
 export default async function Acquisition({ searchParams }) {
+    await requireAdminPage();
     const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const d = getAcquisitionData(range);
 

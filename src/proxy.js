@@ -53,8 +53,13 @@ export async function proxy(request) {
 // Läuft auf allen Seiten-Requests (für das Bot-Logging), ausgenommen interne
 // Next-Pfade, die API (u. a. /api/botlog selbst → keine Schleife), statische
 // Dateien und die SEO-Dateien.
+// /dashboard steht als EIGENER Eintrag im Matcher: Die Ausnahme für statische
+// Dateien (`.*\\.[\\w]+$`) traf sonst auch Admin-Pfade mit Punkt am Ende
+// (z. B. /dashboard/.../5.0) — der Proxy lief nicht, die Seite kam ohne Login.
 export const config = {
     matcher: [
+        '/dashboard',
+        '/dashboard/:path*',
         '/((?!_next/|api/|favicon.ico|robots.txt|sitemap.xml|llms.txt|llms-full.txt|.*\\.[\\w]+$).*)',
     ],
 };

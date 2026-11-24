@@ -137,10 +137,16 @@ export function countryFromIp(ip) {
     }
 }
 
-// Extrahiert die Client-IP aus dem Request (hinter dem KeyHelp-Reverse-Proxy
-// steht sie in x-forwarded-for; erster Eintrag = ursprünglicher Client).
+// Extrahiert die Client-IP aus dem Request. Hinter dem KeyHelp-Apache steht sie
+// in x-forwarded-for — und zwar als LETZTER Eintrag: Apache hängt die echte
+// Verbindungs-IP hinten an, alles davor kann der Client frei mitschicken
+// (sonst ließen sich Rate-Limits per gefälschtem Header umgehen). Die App ist
+// nur über 127.0.0.1 erreichbar (docker-compose), also immer über Apache.
 export function clientIp(headers) {
     const xff = headers.get('x-forwarded-for');
-    if (xff) return xff.split(',')[0].trim();
+    if (xff) {
+        const parts = xff.split(',').map((s) => s.trim()).filter(Boolean);
+        if (parts.length) return parts[parts.length - 1];
+    }
     return headers.get('x-real-ip') || '';
 }

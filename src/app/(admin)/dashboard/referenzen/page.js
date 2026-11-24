@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiPlus } from 'react-icons/fi';
 import { getTestimonials, SHOWCASE_KEY, ABOUT_KEY, SHOPWARE_KEY } from '@/lib/content/testimonialsStore';
@@ -8,6 +9,7 @@ import TestimonialList from '@/components/analytics/TestimonialList';
 export const dynamic = 'force-dynamic';
 
 export default async function TestimonialsAdmin() {
+    await requireAdminPage();
     const testimonials = getTestimonials();
     const showShowcase = getSetting(SHOWCASE_KEY) === '1';
     const showAbout = getSetting(ABOUT_KEY) === '1';

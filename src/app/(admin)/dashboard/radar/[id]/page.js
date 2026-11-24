@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FiArrowLeft, FiEdit2, FiTrash2, FiExternalLink, FiLock, FiSend, FiShield, FiCheck, FiSearch, FiStar, FiBookmark, FiArchive, FiRotateCcw, FiCheckCircle, FiSlash } from 'react-icons/fi';
@@ -34,6 +35,7 @@ const CHECK_BADGE = {
 };
 
 export default async function RadarCompanyDetail({ params }) {
+    await requireAdminPage();
     const { id } = await params;
     const c = getCompany(Number(id));
     if (!c) notFound();

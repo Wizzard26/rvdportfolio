@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import { getMerkliste } from '@/lib/content/radarStore';
@@ -7,6 +8,7 @@ import MerklisteBoard from '@/components/analytics/MerklisteBoard';
 export const dynamic = 'force-dynamic';
 
 export default async function RadarMerklistePage() {
+    await requireAdminPage();
     const companies = getMerkliste();
 
     return (

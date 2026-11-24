@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { Fragment } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -18,6 +19,7 @@ function extUrl(w) {
 }
 
 export default async function OfferDetail({ params }) {
+    await requireAdminPage();
     const { id } = await params;
     const offer = getOffer(Number(id));
     if (!offer) notFound();

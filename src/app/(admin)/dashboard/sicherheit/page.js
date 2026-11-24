@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { FiDownload } from 'react-icons/fi';
 import {
     getLoginEvents, countLoginEvents, getSecurityStats, FAIL_LIMIT, FAIL_WINDOW_MS,
@@ -19,6 +20,7 @@ const OUTCOME = {
 };
 
 export default async function SecurityPage({ searchParams }) {
+    await requireAdminPage();
     const params = await searchParams;
     const page = Math.max(1, Number(params?.p) || 1);
     const suspPage = Math.max(1, Number(params?.sp) || 1);
