@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -34,6 +35,7 @@ function companyData(fd) {
 }
 
 export async function createCompanyAction(prevState, formData) {
+    await requireAdmin();
     const d = companyData(formData);
     if (!d.name && !d.domain) return { error: 'Name oder Domain angeben', values: d };
     const id = createCompany(d);
@@ -42,6 +44,7 @@ export async function createCompanyAction(prevState, formData) {
 }
 
 export async function updateCompanyAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const d = companyData(formData);
     if (!d.name && !d.domain) return { error: 'Name oder Domain angeben', values: { ...d, id } };
@@ -51,6 +54,7 @@ export async function updateCompanyAction(prevState, formData) {
 }
 
 export async function deleteCompanyAction(formData) {
+    await requireAdmin();
     deleteCompany(Number(formData.get('id')));
     revalidatePath('/dashboard/radar');
     redirect('/dashboard/radar');
@@ -58,6 +62,7 @@ export async function deleteCompanyAction(formData) {
 
 // Archivieren/Reaktivieren (statt Löschen): Bestand bleibt, raus aus aktiver Sicht.
 export async function archiveCompanyAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     archiveCompany(id, formData.get('on') === '1');
     revalidatePath('/dashboard/radar');
@@ -67,6 +72,7 @@ export async function archiveCompanyAction(formData) {
 // ── URL scannen (Fingerprinter) ────────────────────────────────────────────
 
 export async function scanUrlAction(prevState, formData) {
+    await requireAdmin();
     const url = (formData.get('url') || '').toString().trim();
     const typ = (formData.get('typ') || 'inhouse_shop').toString();
     if (!url) return { error: 'Bitte eine URL eingeben.' };
@@ -87,6 +93,7 @@ export async function scanUrlAction(prevState, formData) {
 // ── Chancen ──────────────────────────────────────────────────────────────
 
 export async function createOpportunityAction(formData) {
+    await requireAdmin();
     const companyId = Number(formData.get('company_id'));
     const id = createOpportunity({
         company_id: companyId,
@@ -107,6 +114,7 @@ export async function createOpportunityAction(formData) {
 }
 
 export async function setOpportunityStatusAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const status = formData.get('status');
     const companyId = Number(formData.get('company_id'));
@@ -123,6 +131,7 @@ export async function setOpportunityStatusAction(formData) {
 }
 
 export async function deleteOpportunityAction(formData) {
+    await requireAdmin();
     const companyId = Number(formData.get('company_id'));
     deleteOpportunity(Number(formData.get('id')));
     revalidatePath(`/dashboard/radar/${companyId}`);
@@ -130,6 +139,7 @@ export async function deleteOpportunityAction(formData) {
 
 // Merkliste: Firma auf die kuratierte Bewerbungs-Reihenfolge legen/entfernen.
 export async function toggleMerklisteAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     toggleMerk(id, formData.get('on') === '1');
     revalidatePath('/dashboard/radar');
@@ -139,6 +149,7 @@ export async function toggleMerklisteAction(formData) {
 
 // Neue Reihenfolge der Merkliste persistieren (Drag-&-Drop; Array oben zuerst).
 export async function reorderMerklisteAction(orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderMerkliste(orderedIds);
     revalidatePath('/dashboard/radar/merkliste');
@@ -146,6 +157,7 @@ export async function reorderMerklisteAction(orderedIds) {
 
 // Dubletten in die gewählte Sieger-Firma zusammenführen.
 export async function mergeCompaniesAction(formData) {
+    await requireAdmin();
     const survivor = Number(formData.get('survivor'));
     const others = formData.getAll('ids').map(Number).filter((id) => id && id !== survivor);
     if (survivor && others.length) mergeCompanies(survivor, others);
@@ -156,6 +168,7 @@ export async function mergeCompaniesAction(formData) {
 
 // Firma manuell verwerfen (kein Interesse) — mit Grund, landet im Verworfen-Tab.
 export async function verwerfenCompanyAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     verwerfenCompany(id, formData.get('grund') || '');
     revalidatePath('/dashboard/radar');
@@ -165,6 +178,7 @@ export async function verwerfenCompanyAction(formData) {
 // Schnell als „beworben" markieren: vorhandene offene Chance nutzen, sonst eine
 // Initiativbewerbung anlegen; Status → beworben + Doppelansprache-Sperre.
 export async function markBeworbenAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const company = getCompany(id);
     if (!company) return;
@@ -187,6 +201,7 @@ export async function markBeworbenAction(formData) {
 
 // Discovery: BuiltWith-CSV importieren → Firmen + Kontakte + Tech-Snapshot + Lead-Prio.
 export async function importBuiltWithAction(prevState, formData) {
+    await requireAdmin();
     const file = formData.get('file');
     if (!file || typeof file.text !== 'function' || !file.size) return { error: 'Keine CSV-Datei ausgewählt.' };
     let text = '';
@@ -202,6 +217,7 @@ export async function importBuiltWithAction(prevState, formData) {
 // Import ohne Crawling; der Plattform-Hinweis kommt aus dem gesuchten Marker,
 // verifiziert wird per Batch-Re-Scan.
 export async function importDomainListAction(prevState, formData) {
+    await requireAdmin();
     const file = formData.get('file');
     let text = (formData.get('domains') || '').toString();
     if ((!text || !text.trim()) && file && typeof file.text === 'function' && file.size) {
@@ -221,6 +237,7 @@ export async function importDomainListAction(prevState, formData) {
 // Common-Crawl-Discovery (Prototyp): Domains gegen das CC-Archiv prüfen (ohne die
 // Live-Seiten zu belasten) und Shopware/Shopify-Treffer ins Radar importieren.
 export async function ccDiscoverAction(prevState, formData) {
+    await requireAdmin();
     const raw = (formData.get('domains') || '').toString();
     const domains = [...new Set(raw.split(/[\s,;]+/).map((d) => d.trim().toLowerCase()).filter(Boolean))].slice(0, 20);
     if (!domains.length) return { error: 'Keine Domains angegeben.' };
@@ -256,6 +273,7 @@ export async function ccDiscoverAction(prevState, formData) {
 // Batch-Re-Scan: pro Aufruf ein Häppchen Domains live fingerprinten (gedrosselt,
 // robots-konform) und die Realität korrigieren. Client ruft in Schleife auf.
 export async function rescanBatchAction(prevState, formData) {
+    await requireAdmin();
     const limit = Math.min(8, Math.max(1, Number(formData.get('limit')) || 5));
     const mode = formData.get('mode') === 'all' ? 'all' : 'unscanned';
     const targets = getCompaniesToRescan({ limit, mode });
@@ -273,6 +291,7 @@ export async function rescanBatchAction(prevState, formData) {
 
 // Bundesagentur-Jobsuche → Job-Chancen (Arbeitgeber + Ort). Offizielle API.
 export async function searchBaJobsAction(prevState, formData) {
+    await requireAdmin();
     const was = ((formData.get('was') || 'Shopware').toString().trim()) || 'Shopware';
     const wo = (formData.get('wo') || '').toString().trim();
     const umkreis = (formData.get('umkreis') || '').toString().trim();
@@ -286,6 +305,7 @@ export async function searchBaJobsAction(prevState, formData) {
 
 // BA-Detailabruf: Stellenbeschreibung einer Job-Chance nachladen (fürs Anschreiben).
 export async function fetchBaDetailAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const companyId = Number(formData.get('company_id'));
     const opp = getOpportunity(id);
@@ -299,6 +319,7 @@ export async function fetchBaDetailAction(formData) {
 // Feature 2: Batch-Karriereseiten-Scan — sammelt Shopware-Stellen aus den eigenen
 // Karriereseiten der Firmen (legitim) als Job-Chancen. Häppchen.
 export async function jobScanBatchAction(prevState, formData) {
+    await requireAdmin();
     const limit = Math.min(8, Math.max(1, Number(formData.get('limit')) || 5));
     const targets = getCompaniesForJobScan({ limit });
     const results = [];
@@ -318,6 +339,7 @@ export async function jobScanBatchAction(prevState, formData) {
 
 // Phase 3A: Stellen von der Karriereseite der Firma ziehen und als Chancen anlegen.
 export async function scrapeCareerJobsAction(prevState, formData) {
+    await requireAdmin();
     const companyId = Number(formData.get('company_id'));
     const company = getCompany(companyId);
     if (!company) return { error: 'Firma nicht gefunden.' };
@@ -332,6 +354,7 @@ export async function scrapeCareerJobsAction(prevState, formData) {
 // One-Click: Chance → vorbefüllte Freigabe (Anschreiben + Token-Link) und direkt
 // zur Freigabe-Bearbeitung springen, wo René sie feinschleift und teilt.
 export async function createFreigabeFromOpportunityAction(formData) {
+    await requireAdmin();
     const oppId = Number(formData.get('id'));
     const companyId = Number(formData.get('company_id'));
     const res = createShareFromOpportunity(oppId);
@@ -343,6 +366,7 @@ export async function createFreigabeFromOpportunityAction(formData) {
 // ── Kontakte ─────────────────────────────────────────────────────────────
 
 export async function addContactAction(formData) {
+    await requireAdmin();
     const companyId = Number(formData.get('company_id'));
     addContact({
         company_id: companyId, name: formData.get('name'), rolle: formData.get('rolle'),
@@ -354,6 +378,7 @@ export async function addContactAction(formData) {
 }
 
 export async function deleteContactAction(formData) {
+    await requireAdmin();
     const companyId = Number(formData.get('company_id'));
     deleteContact(Number(formData.get('id')));
     if (companyId) revalidatePath(`/dashboard/radar/${companyId}`);
@@ -362,6 +387,7 @@ export async function deleteContactAction(formData) {
 
 // Art. 14 DSGVO: Erstkontakt-Info als gesendet/offen markieren.
 export async function markArt14SentAction(formData) {
+    await requireAdmin();
     const companyId = Number(formData.get('company_id'));
     markArt14Sent(Number(formData.get('id')), formData.get('sent') === '1');
     if (companyId) revalidatePath(`/dashboard/radar/${companyId}`);
@@ -369,6 +395,7 @@ export async function markArt14SentAction(formData) {
 
 // Arbeitgeber-Recherche speichern (manuelle kununu-Funde + korrigierte Firmenidentität).
 export async function saveArbeitgeberInfoAction(formData) {
+    await requireAdmin();
     const companyId = Number(formData.get('company_id'));
     setArbeitgeberInfo(companyId, {
         rechtsform: formData.get('rechtsform'), handelsregister: formData.get('handelsregister'),
@@ -383,6 +410,7 @@ export async function saveArbeitgeberInfoAction(formData) {
 // Offline-Stellen werden verworfen; optional wird die Firma archiviert, wenn
 // keine offene/laufende Chance mehr übrig ist. Mit company_id nur diese Firma.
 export async function stellenCheckBatchAction(prevState, formData) {
+    await requireAdmin();
     const limit = Math.min(8, Math.max(1, Number(formData.get('limit')) || 4));
     const companyId = Number(formData.get('company_id')) || 0;
     const archiveEmpty = formData.get('archive') !== '0';

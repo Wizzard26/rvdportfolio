@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiPlus, FiExternalLink, FiLock, FiTrash2, FiShield, FiUploadCloud, FiArchive, FiRotateCcw, FiCheckCircle, FiBookmark, FiGitMerge, FiSlash } from 'react-icons/fi';
 import { getCompanies, getOpportunities, getContactsDueForDeletion, countCompaniesToRescan, countCompanies, countCompaniesForJobScan, countMerkliste, countDuplicateGroups, countCompaniesForStellenCheck, RADAR_SORTS, SEIT_FILTER } from '@/lib/content/radarStore';
@@ -62,6 +63,7 @@ const TABS = [
 ];
 
 export default async function RadarPage({ searchParams }) {
+    await requireAdminPage();
     const sp = await searchParams;
     const q = (sp?.q || '').toString();
     const typ = (sp?.typ || '').toString();

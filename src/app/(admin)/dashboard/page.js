@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { getOverviewData } from '@/lib/analytics/queries';
 import { resolveRange } from '@/lib/analytics/range';
 import { formatNumber, formatDuration } from '@/lib/analytics/format';
@@ -11,6 +12,7 @@ import DonutChart from '@/components/analytics/charts/DonutChart';
 export const dynamic = 'force-dynamic';
 
 export default async function Overview({ searchParams }) {
+    await requireAdminPage();
     const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const d = getOverviewData(range);
     const o = d.overview;

@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { getAudienceData } from '@/lib/analytics/queries';
 import { resolveRange } from '@/lib/analytics/range';
 import { formatNumber, countryFlag } from '@/lib/analytics/format';
@@ -13,6 +14,7 @@ export const dynamic = 'force-dynamic';
 const VITAL_UNIT = { LCP: 'ms', INP: 'ms', FCP: 'ms', TTFB: 'ms', CLS: '' };
 
 export default async function Audience({ searchParams }) {
+    await requireAdminPage();
     const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const d = getAudienceData(range);
     const total = d.newVsReturning.neu + d.newVsReturning.returning;

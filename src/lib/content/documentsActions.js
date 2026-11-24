@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -34,6 +35,7 @@ function parseCommon(formData) {
 }
 
 export async function createDocumentAction(prevState, formData) {
+    await requireAdmin();
     const data = parseCommon(formData);
     if (!data.title) return { error: 'Titel fehlt', values: data };
     let file;
@@ -45,6 +47,7 @@ export async function createDocumentAction(prevState, formData) {
 }
 
 export async function updateDocumentAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const data = parseCommon(formData);
     if (!data.title) return { error: 'Titel fehlt', values: { ...data, id } };
@@ -57,16 +60,19 @@ export async function updateDocumentAction(prevState, formData) {
 }
 
 export async function deleteDocumentAction(formData) {
+    await requireAdmin();
     deleteDocument(Number(formData.get('id')));
     revalidate();
 }
 
 export async function toggleDocumentAction(formData) {
+    await requireAdmin();
     setDocumentActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidate();
 }
 
 export async function reorderDocumentsAction(orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderDocuments(orderedIds);
     revalidate();
@@ -74,6 +80,7 @@ export async function reorderDocumentsAction(orderedIds) {
 
 // Legt fest, welches Dokument der Vita-Button verwendet und wie er beschriftet ist.
 export async function setVitaDocumentAction(formData) {
+    await requireAdmin();
     setSetting(VITA_SETTING_KEY, (formData.get('document_id') || '').toString());
     setSetting(VITA_TEXT_KEY, (formData.get('button_text') || '').toString().trim());
     revalidate();

@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiPlus } from 'react-icons/fi';
 import { getStations } from '@/lib/content/vitaStore';
@@ -7,6 +8,7 @@ import VitaAdminTabs from '@/components/analytics/VitaAdminTabs';
 export const dynamic = 'force-dynamic';
 
 export default async function VitaAdmin() {
+    await requireAdminPage();
     const stations = getStations();
 
     return (

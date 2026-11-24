@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { getAssistantData } from '@/lib/analytics/queries';
 import { formatNumber } from '@/lib/analytics/format';
 import { resolveRange } from '@/lib/analytics/range';
@@ -23,6 +24,7 @@ const KIND_LABEL = {
 };
 
 export default async function AssistantPage({ searchParams }) {
+    await requireAdminPage();
     const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const {
         opens, asks, openSessions,

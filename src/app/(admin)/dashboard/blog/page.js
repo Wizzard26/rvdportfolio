@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiPlus } from 'react-icons/fi';
 import { getPosts } from '@/lib/content/postsStore';
@@ -7,6 +8,7 @@ import PostsAdminTabs from '@/components/analytics/PostsAdminTabs';
 export const dynamic = 'force-dynamic';
 
 export default async function BlogAdmin() {
+    await requireAdminPage();
     const posts = getPosts({ type: 'blog' });
 
     return (

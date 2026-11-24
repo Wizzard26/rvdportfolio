@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { getBehaviorData } from '@/lib/analytics/queries';
 import { resolveRange } from '@/lib/analytics/range';
 import { formatDuration } from '@/lib/analytics/format';
@@ -10,6 +11,7 @@ import BarChartH from '@/components/analytics/charts/BarChartH';
 export const dynamic = 'force-dynamic';
 
 export default async function Behavior({ searchParams }) {
+    await requireAdminPage();
     const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const d = getBehaviorData(range);
 

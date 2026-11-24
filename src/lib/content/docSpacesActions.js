@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -14,6 +15,7 @@ function revalidate() {
 }
 
 export async function createSpaceAction(prevState, formData) {
+    await requireAdmin();
     const name = (formData.get('name') || '').toString().trim();
     if (!name) return { error: 'Name fehlt' };
     createSpace({ name, description: (formData.get('description') || '').toString() });
@@ -22,6 +24,7 @@ export async function createSpaceAction(prevState, formData) {
 }
 
 export async function updateSpaceAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const name = (formData.get('name') || '').toString().trim();
     if (!name) return { error: 'Name fehlt', ok: false };
@@ -35,17 +38,20 @@ export async function updateSpaceAction(prevState, formData) {
 }
 
 export async function deleteSpaceAction(formData) {
+    await requireAdmin();
     deleteSpace(Number(formData.get('id')));
     revalidate();
     redirect('/dashboard/blog/docs');
 }
 
 export async function toggleSpaceAction(formData) {
+    await requireAdmin();
     setSpaceActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidate();
 }
 
 export async function reorderSpacesAction(orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderSpaces(orderedIds);
     revalidate();

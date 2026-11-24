@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiPlus } from 'react-icons/fi';
 import { getPrivateRefs } from '@/lib/content/privateRefsStore';
@@ -6,6 +7,7 @@ import PrivateRefList from '@/components/analytics/PrivateRefList';
 export const dynamic = 'force-dynamic';
 
 export default async function PrivateRefsAdmin() {
+    await requireAdminPage();
     const refs = getPrivateRefs();
     const activeCount = refs.filter((r) => r.is_active).length;
 

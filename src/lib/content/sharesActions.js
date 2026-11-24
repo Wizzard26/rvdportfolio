@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
@@ -73,6 +74,7 @@ function parse(formData) {
 }
 
 export async function createShareAction(prevState, formData) {
+    await requireAdmin();
     const data = parse(formData);
     if (!data.title.trim()) return { error: 'Titel fehlt', values: data };
     if (data.documentIds.length === 0) return { error: 'Bitte mindestens ein Dokument auswählen.', values: data };
@@ -83,6 +85,7 @@ export async function createShareAction(prevState, formData) {
 }
 
 export async function updateShareAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const data = parse(formData);
     if (!data.title.trim()) return { error: 'Titel fehlt', values: { ...data, id } };
@@ -94,11 +97,13 @@ export async function updateShareAction(prevState, formData) {
 }
 
 export async function deleteShareAction(formData) {
+    await requireAdmin();
     deleteShare(Number(formData.get('id')));
     revalidate();
 }
 
 export async function toggleShareAction(formData) {
+    await requireAdmin();
     setShareActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidate();
 }
@@ -201,12 +206,14 @@ export async function submitRejectionAction(formData) {
 
 // Admin bestätigt einen vom Arbeitgeber vorgeschlagenen Termin.
 export async function confirmSlotAction(formData) {
+    await requireAdmin();
     confirmSlot(Number(formData.get('id')), (formData.get('slot') || '').toString());
     revalidate();
 }
 
 // René schreibt eine Nachricht in den Gesprächsverlauf (aus dem Admin).
 export async function addOwnerMessageAction(formData) {
+    await requireAdmin();
     addOwnerMessage(Number(formData.get('id')), (formData.get('message') || '').toString());
     revalidate();
 }

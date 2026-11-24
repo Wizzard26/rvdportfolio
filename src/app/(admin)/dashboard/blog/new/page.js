@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import PostForm from '@/components/analytics/PostForm';
@@ -10,6 +11,7 @@ import { listImages } from '@/lib/content/media';
 export const dynamic = 'force-dynamic';
 
 export default async function NewPost({ searchParams }) {
+    await requireAdminPage();
     const { type, space } = await searchParams;
     const isDoc = type === 'doc';
     const images = listImages();

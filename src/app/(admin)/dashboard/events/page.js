@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { getRawEvents, getEventTypeCounts, getPageVisits } from '@/lib/analytics/queries';
 import { resolveRange } from '@/lib/analytics/range';
@@ -29,6 +30,7 @@ function timeLabel(ts) {
 }
 
 export default async function Events({ searchParams }) {
+    await requireAdminPage();
     const { range, rangeKey, phrase, params } = await resolveRange(searchParams);
     const type = typeof params.type === 'string' ? params.type : '';
     // Standard = Seitenbesuche (eine Zeile je Aufruf); „roh" bzw. ein Typ-Filter

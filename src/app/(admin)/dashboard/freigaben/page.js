@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiPlus, FiEdit2, FiTrash2, FiShare2 } from 'react-icons/fi';
 import { getSharesPage, countShares } from '@/lib/content/sharesStore';
@@ -14,6 +15,7 @@ const TABS = [
 const PAGE_SIZE = 25;
 
 export default async function FreigabenAdmin({ searchParams }) {
+    await requireAdminPage();
     const sp = await searchParams;
     const tab = TABS.find((t) => t.key === sp?.tab)?.key || 'aktiv';
     const counts = { aktiv: countShares('aktiv'), inaktiv: countShares('inaktiv') };

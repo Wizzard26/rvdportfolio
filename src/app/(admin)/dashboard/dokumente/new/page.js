@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import DocumentForm from '@/components/analytics/DocumentForm';
@@ -6,7 +7,8 @@ import { listDocuments } from '@/lib/content/documents';
 
 export const dynamic = 'force-dynamic';
 
-export default function NewDocument() {
+export default async function NewDocument() {
+    await requireAdminPage();
     const pdfs = listDocuments();
     return (
         <div className="an-dashboard">

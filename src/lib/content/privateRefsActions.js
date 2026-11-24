@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -33,6 +34,7 @@ function parse(formData) {
 }
 
 export async function createPrivateRefAction(prevState, formData) {
+    await requireAdmin();
     const data = parse(formData);
     if (!data.title) return { error: 'Titel fehlt', values: data };
     createPrivateRef(data);
@@ -41,6 +43,7 @@ export async function createPrivateRefAction(prevState, formData) {
 }
 
 export async function updatePrivateRefAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const data = parse(formData);
     if (!data.title) return { error: 'Titel fehlt', values: { ...data, id } };
@@ -50,16 +53,19 @@ export async function updatePrivateRefAction(prevState, formData) {
 }
 
 export async function deletePrivateRefAction(formData) {
+    await requireAdmin();
     deletePrivateRef(Number(formData.get('id')));
     revalidate();
 }
 
 export async function togglePrivateRefAction(formData) {
+    await requireAdmin();
     setPrivateRefActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidate();
 }
 
 export async function reorderPrivateRefsAction(orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderPrivateRefs(orderedIds);
     revalidate();
@@ -70,6 +76,7 @@ export async function reorderPrivateRefsAction(orderedIds) {
 // Mehrere Screenshots auf einmal hochladen. KI je Bild: manueller Haken für den
 // Stapel ODER automatischer Metadaten-Hinweis (imageAiHint).
 export async function addRefImagesAction(prevState, formData) {
+    await requireAdmin();
     const refId = Number(formData.get('ref_id'));
     if (!refId) return { error: 'Referenz fehlt' };
 
@@ -93,6 +100,7 @@ export async function addRefImagesAction(prevState, formData) {
 }
 
 export async function updateRefImageAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const refId = Number(formData.get('ref_id'));
     const item = getRefImage(id);
@@ -109,18 +117,21 @@ export async function updateRefImageAction(prevState, formData) {
 }
 
 export async function deleteRefImageAction(formData) {
+    await requireAdmin();
     const refId = Number(formData.get('ref_id'));
     deleteRefImage(Number(formData.get('id')));
     revalidate(refId);
 }
 
 export async function toggleRefImageAiAction(formData) {
+    await requireAdmin();
     const refId = Number(formData.get('ref_id'));
     setRefImageAi(Number(formData.get('id')), formData.get('ai') === '1');
     revalidate(refId);
 }
 
 export async function reorderRefImagesAction(refId, orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderRefImages(Number(refId), orderedIds);
     revalidate(Number(refId));

@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { getCategories } from '@/lib/content/categoriesStore';
 import CategoryManager from '@/components/analytics/CategoryManager';
 import PostsAdminTabs from '@/components/analytics/PostsAdminTabs';
@@ -5,6 +6,7 @@ import PostsAdminTabs from '@/components/analytics/PostsAdminTabs';
 export const dynamic = 'force-dynamic';
 
 export default async function CategoriesAdmin() {
+    await requireAdminPage();
     const categories = getCategories();
 
     return (

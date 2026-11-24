@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { getSpaces, countPagesBySpace } from '@/lib/content/docSpacesStore';
 import SpaceManager from '@/components/analytics/SpaceManager';
 import PostsAdminTabs from '@/components/analytics/PostsAdminTabs';
@@ -5,6 +6,7 @@ import PostsAdminTabs from '@/components/analytics/PostsAdminTabs';
 export const dynamic = 'force-dynamic';
 
 export default async function DocsAdmin() {
+    await requireAdminPage();
     const spaces = getSpaces().map((s) => ({ ...s, pages: countPagesBySpace(s.id) }));
 
     return (

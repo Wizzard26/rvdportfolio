@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { getAreasWithEntries } from '@/lib/content/vitaPersonalStore';
 import { listDocuments } from '@/lib/content/documents';
 import VitaAdminTabs from '@/components/analytics/VitaAdminTabs';
@@ -6,6 +7,7 @@ import VitaPersonalManager from '@/components/analytics/VitaPersonalManager';
 export const dynamic = 'force-dynamic';
 
 export default async function VitaPersonalAdmin() {
+    await requireAdminPage();
     const areas = getAreasWithEntries();
     const documents = listDocuments();
 

@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import GalleryForm from '@/components/analytics/GalleryForm';
@@ -6,7 +7,8 @@ import { listImages } from '@/lib/content/media';
 
 export const dynamic = 'force-dynamic';
 
-export default function NewGalleryItem() {
+export default async function NewGalleryItem() {
+    await requireAdminPage();
     const images = listImages();
     return (
         <div className="an-dashboard">

@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -35,6 +36,7 @@ function parseCommon(formData) {
 }
 
 export async function createGalleryItemAction(prevState, formData) {
+    await requireAdmin();
     const data = parseCommon(formData);
     if (!data.title) return { error: 'Titel fehlt', values: data };
     let image;
@@ -46,6 +48,7 @@ export async function createGalleryItemAction(prevState, formData) {
 }
 
 export async function updateGalleryItemAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const data = parseCommon(formData);
     if (!data.title) return { error: 'Titel fehlt', values: { ...data, id } };
@@ -59,17 +62,20 @@ export async function updateGalleryItemAction(prevState, formData) {
 }
 
 export async function deleteGalleryItemAction(formData) {
+    await requireAdmin();
     deleteGalleryItem(Number(formData.get('id')));
     revalidate();
 }
 
 // Aktiv/Entwurf umschalten (Ein-Klick aus der Liste).
 export async function toggleGalleryItemAction(formData) {
+    await requireAdmin();
     setGalleryItemActive(Number(formData.get('id')), formData.get('active') === '1');
     revalidate();
 }
 
 export async function reorderGalleryItemsAction(gallery, orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderGalleryItems(gallery, orderedIds);
     revalidate();

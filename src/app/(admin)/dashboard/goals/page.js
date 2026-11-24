@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import { getGoalsData } from '@/lib/analytics/queries';
 import { resolveRange } from '@/lib/analytics/range';
 import { formatNumber } from '@/lib/analytics/format';
@@ -9,6 +10,7 @@ import Funnel from '@/components/analytics/Funnel';
 export const dynamic = 'force-dynamic';
 
 export default async function Goals({ searchParams }) {
+    await requireAdminPage();
     const { range, rangeKey, phrase } = await resolveRange(searchParams);
     const d = getGoalsData(range);
 

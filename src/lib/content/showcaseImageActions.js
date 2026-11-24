@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAdmin } from '@/lib/adminAuth';
 import { revalidatePath } from 'next/cache';
 import {
     addProjectImage, updateProjectImage, getProjectImage,
@@ -19,6 +20,7 @@ function revalidate(projectId) {
 // Mehrere Bilder auf einmal hinzufügen (Upload und/oder vorhandenes Bild).
 // KI-Kennzeichnung je Bild: manueller Haken für den Stapel ODER Metadaten-Hinweis.
 export async function addProjectImagesAction(prevState, formData) {
+    await requireAdmin();
     const projectId = Number(formData.get('project_id'));
     if (!projectId) return { error: 'Projekt fehlt' };
 
@@ -49,6 +51,7 @@ export async function addProjectImagesAction(prevState, formData) {
 // Kurzes Video hochladen (MP4/WEBM) → eigenes Item (kind='video'), mit KI-Flag
 // und Autoplay-Wahl. Für längere/HD-Videos ist der Embed-Weg gedacht.
 export async function addProjectVideoAction(prevState, formData) {
+    await requireAdmin();
     const projectId = Number(formData.get('project_id'));
     if (!projectId) return { error: 'Projekt fehlt' };
     const file = formData.get('video');
@@ -70,6 +73,7 @@ export async function addProjectVideoAction(prevState, formData) {
 // YouTube/Vimeo als Embed-Item (kind='embed'): Provider + Video-ID (oder Link),
 // mit KI-Flag und Autoplay-Wahl.
 export async function addProjectEmbedAction(prevState, formData) {
+    await requireAdmin();
     const projectId = Number(formData.get('project_id'));
     if (!projectId) return { error: 'Projekt fehlt' };
     const provider = (formData.get('embed_provider') || 'youtube').toString();
@@ -87,6 +91,7 @@ export async function addProjectEmbedAction(prevState, formData) {
 // Item bearbeiten: KI-Flag, Autoplay und – je nach Art – Quelle ersetzen
 // (Bild-Upload/Auswahl, neues Video, geänderter Embed-Link).
 export async function updateProjectImageAction(prevState, formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const projectId = Number(formData.get('project_id'));
     const item = getProjectImage(id);
@@ -130,6 +135,7 @@ export async function updateProjectImageAction(prevState, formData) {
 }
 
 export async function deleteProjectImageAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const projectId = Number(formData.get('project_id'));
     deleteProjectImage(id);
@@ -137,6 +143,7 @@ export async function deleteProjectImageAction(formData) {
 }
 
 export async function toggleProjectImageAiAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const projectId = Number(formData.get('project_id'));
     setImageAi(id, formData.get('ai') === '1');
@@ -144,6 +151,7 @@ export async function toggleProjectImageAiAction(formData) {
 }
 
 export async function toggleProjectImageAutoplayAction(formData) {
+    await requireAdmin();
     const id = Number(formData.get('id'));
     const projectId = Number(formData.get('project_id'));
     setImageAutoplay(id, formData.get('autoplay') === '1');
@@ -151,6 +159,7 @@ export async function toggleProjectImageAutoplayAction(formData) {
 }
 
 export async function reorderProjectImagesAction(projectId, orderedIds) {
+    await requireAdmin();
     if (!Array.isArray(orderedIds)) return;
     reorderProjectImages(Number(projectId), orderedIds);
     revalidate(Number(projectId));

@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FiArrowLeft } from 'react-icons/fi';
@@ -11,6 +12,7 @@ import { listImages } from '@/lib/content/media';
 export const dynamic = 'force-dynamic';
 
 export default async function EditPost({ params }) {
+    await requireAdminPage();
     const { id } = await params;
     const post = getPost(Number(id));
     if (!post) notFound();

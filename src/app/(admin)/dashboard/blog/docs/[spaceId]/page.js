@@ -1,3 +1,4 @@
+import { requireAdminPage } from '@/lib/adminAuth';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FiArrowLeft, FiPlus } from 'react-icons/fi';
@@ -9,6 +10,7 @@ import SpaceEditForm from '@/components/analytics/SpaceEditForm';
 export const dynamic = 'force-dynamic';
 
 export default async function SpaceDetail({ params }) {
+    await requireAdminPage();
     const { spaceId } = await params;
     const space = getSpace(Number(spaceId));
     if (!space) notFound();

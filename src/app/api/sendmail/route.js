@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import {
     issueFormToken, checkFormToken, isHoneypotFilled, tooManyLinks, rateLimited, copyLimited, stripLinks, escapeHtml, isEmail,
 } from '@/lib/spamGuard';
+import { clientIp } from '@/lib/analytics/enrich';
 
 // Kontaktformular-Versand. Schutz gegen Spam und Missbrauch (siehe lib/spamGuard):
 // Honeypot, signiertes Form-Token, Validierung, Link-Limit, Rate-Limit. Alle
@@ -21,11 +22,6 @@ const LIMITS = { gender: 20, title: 40, firstName: 80, lastName: 80, company: 12
 const fakeOk = () => NextResponse.json({ message: "Email was send Successfully" }, { status: 200 });
 
 const oneLine = (s) => (s || '').replace(/[\r\n]+/g, ' ').trim();
-
-function clientIp(headers) {
-    const xff = headers.get('x-forwarded-for');
-    return xff ? xff.split(',')[0].trim() : (headers.get('x-real-ip') || '');
-}
 
 // Formular holt beim Anzeigen ein frisches Token (statische Seite → nicht beim Build).
 export async function GET() {
